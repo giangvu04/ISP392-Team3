@@ -1,0 +1,552 @@
+/* Base styles */
+:root {
+  --primary-color: #4CAF50;
+  --primary-hover: #45a049;
+  --blue-500: #3b82f6;
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --red-500: #ef4444;
+  --red-700: #b91c1c;
+  --red-50: #fef2f2;
+  --gray-50: #f9fafb;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-900: #111827;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Layout */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: .5rem;
+}
+
+h1 {
+  color: white;
+  font-size: 3rem; /* Increased font size */
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem; /* Increased margin */
+  background: #3b82f6;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Responsive Grid - Adjust column widths for better balance */
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1.2fr 2fr; /* Adjusted column proportions */
+  }
+}
+
+.space-y-6 > * + * {
+  margin-top: 1.75rem;
+}
+
+/* Card Components */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-md);
+  overflow: visible;  /* Changed from hidden to visible */
+}
+
+.card-header {
+  padding: 1.25rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #000;
+}
+
+.card-title {
+  font-size: 1.5rem;  /* Increased font size */
+  font-weight: 600;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-content {
+  padding: 1.25rem;
+}
+
+/* Customer Search Section */
+.search-container {
+  position: relative;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.search-icon {
+  margin-left: 0.5rem;
+  height: 1.2rem;   /* Increased icon size */
+  width: 1.2rem;    /* Increased icon size */
+  color: var(--gray-500);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;  /* Increased padding */
+  border: none;
+  outline: none;
+  font-size: 1rem;    /* Increased font size */
+}
+
+.search-input:focus {
+  box-shadow: none;
+}
+
+.search-results {
+  position: absolute;
+  z-index: 20; /* Increased z-index to ensure it's on top */
+  width: 100%;
+  margin-top: 0.25rem;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  box-shadow: var(--shadow-lg);
+  max-height: 20rem;   /* Increased max height */
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;    /* Increased padding */
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease-in-out; /* Smooth transition */
+}
+
+.search-result-item:hover {
+  background-color: var(--green-100); /* Distinct hover color */
+}
+
+.search-result-name {
+  font-weight: 500;
+  color: var(--gray-900);
+  font-size: 1rem;   /* Increased font size */
+}
+
+.search-result-phone {
+  color: var(--gray-600);
+  font-size: 1rem;   /* Increased font size */
+}
+
+.search-no-results {
+  padding: 1rem;     /* Increased padding */
+  text-align: center;
+  color: var(--gray-500);
+}
+
+.add-new-button {
+  color: var(--blue-500);
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  display: block;
+  margin: 0.5rem auto 0;
+}
+
+.selected-customer {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: var(--green-50);
+  border-radius: 0.375rem;
+}
+
+.selected-customer-name {
+  font-weight: 600;
+  color: var(--green-800);
+}
+
+.selected-customer-phone {
+  color: var(--green-700);
+}
+
+/* Product Search Results */
+.product-result-item {
+  padding: 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease-in-out; /* Smooth transition */
+}
+
+.product-result-item:hover {
+  background-color: var(--green-100); /* Distinct hover color */
+}
+
+.product-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-result-name {
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+.product-result-details {
+  display: flex;
+  gap: 1rem;
+}
+
+.product-result-quantity,
+.product-result-price {
+  color: var(--gray-600);
+}
+
+.product-result-description {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Product Table */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background-color: var(--blue-500);
+  color: white;
+}
+
+th {
+  padding: 0.75rem; /* Increased padding */
+  text-align: left;
+}
+
+th.text-center {
+  text-align: center;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+tbody tr:hover {
+  background-color: var(--gray-50);
+}
+
+td {
+  padding: 0.75rem; /* Increased padding */
+  font-size: 0.9rem;
+}
+
+td.text-center {
+  text-align: center;
+}
+
+.quantity-input,
+.spec-input,
+.discount-input {
+  width: 5rem; /* Increased width */
+  text-align: center;
+  margin: 0 auto;
+  padding: 0.375rem; /* Increased padding */
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.total-price {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: var(--red-500);
+  cursor: pointer;
+  padding: 0.375rem; /* Increased padding */
+  border-radius: 0.25rem;
+}
+
+.delete-button:hover {
+  color: var(--red-700);
+  background-color: var(--red-50);
+}
+
+.empty-cart-message {
+  padding: 1rem;
+  text-align: center;
+  color: var(--gray-500);
+}
+
+/* Payment Section */
+.payment-options {
+  margin-bottom: 1rem;
+}
+
+.payment-options-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.radio-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.radio-input {
+  margin: 0;
+}
+
+.radio-label {
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.partial-payment-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .partial-payment-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.payment-input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+}
+
+.readonly-input {
+  background-color: #fff;
+  font-size: 1.25rem;
+  padding: 0.6rem;
+}
+
+.total-cost-section {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.total-cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.total-cost-value {
+  color: var(--green-600);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.submit-button {
+  flex: 1;
+  padding: 0.85rem;
+  background-color: var(--green-600);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.submit-button:hover {
+  background-color: var(--green-700);
+}
+
+.cancel-button,
+.new-invoice-button {
+  flex: 1;
+  padding: 0.85rem;
+  background-color: var(--green-600);
+  color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.cancel-button:hover,
+.new-invoice-button:hover {
+  background-color: var(--green-700);
+}
+
+.button-icon {
+  margin-right: 0.25rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+/* Popup style */
+.popup {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 30; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Popup Content */
+.popup-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Popup thêm khách hàng mới */
+#addCustomerPopup {
+    position: fixed; /* Stay in place */
+    z-index: 40; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    display: none;
+}
+
+#addCustomerPopup .popup-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+#addCustomerPopup .close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+#addCustomerPopup .close:hover,
+#addCustomerPopup .close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#addCustomerPopup h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+#addCustomerPopup label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+#addCustomerPopup input[type="text"],
+#addCustomerPopup input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+#addCustomerPopup button.submit-button {
+  flex: auto;
+  padding: 0.75rem;
+  background-color: var(--green-600);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: auto;
+}
+
+/* New hover styles for specific elements */
+.customer-item:hover,
+.product-info:hover {
+  background-color: var(--green-100);
+  cursor: pointer; /* Optional: Change cursor to indicate clickability */
+}
+
+/* Hover style for search results, more specific to avoid conflicts */
+.search-results .search-result-item:hover {
+    background-color: var(--green-100);
+}
