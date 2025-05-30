@@ -1,0 +1,188 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f1ea;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 600px;
+    margin: 40px auto; 
+    width: 50%;
+}
+
+h2 {
+    text-align: center;
+    color: #7ab452; 
+    margin-bottom: 20px;
+    font-size: 24px; 
+}
+
+.form-group {
+    margin-right: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align labels to the left */
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #6b4423; /* Brown color for rice theme */
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%; /* Make all input fields the same length and centered */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    border-color: #80bdff;
+    outline: none;
+}
+
+
+.btn{
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 15px;
+}
+
+.button-container{
+    
+}
+
+.add-button{
+    background-color: #7ab452;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-button{
+    background-color: black;
+    padding: 9px 16px;
+    margin-left: 6px;
+}
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.toast-message {
+    position: fixed;
+    top: 20px; /* Đưa thông báo lên góc trên */
+    right: 20px; /* Căn lề phải */
+    background: #dc3545; /* Màu xanh lá */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+    z-index: 1000;
+    display: none;
+}
+
+
+.form-group {
+    margin-right: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#zoneIDs {
+    width: 100%; /* Ensure select box takes full width */
+}
+
+.select2-container--default .select2-selection--multiple {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    border: 1px solid #ccc; /* Same border as input fields */
+    border-radius: 4px;
+    padding: 8px; /* Add padding for spacing */
+}
+
+.select2-selection__choice {
+    margin: 2px 5px; /* Space between selected items */
+    background-color: #7ab452; /* Same as add button */
+    color: white;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+.select2-selection__choice__remove {
+    cursor: pointer;
+    margin-left: 5px;
+    color: #721c24; /* Red color for remove icon */
+}
+
+.form-group select {
+    width: 100%; /* Đảm bảo chiều ngang bằng với input */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box; /* Đảm bảo tính padding vào width */
+}
+
+.form-group input[type="date"] {
+    width: 100%; /* Đồng bộ chiều ngang cho input date */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.form-group input[type="file"] {
+    width: 100%; /* Đồng bộ chiều ngang cho input file */
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.input-info{
+    border: none;
+    flex: 1;
+    margin-left: 36px;
+    border-bottom: 1px solid #4CAF50;
+    border-radius: 0;
+    outline: none;
+
+}
