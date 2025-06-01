@@ -103,13 +103,13 @@
                 <div class="toast-message" id="toast-message">${error}</div>
             </c:if> --%>
 
-            <form action="${pageContext.request.contextPath}/user/change-password" method="post">
+            <form action="change_password" method="post">
                 <input type="password" name="currentPassword" placeholder="Mật khẩu hiện tại" required>
                 <input type="password" name="newPassword" placeholder="Mật khẩu mới" required>
                 <input type="password" name="confirmPassword" placeholder="Xác nhận mật khẩu mới" required>
 
                 <input type="submit" class="search-button" value="Đổi Mật Khẩu">
-                <a href="${pageContext.request.contextPath}/Login/login.jsp" class="btn-secondary">Quay lại Login</a>
+                <a href="${pageContext.request.contextPath}/HomePage/Home.jsp" class="btn-secondary">Quay lại trang chủ</a>
             </form>
         </div>
     </div>
