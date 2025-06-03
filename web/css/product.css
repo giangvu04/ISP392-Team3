@@ -620,3 +620,29 @@ a {
 .button-filter{
     display: flex;
 }
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-available {
+    background-color: #e3f7e8;
+    color: #1a7f37;
+}
+
+.status-occupied {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.description {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}

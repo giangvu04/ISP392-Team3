@@ -29,7 +29,7 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         if (session.getAttribute("user") != null) {
-            response.sendRedirect("listproducts");
+            response.sendRedirect("listrooms");
         } else {
             request.setAttribute("message", "");
             request.setAttribute("name", "");
