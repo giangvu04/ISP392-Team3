@@ -12,6 +12,10 @@
         <servlet-name>ListRoomsServlet</servlet-name>
         <servlet-class>Controller.roomservlet.ListRoomsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ListContractServlet</servlet-name>
+        <servlet-class>Controller.contractservlet.ListContractServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -23,5 +27,9 @@
     <servlet-mapping>
         <servlet-name>ListRoomsServlet</servlet-name>
         <url-pattern>/listrooms</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListContractServlet</servlet-name>
+        <url-pattern>/listcontract</url-pattern>
     </servlet-mapping>
 </web-app>
