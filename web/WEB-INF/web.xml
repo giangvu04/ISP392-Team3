@@ -13,8 +13,12 @@
         <servlet-class>Controller.roomservlet.ListRoomsServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ListContractServlet</servlet-name>
-        <servlet-class>Controller.contractservlet.ListContractServlet</servlet-class>
+        <servlet-name>ListUsersServlet</servlet-name>
+        <servlet-class>Controller.userservlet.ListUsersServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UserDetailServlet</servlet-name>
+        <servlet-class>Controller.userservlet.UserDetailServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -29,7 +33,11 @@
         <url-pattern>/listrooms</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ListContractServlet</servlet-name>
-        <url-pattern>/listcontract</url-pattern>
+        <servlet-name>ListUsersServlet</servlet-name>
+        <url-pattern>/listusers</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserDetailServlet</servlet-name>
+        <url-pattern>/userdetail</url-pattern>
     </servlet-mapping>
 </web-app>
