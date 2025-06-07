@@ -40,16 +40,16 @@ public class DAOContract {
     public ArrayList<Contracts> getAllContracts() {
         ArrayList<Contracts> contracts = new ArrayList<>();
         String sql = "SELECT * FROM Contracts";
-        try (PreparedStatement ps = connect.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connect.prepareStatement(sql) ; ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Contracts c = new Contracts();
-                c.setContractId(rs.getInt("Contract_id"));
-                c.setDealPrice(rs.getInt("deal_price"));
-                c.setStartDate(rs.getDate("start_date"));
-                c.setEndDate(rs.getDate("end_date"));
-                c.setDepositAmount(rs.getInt("deposit_amount"));
+                c.setContractId(rs.getInt("contractId"));
+                c.setDealPrice(rs.getInt("dealPrice"));
+                c.setStartDate(rs.getDate("startDate"));
+                c.setEndDate(rs.getDate("endDate"));
+                c.setDepositAmount(rs.getInt("depositAmount"));
                 c.setNote(rs.getString("note"));
-                c.setTenantCount(rs.getInt("tenant_count"));
+                c.setTenantCount(rs.getInt("tenantCount"));
                 c.setTenantsID(rs.getInt("tenantsID"));
                 c.setRoomID(rs.getInt("roomID"));
                 contracts.add(c);
@@ -67,13 +67,13 @@ public class DAOContract {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Contracts contract = new Contracts();
-                contract.setContractId(rs.getInt("Contract_id"));
-                contract.setDealPrice(rs.getInt("deal_price"));
-                contract.setStartDate(rs.getDate("start_date"));
-                contract.setEndDate(rs.getDate("end_date"));
-                contract.setDepositAmount(rs.getInt("deposit_amount"));
+                contract.setContractId(rs.getInt("contractId"));
+                contract.setDealPrice(rs.getInt("dealPrice"));
+                contract.setStartDate(rs.getDate("startDate"));
+                contract.setEndDate(rs.getDate("endDate"));
+                contract.setDepositAmount(rs.getInt("depositAmount"));
                 contract.setNote(rs.getString("note"));
-                contract.setTenantCount(rs.getInt("tenant_count"));
+                contract.setTenantCount(rs.getInt("tenantCount"));
                 contract.setTenantsID(rs.getInt("tenantsID"));
                 contract.setRoomID(rs.getInt("roomID"));
                 return contract;
