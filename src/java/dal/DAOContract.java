@@ -112,4 +112,168 @@ public class DAOContract {
             e.printStackTrace();
         }
     }
+    public ArrayList<Contracts> getContractsByPage(int page, int contractsPerPage) {
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT * FROM Contracts ORDER BY Contract_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, (page - 1) * contractsPerPage);
+            ps.setInt(2, contractsPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("Contract_id"));
+                c.setDealPrice(rs.getInt("deal_price"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setDepositAmount(rs.getInt("deposit_amount"));
+                c.setNote(rs.getString("note"));
+                c.setTenantCount(rs.getInt("tenant_count"));
+                c.setTenantsID(rs.getInt("tenantsID"));
+                c.setRoomID(rs.getInt("roomID"));
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return contracts;
+    }
+
+    // Lấy hợp đồng theo trang cho Manager
+    public ArrayList<Contracts> getContractsByManagerPage(int managerId, int page, int contractsPerPage) {
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT c.* FROM Contracts c " +
+                    "INNER JOIN Rooms r ON c.roomID = r.Room_id " +
+                    "WHERE r.manager_id = ? " +
+                    "ORDER BY c.Contract_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ps.setInt(2, (page - 1) * contractsPerPage);
+            ps.setInt(3, contractsPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("Contract_id"));
+                c.setDealPrice(rs.getInt("deal_price"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setDepositAmount(rs.getInt("deposit_amount"));
+                c.setNote(rs.getString("note"));
+                c.setTenantCount(rs.getInt("tenant_count"));
+                c.setTenantsID(rs.getInt("tenantsID"));
+                c.setRoomID(rs.getInt("roomID"));
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return contracts;
+    }
+
+    // Lấy hợp đồng theo trang cho Tenant
+    public ArrayList<Contracts> getContractsByTenantPage(int tenantId, int page, int contractsPerPage) {
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT * FROM Contracts WHERE tenantsID = ? ORDER BY Contract_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ps.setInt(2, (page - 1) * contractsPerPage);
+            ps.setInt(3, contractsPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("Contract_id"));
+                c.setDealPrice(rs.getInt("deal_price"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setDepositAmount(rs.getInt("deposit_amount"));
+                c.setNote(rs.getString("note"));
+                c.setTenantCount(rs.getInt("tenant_count"));
+                c.setTenantsID(rs.getInt("tenantsID"));
+                c.setRoomID(rs.getInt("roomID"));
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return contracts;
+    }
+
+    // Đếm tổng số hợp đồng
+    public int getTotalContracts() {
+        String sql = "SELECT COUNT(*) FROM Contracts";
+        try (PreparedStatement ps = connect.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Đếm tổng số hợp đồng theo Manager
+    public int getTotalContractsByManager(int managerId) {
+        String sql = "SELECT COUNT(*) FROM Contracts c " +
+                    "INNER JOIN Rooms r ON c.roomID = r.Room_id " +
+                    "WHERE r.manager_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Đếm tổng số hợp đồng theo Tenant
+    public int getTotalContractsByTenant(int tenantId) {
+        String sql = "SELECT COUNT(*) FROM Contracts WHERE tenantsID = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Tìm kiếm hợp đồng cho Admin
+    public ArrayList<Contracts> getContractsBySearch(String keyword) {
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT * FROM Contracts WHERE " +
+                    "CAST(Contract_id AS VARCHAR) LIKE ? OR " +
+                    "CAST(roomID AS VARCHAR) LIKE ? OR " +
+                    "CAST(tenantsID AS VARCHAR) LIKE ? OR " +
+                    "note LIKE ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ps.setString(4, searchPattern);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("Contract_id"));
+                c.setDealPrice(rs.getInt("deal_price"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setDepositAmount(rs.getInt("deposit_amount"));
+                c.setNote(rs.getString("note"));
+                c.setTenantCount(rs.getInt("tenant_count"));
+                c.setTenantsID(rs.getInt("tenantsID"));
+                c.setRoomID(rs.getInt("roomID"));
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return contracts;
+    }
 }
