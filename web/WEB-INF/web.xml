@@ -20,6 +20,10 @@
         <servlet-name>UserDetailServlet</servlet-name>
         <servlet-class>Controller.userservlet.UserDetailServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ListContractsServlet</servlet-name>
+        <servlet-class>Controller.contractservlet.ListContractsServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -39,5 +43,9 @@
     <servlet-mapping>
         <servlet-name>UserDetailServlet</servlet-name>
         <url-pattern>/userdetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListContractsServlet</servlet-name>
+        <url-pattern>/listcontracts</url-pattern>
     </servlet-mapping>
 </web-app>

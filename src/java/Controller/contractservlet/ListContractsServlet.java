@@ -18,6 +18,8 @@ import jakarta.servlet.http.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
+import java.util.Comparator;
+import dal.DAOContract;
 import model.Contracts;
 import model.Users;
 
@@ -71,58 +73,84 @@ public class ListContractsServlet extends HttpServlet {
         request.setAttribute("message", "");
 
         Users user = (Users) session.getAttribute("user");
-
-        //if (user != null) {
-            //request.setAttribute("user", user);
-
-            // Lấy trang hiện tại từ URL (mặc định là 1)
+        
+        if (user != null) {
+            request.setAttribute("user", user);
+            
+            // Lấy trang hiện tại từ tham số URL, mặc định là 1
             int currentPage = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
-            int contractsPerPage = 5;
+            int contractsPerPage = 5; // Số hợp đồng trên mỗi trang
+            String sortBy = request.getParameter("sortBy");
 
-            // Lấy toàn bộ hợp đồng
-            ArrayList<Contracts> allContracts = dao.getAllContracts();
-            if (allContracts == null) {
-                allContracts = new ArrayList<>();
+            // Lấy hợp đồng dựa theo vai trò người dùng
+            ArrayList<Contracts> contracts;
+            int totalContracts;
+            
+            if(user.getRoleid() == 1) {
+                // Admin: xem tất cả hợp đồng
+                contracts = dao.getContractsByPage(currentPage, contractsPerPage);
+                totalContracts = dao.getTotalContracts();
+            } else if(user.getRoleid() == 2) {
+                // Manager: xem hợp đồng của các phòng mình quản lý
+                contracts = dao.getContractsByManagerPage(user.getID(), currentPage, contractsPerPage);
+                totalContracts = dao.getTotalContractsByManager(user.getID());
+            } else {
+                // Tenant: chỉ xem hợp đồng của chính mình
+                contracts = dao.getContractsByTenantPage(user.getID(), currentPage, contractsPerPage);
+                totalContracts = dao.getTotalContractsByTenant(user.getID());
             }
-
-            int totalContracts = allContracts.size();
+            
             int totalPages = (int) Math.ceil((double) totalContracts / contractsPerPage);
-
-            // Điều chỉnh currentPage hợp lệ
-            if (totalPages == 0) {
-                currentPage = 1;
-                totalPages = 1;
-            } else if (currentPage > totalPages) {
-                currentPage = totalPages;
-            } else if (currentPage < 1) {
-                currentPage = 1;
+            
+            // Xử lý sắp xếp
+            if (sortBy != null) {
+                switch (sortBy) {
+                    case "start_date_asc":
+                        contracts.sort(Comparator.comparing(Contracts::getStartDate));
+                        break;
+                    case "start_date_desc":
+                        contracts.sort(Comparator.comparing(Contracts::getStartDate).reversed());
+                        break;
+                    case "end_date_asc":
+                        contracts.sort(Comparator.comparing(Contracts::getEndDate));
+                        break;
+                    case "end_date_desc":
+                        contracts.sort(Comparator.comparing(Contracts::getEndDate).reversed());
+                        break;
+                    case "price_asc":
+                        contracts.sort(Comparator.comparingInt(Contracts::getDealPrice));
+                        break;
+                    case "price_desc":
+                        contracts.sort(Comparator.comparingInt(Contracts::getDealPrice).reversed());
+                        break;
+                    case "room_asc":
+                        contracts.sort(Comparator.comparingInt(Contracts::getRoomID));
+                        break;
+                    case "room_desc":
+                        contracts.sort(Comparator.comparingInt(Contracts::getRoomID).reversed());
+                        break;
+                }
             }
-
-            // Phân trang
-            int start = (currentPage - 1) * contractsPerPage;
-            int end = Math.min(start + contractsPerPage, totalContracts);
-            ArrayList<Contracts> pagedContracts = new ArrayList<>(allContracts.subList(start, end));
-
-            // Thiết lập attributes cho JSP
-            request.setAttribute("contracts", pagedContracts);
+            
+            // Set attributes for JSP
+            request.setAttribute("contracts", contracts);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
+            request.setAttribute("sortBy", sortBy);
 
-            // Chuyển hướng đến trang theo vai trò
-            //if (user.getRoleid() == 1) {
-            //    request.getRequestDispatcher("Contracts/ListContractForAdmin.jsp").forward(request, response);
-            //} else if (user.getRoleid() == 2) {
-            //    request.getRequestDispatcher("Contracts/ListContractForManager.jsp").forward(request, response);
-            //} else if (user.getRoleid() == 3) {
-            //    request.getRequestDispatcher("Contracts/ListContractForTenant.jsp").forward(request, response);
-            //} else {
-            //    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
-            //}
-
-        //} else {
-            //response.sendRedirect("login.jsp");
-            
-        //}
+            // Chuyển đến trang dựa trên vai trò người dùng
+            if (user.getRoleid() == 1) {
+                request.getRequestDispatcher("ContractsManager/ListContractsForAdmin.jsp").forward(request, response);
+            } else if (user.getRoleid() == 2) {
+                request.getRequestDispatcher("ContractsManager/ListContractsForManager.jsp").forward(request, response);
+            } else if (user.getRoleid() == 3) {
+                request.getRequestDispatcher("ContractsManager/ListContractsForTenant.jsp").forward(request, response);
+            } else {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
+            }
+        } else {
+            response.sendRedirect("login.jsp");
+        }
     } 
 
     /** 
@@ -135,70 +163,63 @@ public class ListContractsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        String information = request.getParameter("information");
+
         DAOContract dao = DAOContract.INSTANCE;
-        //HttpSession session = request.getSession();
-        //Users user = (Users) session.getAttribute("user");
+        HttpSession session = request.getSession();
+        Users user = (Users) session.getAttribute("user");
 
-        //if (user != null) {
-            //request.setAttribute("user", user);
-            String searchInfo = request.getParameter("searchInfo");
+        if (user != null) {
+            request.setAttribute("user", user);
 
-            ArrayList<Contracts> filteredContracts = new ArrayList<>();
+            ArrayList<Contracts> contracts;
             try {
-                ArrayList<Contracts> allContracts = dao.getAllContracts();
-                if (allContracts == null) {
-                    allContracts = new ArrayList<>();
-                }
-
-                String lowerSearch = (searchInfo != null) ? searchInfo.trim().toLowerCase() : "";
-
-                if (!lowerSearch.isEmpty()) {
-                    for (Contracts c : allContracts) {
-                        String tenantId = String.valueOf(c.getTenantsID());
-                        String contractId = String.valueOf(c.getContractId());
-
-                        if (tenantId.contains(lowerSearch) || contractId.contains(lowerSearch)) {
-                            filteredContracts.add(c);
-                        }
-                    }
+                // Tìm kiếm hợp đồng dựa theo vai trò
+                //if(user.getRoleid() == 1) {
+                    // Admin: tìm kiếm tất cả hợp đồng
+                    contracts = dao.getContractsBySearch(information);
+                //} else if(user.getRoleid() == 2) {
+                    // Manager: tìm kiếm hợp đồng trong phạm vi quản lý
+                    //contracts = dao.getContractsBySearchForManager(user.getID(), information);
+                // else {
+                    // Tenant: tìm kiếm hợp đồng của chính mình
+                    //contracts = dao.getContractsBySearchForTenant(user.getID(), information);
+                //}
+                
+                if (contracts == null || contracts.isEmpty()) {
+                    request.setAttribute("message", "Không tìm thấy hợp đồng nào.");
                 } else {
-                    filteredContracts = allContracts;
+                    request.setAttribute("message", "Kết quả tìm kiếm cho: " + information);
                 }
 
-                if (filteredContracts.isEmpty() && !lowerSearch.isEmpty()) {
-                    request.setAttribute("message", "Không tìm thấy hợp đồng nào cho '" + searchInfo + "'.");
-                } else if (!lowerSearch.isEmpty()) {
-                    request.setAttribute("message", "Kết quả tìm kiếm cho: " + searchInfo);
-                } else {
-                    request.setAttribute("message", "");
-                }
+                // Cập nhật currentPage và totalPages
+                int totalContracts = contracts.size(); // Tổng hợp đồng tìm được
+                int totalPages = (int) Math.ceil(totalContracts / 5.0); // Cập nhật với số hợp đồng mỗi trang
 
-                // Khi tìm kiếm thường không phân trang
-                int totalContracts = filteredContracts.size();
-                int totalPages = (int) Math.ceil((double) totalContracts / 5.0);
-
-                request.setAttribute("contracts", filteredContracts);
-                request.setAttribute("currentPage", 1);
-                request.setAttribute("totalPages", totalPages);
+                // Thiết lập các thuộc tính cho JSP
+                request.setAttribute("contracts", contracts);
+                request.setAttribute("currentPage", 1); // Đặt lại về trang đầu tiên
+                request.setAttribute("totalPages", totalPages); // Cập nhật tổng trang
 
             } catch (Exception ex) {
                 Logger.getLogger(ListContractsServlet.class.getName()).log(Level.SEVERE, null, ex);
                 request.setAttribute("message", "Đã xảy ra lỗi khi tìm kiếm.");
             }
 
-            // Chuyển hướng đến trang theo vai trò
-            //if (user.getRoleid() == 1) {
-            //    request.getRequestDispatcher("Contracts/ListContractForAdmin.jsp").forward(request, response);
-            //} else if (user.getRoleid() == 2) {
-             //   request.getRequestDispatcher("Contracts/ListContractForManager.jsp").forward(request, response);
-            //} else if (user.getRoleid() == 3) {
-            //    request.getRequestDispatcher("Contracts/ListContractForTenant.jsp").forward(request, response);
-            //} else {
-            //    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
-            //}
-        //} else {
-            //response.sendRedirect("login.jsp");
-        //}
+            // Chuyển hướng đến trang dựa trên vai trò người dùng
+            if (user.getRoleid() == 1) {
+                request.getRequestDispatcher("ContractsManager/ListContractsForAdmin.jsp").forward(request, response);
+            } else if (user.getRoleid() == 2) {
+                request.getRequestDispatcher("ContractsManager/ListContractsForManager.jsp").forward(request, response);
+            } else if (user.getRoleid() == 3) {
+                request.getRequestDispatcher("ContractsManager/ListContractsForTenant.jsp").forward(request, response);
+            } else {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
+            }
+        } else {
+            response.sendRedirect("login.jsp");
+        }
     }
 
     /** 
@@ -207,7 +228,7 @@ public class ListContractsServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Servlet hiển thị danh sách hợp đồng với phân trang và tìm kiếm";
-    }// </editor-fold>
+        return "Servlet quản lý hợp đồng";
+    }
 
 }
