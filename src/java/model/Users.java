@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 import java.sql.Date;
@@ -14,6 +10,7 @@ public class Users {
     private int ID;
     private String Username;
     private String PasswordHash;
+    private String Phone;
     private int Roleid;
     private String FullName;
     private Date CreateAt;
@@ -26,10 +23,11 @@ public class Users {
     public Users() {
     }
 
-    public Users(int ID, String Username, String PasswordHash, int Roleid, String FullName, Date CreateAt, Date UpdateAt, int CreateBy, int isDelete, Date deletedAt, int deleteBy) {
+    public Users(int ID, String Username, String PasswordHash, String Phone, int Roleid, String FullName, Date CreateAt, Date UpdateAt, int CreateBy, int isDelete, Date deletedAt, int deleteBy) {
         this.ID = ID;
         this.Username = Username;
         this.PasswordHash = PasswordHash;
+        this.Phone = Phone;
         this.Roleid = Roleid;
         this.FullName = FullName;
         this.CreateAt = CreateAt;
@@ -62,6 +60,14 @@ public class Users {
 
     public void setPasswordHash(String PasswordHash) {
         this.PasswordHash = PasswordHash;
+    }
+
+    public String getPhone() {
+        return Phone;
+    }
+
+    public void setPhone(String Phone) {
+        this.Phone = Phone;
     }
 
     public int getRoleid() {
@@ -127,6 +133,4 @@ public class Users {
     public void setDeleteBy(int deleteBy) {
         this.deleteBy = deleteBy;
     }
-    
-    
 }

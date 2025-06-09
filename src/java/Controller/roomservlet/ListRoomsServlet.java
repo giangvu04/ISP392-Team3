@@ -84,7 +84,7 @@ public class ListRoomsServlet extends HttpServlet {
 
             // Chuyển đến trang dựa trên vai trò người dùng
             if (user.getRoleid() == 1) {
-                request.getRequestDispatcher("RoomsManager/ListRoomForAdmin.jsp").forward(request, response);
+                request.getRequestDispatcher("UsersManager/ListUsersForAdmi.jsp").forward(request, response);
             } else if (user.getRoleid() == 2) {
                 request.getRequestDispatcher("RoomsManager/ListRoomForManager.jsp").forward(request, response);
             } else if (user.getRoleid() == 3) {
@@ -136,7 +136,7 @@ public class ListRoomsServlet extends HttpServlet {
 
             // Chuyển hướng đến trang dựa trên vai trò người dùng
             if (user.getRoleid() == 1) {
-                request.getRequestDispatcher("RoomsManager/ListRoomForAdmin.jsp").forward(request, response);
+                request.getRequestDispatcher("UsersManager/ListUsersForAdmin.jsp").forward(request, response);
             } else if (user.getRoleid() == 2) {
                 request.getRequestDispatcher("RoomsManager/ListRoomForManager.jsp").forward(request, response);
             } else if (user.getRoleid() == 3) {
