@@ -22,12 +22,19 @@
 
     <body>
         <%
+            DAOUser dao = new DAOUser();
             Users u = (Users) request.getAttribute("user");
             ArrayList<Rooms> rooms = (ArrayList<Rooms>) request.getAttribute("rooms");
             NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
+        %>
+        <%
             Integer currentPage = (Integer) request.getAttribute("currentPage");
             Integer totalPages = (Integer) request.getAttribute("totalPages");
-            String message = (String) request.getAttribute("message");
+
+            // Kiểm tra xem các biến có được nhận hay không
+            if (currentPage == null || totalPages == null) {
+                out.println("<script>alert('Không thể nhận được currentPage hoặc totalPages.');</script>");
+            }
         %>
 
         <!-- Header -->
@@ -57,8 +64,8 @@
                     <ul class="mainmenu-list row no-gutters">
                         <li class="mainmenu__list-item"><a href="listrooms"><i class="fa-solid fa-door-closed list-item-icon"></i>Phòng</a></li>
                         <li class="mainmenu__list-item"><a href="listservices"><i class="fa-solid fa-bell-concierge list-item-icon"></i>Dịch vụ</a></li>
-                        <li class="mainmenu__list-item"><a href="listcontracts"><i class="fa-solid fa-file-signature list-item-icon"></i>Hợp đồng</a></li>
-                        <li class="mainmenu__list-item"><a href="listinvoices"><i class="fa-solid fa-receipt list-item-icon"></i>Hóa đơn</a></li>
+                        <li class="mainmenu__list-item"><a href="listcontracts"><i class="fa-solid fa-file-signature list-item-icon"></i>Liên hệ</a></li>
+                        <li class="mainmenu__list-item"><a href="listinvoices"><i class="fa-solid fa-user list-item-icon"></i>Tài khoản</a></li>
                     </ul>
                 </div>
 

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 
 import static dal.DAO.today;
@@ -28,24 +24,23 @@ public class DAOUser {
     public boolean authenticateUser(String username, String password) throws Exception {
         Users user = getUserByName(username);
         if (user != null) {
-            return DAO.PasswordUtils.hashPassword(password).equals(user.getPasswordHash()); // So sánh mật khẩu nhập vào với mật khẩu đã lưu
+            return DAO.PasswordUtils.hashPassword(password).equals(user.getPasswordHash());
         }
         return false;
     }
 
     public void Register(Users user, int userid) {
-        String sql = "INSERT INTO Users (Username, passwordhash, roleid, CreateAt, CreateBy, isDelete, FullName) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (Username, passwordhash, Phone, roleid, CreateAt, CreateBy, isDelete, FullName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-
             ps.setString(1, user.getUsername());
             ps.setString(2, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
-            ps.setInt(3, user.getRoleid());
-            ps.setDate(4, today);
-            ps.setInt(5, userid);
-            ps.setInt(6, 0);
-            ps.setString(7, user.getFullName());
+            ps.setString(3, user.getPhone());
+            ps.setInt(4, user.getRoleid());
+            ps.setDate(5, today);
+            ps.setInt(6, userid);
+            ps.setInt(7, 0);
+            ps.setString(8, user.getFullName());
             ps.executeUpdate();
-
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -53,15 +48,16 @@ public class DAOUser {
 
     public ArrayList<Users> getUsers() {
         ArrayList<Users> users = new ArrayList<>();
-        String sql = "SELECT * "
-                + "FROM Users ";
-        try (PreparedStatement statement = connect.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
+        String sql = "SELECT * FROM Users";
+        try (PreparedStatement statement = connect.prepareStatement(sql); 
+             ResultSet rs = statement.executeQuery()) {
 
             while (rs.next()) {
                 Users u = new Users();
                 u.setID(rs.getInt("ID"));
                 u.setUsername(rs.getString("username"));
                 u.setPasswordHash(rs.getString("passwordhash"));
+                u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
@@ -73,7 +69,7 @@ public class DAOUser {
                 users.add(u);
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle SQL exceptions
+            e.printStackTrace();
         }
         return users;
     }
@@ -92,12 +88,13 @@ public class DAOUser {
     }
 
     public void updateUser(Users user) {
-        String sql = "UPDATE Users SET passwordhash = ?,FullName = ? , UpdateAt = ? WHERE id = ?";
+        String sql = "UPDATE Users SET passwordhash = ?, FullName = ?, Phone = ?, UpdateAt = ? WHERE id = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
             ps.setString(2, user.getFullName());
-            ps.setDate(3, today);
-            ps.setInt(4, user.getID());
+            ps.setString(3, user.getPhone());
+            ps.setDate(4, today);
+            ps.setInt(5, user.getID());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -105,7 +102,7 @@ public class DAOUser {
     }
 
     public Users getUserByName(String name) throws Exception {
-        String query = "SELECT * FROM Users WHERE username=? ";
+        String query = "SELECT * FROM Users WHERE username=?";
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setString(1, name);
         ResultSet rs = ps.executeQuery();
@@ -115,6 +112,7 @@ public class DAOUser {
             user.setID(rs.getInt("ID"));
             user.setUsername(rs.getString("Username"));
             user.setPasswordHash(rs.getString("PasswordHash"));
+            user.setPhone(rs.getString("Phone"));
             user.setRoleid(rs.getInt("Roleid"));
             user.setFullName(rs.getString("FullName"));
             user.setCreateAt(rs.getDate("CreateAt"));
@@ -122,13 +120,11 @@ public class DAOUser {
             user.setIsDelete(rs.getInt("isDelete"));
             user.setDeleteBy(rs.getInt("DeleteBy"));
             user.setDeletedAt(rs.getDate("DeletedAt"));
-
             return user;
         }
         return null;
     }
 
-    //check insert user
     public boolean checkUsernameExists(String username) {
         try {
             String query = "SELECT COUNT(*) FROM Users WHERE username = ?";
@@ -147,7 +143,7 @@ public class DAOUser {
     }
 
     public Users getUserByID(int ID) throws Exception {
-        String query = "SELECT * FROM Users WHERE ID=? ";
+        String query = "SELECT * FROM Users WHERE ID=?";
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setInt(1, ID);
         ResultSet rs = ps.executeQuery();
@@ -157,6 +153,7 @@ public class DAOUser {
             user.setID(rs.getInt("ID"));
             user.setUsername(rs.getString("Username"));
             user.setPasswordHash(rs.getString("PasswordHash"));
+            user.setPhone(rs.getString("Phone"));
             user.setRoleid(rs.getInt("Roleid"));
             user.setFullName(rs.getString("FullName"));
             user.setCreateAt(rs.getDate("CreateAt"));
@@ -165,7 +162,6 @@ public class DAOUser {
             user.setIsDelete(rs.getInt("isDelete"));
             user.setDeleteBy(rs.getInt("DeleteBy"));
             user.setDeletedAt(rs.getDate("DeletedAt"));
-
             return user;
         }
         return null;
@@ -173,15 +169,17 @@ public class DAOUser {
 
     public ArrayList<Users> getUsersBySearch(String information) throws Exception {
         ArrayList<Users> users = new ArrayList<>();
-        String sql = "SELECT * FROM Users"; // Lấy toàn bộ dữ liệu từ bảng Users
+        String sql = "SELECT * FROM Users";
         
-        try (PreparedStatement statement = connect.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
+        try (PreparedStatement statement = connect.prepareStatement(sql); 
+             ResultSet rs = statement.executeQuery()) {
             
             while (rs.next()) {
                 Users u = new Users();
                 u.setID(rs.getInt("ID"));
                 u.setUsername(rs.getString("username"));
                 u.setPasswordHash(rs.getString("passwordhash"));
+                u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
@@ -191,16 +189,11 @@ public class DAOUser {
                 u.setDeleteBy(rs.getInt("DeleteBy"));
                 u.setDeletedAt(rs.getDate("DeletedAt"));
 
-                // Lấy thông tin người tạo 
-                //Users userCreate = DAO.INSTANCE.getUserByID(u.getCreateBy());
-
-                // Chuyển thông tin của user thành một chuỗi
                 String userData = (u.getUsername() + " "
                         + u.getPasswordHash() + " "
                         + u.getFullName() + " "
-                        );
+                        + u.getPhone() + " ");
 
-                //Lấy role 
                 if (u.getRoleid() == 1) {
                     userData += "admin ";
                 }
@@ -211,7 +204,6 @@ public class DAOUser {
                     userData += "staff ";
                 }
 
-                //Lấy thông tin người xóa nếu có
                 if (u.getIsDelete() != 0) {
                     Users userDelete = DAO.INSTANCE.getUserByID(u.getDeleteBy());
                     userData += ("xóa" + u.getIsDelete() + " "
@@ -221,7 +213,6 @@ public class DAOUser {
                     userData += "Hoạt Động";
                 }
 
-                // Kiểm tra nếu information xuất hiện trong bất kỳ trường nào của user
                 if (userData.toLowerCase().contains(information.toLowerCase())) {
                     users.add(u);
                 }
@@ -245,7 +236,7 @@ public class DAOUser {
     }
     
     public int getTotalUsersById() {
-        String sql = "SELECT COUNT(*) FROM Users WHERE isDelete = 0 ";
+        String sql = "SELECT COUNT(*) FROM Users WHERE isDelete = 0";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -271,6 +262,7 @@ public class DAOUser {
                 u.setID(rs.getInt("ID"));
                 u.setUsername(rs.getString("username"));
                 u.setPasswordHash(rs.getString("passwordhash"));
+                u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
@@ -279,7 +271,6 @@ public class DAOUser {
                 u.setIsDelete(rs.getInt("isDelete"));
                 u.setDeleteBy(rs.getInt("DeleteBy"));
                 u.setDeletedAt(rs.getDate("DeletedAt"));
-
                 users.add(u);
             }
         } catch (SQLException e) {
@@ -317,6 +308,7 @@ public class DAOUser {
                 u.setID(rs.getInt("ID"));
                 u.setUsername(rs.getString("username"));
                 u.setPasswordHash(rs.getString("passwordhash"));
+                u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
@@ -325,7 +317,6 @@ public class DAOUser {
                 u.setIsDelete(rs.getInt("isDelete"));
                 u.setDeleteBy(rs.getInt("DeleteBy"));
                 u.setDeletedAt(rs.getDate("DeletedAt"));
-
                 users.add(u);
             }
         } catch (SQLException e) {
@@ -334,14 +325,11 @@ public class DAOUser {
         return users;
     }
     
-    
     public ArrayList<Users> sortUserByNewTime(ArrayList<Users> listOld) {
         int n = listOld.size();
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i - 1; j++) {
-                // So sánh ngày tạo (mới hơn đứng trước)
                 if (listOld.get(j).getCreateAt().before(listOld.get(j + 1).getCreateAt())) {
-                    // Hoán đổi vị trí
                     Users temp = listOld.get(j);
                     listOld.set(j, listOld.get(j + 1));
                     listOld.set(j + 1, temp);
@@ -353,17 +341,5 @@ public class DAOUser {
 
     public static void main(String[] args) throws Exception {
         DAOUser dao = new DAOUser();
-//        Users admin = new Users(0, "Admin2", "1234", 1, "Hoangvanviet2", today, today, 0, 0, today, 0);
-//        dao.Register(admin, 0);
-        //System.out.println(dao.getUsersBySearch("viet"));
-        //Users user = new Users(3, "Admin", "admin", 1, "Hoangvanviet123", today, today, 0, 0, today, 0);
-//        dao.updateUser(user);
-//        System.out.println(dao.getUserByName("Admin2"));
-        //dao.updateUser(user);
-//        dao.deleteUser(4, 2);
-//        Users newU = new Users();
-//        newU.setID(4);
-//        newU.setShopID(4);
-//        dao.updateUserShopId(newU);
     }
 }
