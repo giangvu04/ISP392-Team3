@@ -30,7 +30,7 @@ public class DAOUser {
     }
 
     public void Register(Users user, int userid) {
-        String sql = "INSERT INTO Users (Username, passwordhash, Phone, roleid, CreateAt, CreateBy, isDelete, FullName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (Username, Passwordhash, Phone, Roleid, CreateAt, CreateBy, isDelete, FullName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
@@ -55,10 +55,10 @@ public class DAOUser {
             while (rs.next()) {
                 Users u = new Users();
                 u.setID(rs.getInt("ID"));
-                u.setUsername(rs.getString("username"));
-                u.setPasswordHash(rs.getString("passwordhash"));
+                u.setUsername(rs.getString("Username"));
+                u.setPasswordHash(rs.getString("Passwordhash"));
                 u.setPhone(rs.getString("Phone"));
-                u.setRoleid(rs.getInt("roleid"));
+                u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
@@ -88,7 +88,7 @@ public class DAOUser {
     }
 
     public void updateUser(Users user) {
-        String sql = "UPDATE Users SET passwordhash = ?, FullName = ?, Phone = ?, UpdateAt = ? WHERE id = ?";
+        String sql = "UPDATE Users SET Passwordhash = ?, FullName = ?, Phone = ?, UpdateAt = ? WHERE id = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
             ps.setString(2, user.getFullName());
@@ -102,7 +102,7 @@ public class DAOUser {
     }
 
     public Users getUserByName(String name) throws Exception {
-        String query = "SELECT * FROM Users WHERE username=?";
+        String query = "SELECT * FROM Users WHERE Username=?";
         PreparedStatement ps = connect.prepareStatement(query);
         ps.setString(1, name);
         ResultSet rs = ps.executeQuery();
@@ -127,7 +127,7 @@ public class DAOUser {
 
     public boolean checkUsernameExists(String username) {
         try {
-            String query = "SELECT COUNT(*) FROM Users WHERE username = ?";
+            String query = "SELECT COUNT(*) FROM Users WHERE Username = ?";
             PreparedStatement ps = connect.prepareStatement(query);
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
@@ -177,10 +177,10 @@ public class DAOUser {
             while (rs.next()) {
                 Users u = new Users();
                 u.setID(rs.getInt("ID"));
-                u.setUsername(rs.getString("username"));
-                u.setPasswordHash(rs.getString("passwordhash"));
+                u.setUsername(rs.getString("Username"));
+                u.setPasswordHash(rs.getString("Passwordhash"));
                 u.setPhone(rs.getString("Phone"));
-                u.setRoleid(rs.getInt("roleid"));
+                u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
@@ -224,7 +224,7 @@ public class DAOUser {
     }
 
     public void resetPasswordUser(int userid) {
-        String sql = "UPDATE Users SET passwordhash = ?, UpdateAt = ? WHERE id = ?";
+        String sql = "UPDATE Users SET Passwordhash = ?, UpdateAt = ? WHERE id = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, DAO.PasswordUtils.hashPassword("12345678"));
             ps.setDate(2, today);
@@ -260,10 +260,10 @@ public class DAOUser {
             while (rs.next()) {
                 Users u = new Users();
                 u.setID(rs.getInt("ID"));
-                u.setUsername(rs.getString("username"));
+                u.setUsername(rs.getString("Username"));
                 u.setPasswordHash(rs.getString("passwordhash"));
                 u.setPhone(rs.getString("Phone"));
-                u.setRoleid(rs.getInt("roleid"));
+                u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
@@ -306,10 +306,10 @@ public class DAOUser {
             while (rs.next()) {
                 Users u = new Users();
                 u.setID(rs.getInt("ID"));
-                u.setUsername(rs.getString("username"));
-                u.setPasswordHash(rs.getString("passwordhash"));
+                u.setUsername(rs.getString("Username"));
+                u.setPasswordHash(rs.getString("Passwordhash"));
                 u.setPhone(rs.getString("Phone"));
-                u.setRoleid(rs.getInt("roleid"));
+                u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
