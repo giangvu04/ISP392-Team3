@@ -13,6 +13,7 @@ public class Users {
     private String Phone;
     private int Roleid;
     private String FullName;
+    private int RentalAreaID;
     private Date CreateAt;
     private Date UpdateAt;
     private int CreateBy;
@@ -23,13 +24,14 @@ public class Users {
     public Users() {
     }
 
-    public Users(int ID, String Username, String PasswordHash, String Phone, int Roleid, String FullName, Date CreateAt, Date UpdateAt, int CreateBy, int isDelete, Date deletedAt, int deleteBy) {
+    public Users(int ID, String Username, String PasswordHash, String Phone, int Roleid, String FullName, int RentalAreaID, Date CreateAt, Date UpdateAt, int CreateBy, int isDelete, Date deletedAt, int deleteBy) {
         this.ID = ID;
         this.Username = Username;
         this.PasswordHash = PasswordHash;
         this.Phone = Phone;
         this.Roleid = Roleid;
         this.FullName = FullName;
+        this.RentalAreaID = RentalAreaID;
         this.CreateAt = CreateAt;
         this.UpdateAt = UpdateAt;
         this.CreateBy = CreateBy;
@@ -86,6 +88,14 @@ public class Users {
         this.FullName = FullName;
     }
 
+    public int getRentalAreaID() {
+        return RentalAreaID;
+    }
+
+    public void setRentalAreaID(int RentalAreaID) {
+        this.RentalAreaID = RentalAreaID;
+    }
+
     public Date getCreateAt() {
         return CreateAt;
     }
@@ -133,4 +143,6 @@ public class Users {
     public void setDeleteBy(int deleteBy) {
         this.deleteBy = deleteBy;
     }
+
+    
 }
