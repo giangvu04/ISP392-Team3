@@ -30,7 +30,7 @@ public class DAOUser {
     }
 
     public void Register(Users user, int userid) {
-        String sql = "INSERT INTO Users (Username, Passwordhash, Phone, Roleid, CreateAt, CreateBy, isDelete, FullName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (Username, Passwordhash, Phone, Roleid, CreateAt, CreateBy, isDelete, FullName, RentalAreaID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
@@ -40,6 +40,7 @@ public class DAOUser {
             ps.setInt(6, userid);
             ps.setInt(7, 0);
             ps.setString(8, user.getFullName());
+            ps.setInt(9, user.getRentalAreaID());
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
@@ -60,6 +61,7 @@ public class DAOUser {
                 u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
+                u.setRentalAreaID(rs.getInt("RentalAreaID"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
                 u.setCreateBy(rs.getInt("CreateBy"));
@@ -88,13 +90,14 @@ public class DAOUser {
     }
 
     public void updateUser(Users user) {
-        String sql = "UPDATE Users SET Passwordhash = ?, FullName = ?, Phone = ?, UpdateAt = ? WHERE id = ?";
+        String sql = "UPDATE Users SET Passwordhash = ?, FullName = ?, Phone = ?, UpdateAt = ?, RentalAreaID = ? WHERE id = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
             ps.setString(2, user.getFullName());
             ps.setString(3, user.getPhone());
             ps.setDate(4, today);
-            ps.setInt(5, user.getID());
+            ps.setInt(5, user.getRentalAreaID());
+            ps.setInt(6, user.getID());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -115,6 +118,7 @@ public class DAOUser {
             user.setPhone(rs.getString("Phone"));
             user.setRoleid(rs.getInt("Roleid"));
             user.setFullName(rs.getString("FullName"));
+            user.setRentalAreaID(rs.getInt("RentalAreaID"));
             user.setCreateAt(rs.getDate("CreateAt"));
             user.setCreateBy(rs.getInt("CreateBy"));
             user.setIsDelete(rs.getInt("isDelete"));
@@ -156,6 +160,7 @@ public class DAOUser {
             user.setPhone(rs.getString("Phone"));
             user.setRoleid(rs.getInt("Roleid"));
             user.setFullName(rs.getString("FullName"));
+            user.setRentalAreaID(rs.getInt("RentalAreaID"));
             user.setCreateAt(rs.getDate("CreateAt"));
             user.setUpdateAt(rs.getDate("UpdateAt"));
             user.setCreateBy(rs.getInt("CreateBy"));
@@ -182,6 +187,7 @@ public class DAOUser {
                 u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
+                u.setRentalAreaID(rs.getInt("RentalAreaID"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
                 u.setCreateBy(rs.getInt("CreateBy"));
@@ -265,6 +271,7 @@ public class DAOUser {
                 u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
+                u.setRentalAreaID(rs.getInt("RentalAreaID"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
                 u.setCreateBy(rs.getInt("CreateBy"));
@@ -279,10 +286,10 @@ public class DAOUser {
         return users;
     }
     
-    public int getTotalUsersByShopId(int shopId) {
-        String sql = "SELECT COUNT(*) FROM Users WHERE isDelete = 0 AND ShopID = ?";
+    public int getTotalUsersByRentalAreaId(int rentalAreaId) {
+        String sql = "SELECT COUNT(*) FROM Users WHERE isDelete = 0 AND RentalAreaID = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, shopId);
+            ps.setInt(1, rentalAreaId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -293,12 +300,12 @@ public class DAOUser {
         return 0;
     }
 
-    public ArrayList<Users> getUsersByPage(int page, int usersPerPage, int shopId) {
+    public ArrayList<Users> getUsersByPage(int page, int usersPerPage, int rentalAreaId) {
         ArrayList<Users> users = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE isDelete = 0 ORDER BY ID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM Users WHERE isDelete = 0 AND RentalAreaID = ? ORDER BY ID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, shopId);
+            ps.setInt(1, rentalAreaId);
             ps.setInt(2, (page - 1) * usersPerPage);
             ps.setInt(3, usersPerPage);
             ResultSet rs = ps.executeQuery();
@@ -311,6 +318,7 @@ public class DAOUser {
                 u.setPhone(rs.getString("Phone"));
                 u.setRoleid(rs.getInt("Roleid"));
                 u.setFullName(rs.getString("FullName"));
+                u.setRentalAreaID(rs.getInt("RentalAreaID"));
                 u.setCreateAt(rs.getDate("CreateAt"));
                 u.setUpdateAt(rs.getDate("UpdateAt"));
                 u.setCreateBy(rs.getInt("CreateBy"));
