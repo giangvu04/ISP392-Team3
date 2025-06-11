@@ -24,7 +24,8 @@ public class DAOUser {
     public boolean authenticateUser(String username, String password) throws Exception {
         Users user = getUserByName(username);
         if (user != null) {
-            return DAO.PasswordUtils.hashPassword(password).equals(user.getPasswordHash());
+            //return DAO.PasswordUtils.hashPassword(password).equals(user.getPasswordHash());
+            return password.equals(user.getPasswordHash());
         }
         return false;
     }
@@ -118,7 +119,7 @@ public class DAOUser {
             user.setPhone(rs.getString("Phone"));
             user.setRoleid(rs.getInt("Roleid"));
             user.setFullName(rs.getString("FullName"));
-            user.setRentalAreaID(rs.getInt("RentalAreaID"));
+            //user.setRentalAreaID(rs.getInt("RentalAreaID"));//Thiếu rentalID trong sql
             user.setCreateAt(rs.getDate("CreateAt"));
             user.setCreateBy(rs.getInt("CreateBy"));
             user.setIsDelete(rs.getInt("isDelete"));

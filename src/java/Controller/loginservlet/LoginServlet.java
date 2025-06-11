@@ -70,6 +70,7 @@ public class LoginServlet extends HttpServlet {
                     RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
                     dispatcher.forward(request, response);
                 }
+                response.sendRedirect("listrooms");
             } else {
                 response.sendRedirect("Login/login.jsp");
             }
