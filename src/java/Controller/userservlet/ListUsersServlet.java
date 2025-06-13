@@ -67,11 +67,11 @@ public class ListUsersServlet extends HttpServlet {
                 int productsPerPage = 10; // Số sản phẩm trên mỗi trang
 
                 // Lấy tổng số sản phẩm cho shop hiện tại
-                int totalUser = dao.getTotalUsersById();
+                int totalUser = dao.getTotalManagerAndTenantUsers();
                 int totalPages = (int) Math.ceil((double) totalUser / productsPerPage);
 
                 // Lấy danh sách sản phẩm cho trang hiện tại
-                ArrayList<Users> users = dao.getUsersByPageID(currentPage, productsPerPage);
+                ArrayList<Users> users = dao.getManagerAndTenantUsersByPage(currentPage, productsPerPage);
 
                 // Thiết lập các thuộc tính cho JSP
                 request.setAttribute("users", users);
@@ -87,11 +87,11 @@ public class ListUsersServlet extends HttpServlet {
                 int productsPerPage = 10; // Số sản phẩm trên mỗi trang
 
                 // Lấy tổng số sản phẩm cho shop hiện tại
-                int totalUser = dao.getTotalUsersByRentalAreaId(user.getRentalAreaID());
+                int totalUser = dao.getTotalManagerAndTenantUsers();
                 int totalPages = (int) Math.ceil((double) totalUser / productsPerPage);
 
                 // Lấy danh sách sản phẩm cho trang hiện tại
-                ArrayList<Users> user1 = dao.getUsersByPage(currentPage, productsPerPage, user.getRentalAreaID());
+                ArrayList<Users> user1 = dao.getManagerAndTenantUsersByPage(currentPage, productsPerPage);
 
                 // Xử lý sắp xếp
                 if (sortBy != null) {
