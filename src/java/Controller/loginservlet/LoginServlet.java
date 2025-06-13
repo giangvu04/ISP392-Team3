@@ -29,7 +29,9 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         if (session.getAttribute("user") != null) {
-            response.sendRedirect("listrooms");
+            Users user = (Users) session.getAttribute("user");
+            // Redirect based on role to appropriate homepage
+            redirectToHomepage(user, response);
         } else {
             request.setAttribute("message", "");
             request.setAttribute("name", "");
@@ -49,45 +51,58 @@ public class LoginServlet extends HttpServlet {
         try {
             if (name != null && password != null) {
                 DAOUser userDAO = new DAOUser();
-                Users user = userDAO.getUserByName(name);
+                Users user = null;
+                
+                // Try to find user by email first, then by phone number
+                user = userDAO.getUserByEmail(name);
+                if (user == null) {
+                    user = userDAO.getUserByPhone(name);
+                }
 
-                if (user != null && (userDAO.authenticateUser(name, password) && user.getIsDelete() == 0)) {
-                    if (user.getIsDelete() != 0) {
-                        request.setAttribute("message", "Hãy xem lại tài khoản và mật khẩu!");
-                        request.setAttribute("name", name);
-                        request.setAttribute("password", password);
-                        RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
-                        dispatcher.forward(request, response);
-                        return;
-                    } else {
-                        session.setAttribute("user", user);
-                        
-                    }
+                if (user != null && userDAO.authenticateUser(name, password) && user.isActive()) {
+                    session.setAttribute("user", user);
+                    redirectToHomepage(user, response);
                 } else {
-                    request.setAttribute("message", "Hãy xem lại tài khoản và mật khẩu!");
+                    request.setAttribute("message", "Hãy xem lại tài khoản và mật khẩu hoặc tài khoản đã bị vô hiệu hóa!");
                     request.setAttribute("name", name);
                     request.setAttribute("password", password);
                     RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
                     dispatcher.forward(request, response);
                 }
-                response.sendRedirect("listrooms");
             } else {
-                response.sendRedirect("Login/login.jsp");
+                request.setAttribute("message", "Vui lòng nhập tài khoản và mật khẩu!");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
+                dispatcher.forward(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("name", name);
             request.setAttribute("password", password);
-            request.setAttribute("message", "Something went wrong. Please try again.");
+            request.setAttribute("message", "Có lỗi xảy ra. Vui lòng thử lại!");
             RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
             dispatcher.forward(request, response);
         }
+    }
 
+    private void redirectToHomepage(Users user, HttpServletResponse response) throws IOException {
+        int roleId = user.getRoleId();
+        if (roleId == 1) {
+            // Admin - redirect to admin homepage
+            response.sendRedirect("AdminHomepage");
+        } else if (roleId == 2) {
+            // Manager - redirect to manager homepage or room list
+            response.sendRedirect("ManagerHomepage");
+        } else if (roleId == 3) {
+            // Tenant - redirect to tenant homepage or room list
+            response.sendRedirect("TenantHomepage");
+        } else {
+            // Invalid role - redirect to login with error
+            response.sendRedirect("login?error=invalid_role");
+        }
     }
 
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Login Servlet";
+    }
 }

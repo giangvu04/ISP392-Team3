@@ -149,7 +149,7 @@ public class ListContractsServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
             }
         } else {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("login");
         }
     } 
 
@@ -218,7 +218,7 @@ public class ListContractsServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Không có quyền truy cập.");
             }
         } else {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("login");
         }
     }
 

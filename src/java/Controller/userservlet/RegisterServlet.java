@@ -4,13 +4,11 @@ import dal.DAOUser;
 import model.Users;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 
 /**
  *
@@ -18,101 +16,155 @@ import java.util.ArrayList;
  */
 public class RegisterServlet extends HttpServlet {
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        request.setAttribute("message", "");
-        request.setAttribute("name", "");
-        request.setAttribute("password", "");
-        request.setAttribute("password2", "");
-        request.setAttribute("fullname", "");
-        Users user = (Users) session.getAttribute("user");
-        request.setAttribute("user", user);
-
-        RequestDispatcher dispatcher = request.getRequestDispatcher("UsersManager/register.jsp");
+        Users currentUser = (Users) session.getAttribute("user");
+        
+        // Check if user is logged in
+        if (currentUser == null) {
+            response.sendRedirect("login");
+            return;
+        }
+        
+        // Only managers can register new tenants
+        if (currentUser.getRoleId() != 2) {
+            request.setAttribute("error", "Bạn không có quyền đăng ký người dùng mới!");
+            response.sendRedirect("listusers");
+            return;
+        }
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
         dispatcher.forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        String name = request.getParameter("name");
-        String password = request.getParameter("password");
-        String password2 = request.getParameter("password2");
-        String fullname = request.getParameter("fullname");
-        if (!password.endsWith(password2) || password == null || "".equals(name)) {
-            request.setAttribute("message", "Hãy xem lại tài khoản và mật khẩu của bạn!");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("UsersManager/register.jsp");
-            dispatcher.forward(request, response);
+        HttpSession session = request.getSession();
+        Users currentUser = (Users) session.getAttribute("user");
+        
+        // Check if user is logged in and is manager
+        if (currentUser == null || currentUser.getRoleId() != 2) {
+            response.sendRedirect("login");
             return;
         }
-        DAOUser dao = new DAOUser();
-        Users user = new Users();
-        HttpSession session = request.getSession();
-        user = (Users) session.getAttribute("user");
-        try {
 
-            //Check if username already exists
-            if (dao.checkUsernameExists(name)) {
-                request.setAttribute("user", user);
-                request.setAttribute("message", "Tên đã được dùng, hãy sử dụng tên khác!");
-                request.setAttribute("name", name);
-                request.setAttribute("password", password);
-                request.setAttribute("password2", password2);
-                request.setAttribute("fullname", "");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("UsersManager/register.jsp");
+        DAOUser dao = new DAOUser();
+        
+        try {
+            // Get form parameters
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String confirmPassword = request.getParameter("confirmPassword");
+            String fullName = request.getParameter("fullName");
+            String phoneNumber = request.getParameter("phoneNumber");
+            String citizenId = request.getParameter("citizenId");
+            String address = request.getParameter("address");
+
+            // Validate required fields
+            if (email == null || email.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                fullName == null || fullName.trim().isEmpty() ||
+                phoneNumber == null || phoneNumber.trim().isEmpty()) {
+                
+                request.setAttribute("error", "Vui lòng điền đầy đủ thông tin bắt buộc!");
+                request.setAttribute("email", email);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("citizenId", citizenId);
+                request.setAttribute("address", address);
+                
+                RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
 
-            if (user != null) {
-                Users userRegister = new Users();
-
-                userRegister.setUsername(name);
-                userRegister.setPasswordHash(password);
-                userRegister.setFullName(fullname);
-                userRegister.setRoleid(user.getRoleid() + 1);
-                if (user.getRoleid() + 1 == 3) {
-                    userRegister.setRentalAreaID(user.getRentalAreaID());
-                } else {
-                    userRegister.setRentalAreaID(0);
-                }
-                dao.Register(userRegister, user.getID());
-                response.sendRedirect("listusers");
-            } else {
-                request.setAttribute("message", "Invalid role selected.");
-                request.setAttribute("name", name);
-                request.setAttribute("password", password);
-                request.setAttribute("password2", password2);
-                request.setAttribute("fullname", "");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("UsersManager/register.jsp");
+            // Validate password confirmation
+            if (!password.equals(confirmPassword)) {
+                request.setAttribute("error", "Mật khẩu xác nhận không khớp!");
+                request.setAttribute("email", email);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("citizenId", citizenId);
+                request.setAttribute("address", address);
+                
+                RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
                 dispatcher.forward(request, response);
+                return;
             }
+
+            // Validate password length
+            if (password.length() < 6) {
+                request.setAttribute("error", "Mật khẩu phải có ít nhất 6 ký tự!");
+                request.setAttribute("email", email);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("citizenId", citizenId);
+                request.setAttribute("address", address);
+                
+                RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+
+            // Check if email already exists
+            if (dao.checkEmailExists(email)) {
+                request.setAttribute("error", "Email đã tồn tại!");
+                request.setAttribute("email", email);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("citizenId", citizenId);
+                request.setAttribute("address", address);
+                
+                RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+
+            // Check if phone number already exists
+            if (dao.checkPhoneExists(phoneNumber)) {
+                request.setAttribute("error", "Số điện thoại đã tồn tại!");
+                request.setAttribute("email", email);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("citizenId", citizenId);
+                request.setAttribute("address", address);
+                
+                RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+
+            // Create new tenant user
+            Users newTenant = new Users();
+            newTenant.setEmail(email);
+            newTenant.setPasswordHash(password);
+            newTenant.setFullName(fullName);
+            newTenant.setPhoneNumber(phoneNumber);
+            newTenant.setCitizenId(citizenId);
+            newTenant.setAddress(address);
+            newTenant.setRoleId(3); // Tenant role
+            newTenant.setActive(true);
+
+            // Register the new tenant
+            dao.createUser(newTenant);
+            
+            request.setAttribute("success", "Đăng ký người thuê thành công!");
+            response.sendRedirect("listusers");
+
         } catch (Exception e) {
+            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("name", name);
-            request.setAttribute("password", password);
-            request.setAttribute("password2", password2);
-            request.setAttribute("fullname", "");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("UsersManager/register.jsp");
+            
+            RequestDispatcher dispatcher = request.getRequestDispatcher("Manager/RegisterTenant.jsp");
             dispatcher.forward(request, response);
         }
     }
 
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Register Servlet";
+    }
 }

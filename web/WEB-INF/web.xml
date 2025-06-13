@@ -6,7 +6,7 @@
     </servlet>
     <servlet>
         <servlet-name>LogoutServlet</servlet-name>
-        <servlet-class>Controller.loginservlet.LogoutServlet</servlet-class>
+        <servlet-class>Controller.LogoutServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListRoomsServlet</servlet-name>
@@ -39,6 +39,38 @@
     <servlet>
         <servlet-name>RegisterServlet</servlet-name>
         <servlet-class>Controller.userservlet.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminUserManagementServlet</servlet-name>
+        <servlet-class>Controller.userservlet.AdminUserManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminHomepageServlet</servlet-name>
+        <servlet-class>Controller.AdminHomepageServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ManagerHomepageServlet</servlet-name>
+        <servlet-class>Controller.ManagerHomepageServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TenantHomepageServlet</servlet-name>
+        <servlet-class>Controller.TenantHomepageServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TestDatabaseServlet</servlet-name>
+        <servlet-class>Controller.TestDatabaseServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TestRedirectServlet</servlet-name>
+        <servlet-class>Controller.TestRedirectServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TestCreateUserServlet</servlet-name>
+        <servlet-class>Controller.TestCreateUserServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TestDatabaseSchemaServlet</servlet-name>
+        <servlet-class>Controller.TestDatabaseSchemaServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -79,5 +111,37 @@
     <servlet-mapping>
         <servlet-name>RegisterServlet</servlet-name>
         <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminUserManagementServlet</servlet-name>
+        <url-pattern>/adminusermanagement</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminHomepageServlet</servlet-name>
+        <url-pattern>/AdminHomepage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ManagerHomepageServlet</servlet-name>
+        <url-pattern>/ManagerHomepage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TenantHomepageServlet</servlet-name>
+        <url-pattern>/TenantHomepage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestDatabaseServlet</servlet-name>
+        <url-pattern>/testdatabase</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestRedirectServlet</servlet-name>
+        <url-pattern>/testredirect</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestCreateUserServlet</servlet-name>
+        <url-pattern>/testcreateuser</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestDatabaseSchemaServlet</servlet-name>
+        <url-pattern>/testdatabaseschema</url-pattern>
     </servlet-mapping>
 </web-app>

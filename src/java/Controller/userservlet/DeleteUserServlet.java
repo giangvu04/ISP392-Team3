@@ -49,15 +49,15 @@ public class DeleteUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        int deleteid = Integer.parseInt(request.getParameter("deleteid"));
-        int userid = Integer.parseInt(request.getParameter("userid"));
-        
-        try {
-            DAOUser.INSTANCE.deleteUser(deleteid,userid); // Gọi phương thức xóa người dùng
-            response.sendRedirect("listusers"); // Chuyển hướng về danh sách người dùng
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        int deleteid = Integer.parseInt(request.getParameter("deleteid"));
+//        int userid = Integer.parseInt(request.getParameter("userid"));
+//        
+//        try {
+//            DAOUser.INSTANCE.deleteUser(deleteid,userid); // Gọi phương thức xóa người dùng
+//            response.sendRedirect("listusers"); // Chuyển hướng về danh sách người dùng
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     } 
 
     /** 
