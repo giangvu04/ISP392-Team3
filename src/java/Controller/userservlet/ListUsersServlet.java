@@ -110,7 +110,7 @@ public class ListUsersServlet extends HttpServlet {
                 request.setAttribute("currentPage", currentPage);
                 request.setAttribute("totalPages", totalPages);
                 request.setAttribute("sortBy", sortBy);
-                RequestDispatcher requestDispatcher = request.getRequestDispatcher("UsersManager/ListUsersForOwner.jsp");
+                RequestDispatcher requestDispatcher = request.getRequestDispatcher("UsersManager/ListUsersForAdmin.jsp");
                 requestDispatcher.forward(request, response);
                 return;
             } else {
