@@ -6,72 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách Phòng - Tenant Dashboard</title>
+    <base href="${pageContext.request.contextPath}/">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 20px;
-            margin: 4px 0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-            transform: translateX(5px);
-        }
-        .sidebar .nav-link.active {
-            background-color: rgba(255,255,255,0.2);
-            color: white;
-        }
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .table thead th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-        }
-        .status-available {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-occupied {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .status-maintenance {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .search-box {
-            background: white;
-            border-radius: 25px;
-            padding: 10px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .room-card {
-            transition: transform 0.3s ease;
-        }
-        .room-card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
+    <link href="css/rooms.css" rel="stylesheet">
 </head>
 <body>
     <div class="container-fluid">

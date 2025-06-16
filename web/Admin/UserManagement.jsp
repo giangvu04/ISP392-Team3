@@ -6,86 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="${pageContext.request.contextPath}/">
     <title>Quản lý người dùng - Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 20px;
-            margin: 4px 0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: white;
-            background: rgba(255,255,255,0.1);
-            transform: translateX(5px);
-        }
-        .main-content {
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .btn-action {
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.875rem;
-        }
-        .search-box {
-            border-radius: 25px;
-            border: 2px solid #e9ecef;
-            padding: 10px 20px;
-        }
-        .search-box:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .pagination .page-link {
-            border-radius: 8px;
-            margin: 0 2px;
-            border: none;
-            color: #667eea;
-        }
-        .pagination .page-item.active .page-link {
-            background: #667eea;
-            border-color: #667eea;
-        }
-        .role-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .role-manager {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        .role-tenant {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-    </style>
+    <link href="css/UserManagement.css" rel="stylesheet">
 </head>
 <body>
     <div class="container-fluid">
@@ -314,7 +239,6 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
         function deleteUser(userId) {
             if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
