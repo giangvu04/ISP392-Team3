@@ -1,35 +1,34 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
-//import java.util.Date;
+
+import java.math.BigDecimal;
 import java.sql.Date;
+
 public class Contracts {
     private int contractId;
-    private int dealPrice;           
+    private int roomId;
+    private int tenantId;
     private Date startDate;
     private Date endDate;
-    private int depositAmount;      
+    private BigDecimal rentPrice;
+    private BigDecimal depositAmount;
+    private int status;
     private String note;
-    private int tenantCount;
-    private int tenantsID;  // Foreign key reference to Tenants
-    private int roomID;     // Foreign key reference to Rooms
 
     // Constructors
-    public Contracts() {}
+    public Contracts() {
+    }
 
-    public Contracts(int contractId, int dealPrice, Date startDate, Date endDate,
-                    int depositAmount, String note, int tenantCount, int tenantsID, int roomID) {
+    public Contracts(int contractId, int roomId, int tenantId, Date startDate, Date endDate,
+                    BigDecimal rentPrice, BigDecimal depositAmount, int status, String note) {
         this.contractId = contractId;
-        this.dealPrice = dealPrice;
+        this.roomId = roomId;
+        this.tenantId = tenantId;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.rentPrice = rentPrice;
         this.depositAmount = depositAmount;
+        this.status = status;
         this.note = note;
-        this.tenantCount = tenantCount;
-        this.tenantsID = tenantsID;
-        this.roomID = roomID;
     }
 
     // Getters and Setters
@@ -41,12 +40,20 @@ public class Contracts {
         this.contractId = contractId;
     }
 
-    public int getDealPrice() {
-        return dealPrice;
+    public int getRoomId() {
+        return roomId;
     }
 
-    public void setDealPrice(int dealPrice) {
-        this.dealPrice = dealPrice;
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public int getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
     }
 
     public Date getStartDate() {
@@ -65,12 +72,28 @@ public class Contracts {
         this.endDate = endDate;
     }
 
-    public int getDepositAmount() {
+    public BigDecimal getRentPrice() {
+        return rentPrice;
+    }
+
+    public void setRentPrice(BigDecimal rentPrice) {
+        this.rentPrice = rentPrice;
+    }
+
+    public BigDecimal getDepositAmount() {
         return depositAmount;
     }
 
-    public void setDepositAmount(int depositAmount) {
+    public void setDepositAmount(BigDecimal depositAmount) {
         this.depositAmount = depositAmount;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public String getNote() {
@@ -81,28 +104,35 @@ public class Contracts {
         this.note = note;
     }
 
-    public int getTenantCount() {
-        return tenantCount;
+    // Legacy method names for backward compatibility (if needed)
+    public int getRoomID() {
+        return roomId;
     }
 
-    public void setTenantCount(int tenantCount) {
-        this.tenantCount = tenantCount;
+    public void setRoomID(int roomId) {
+        this.roomId = roomId;
     }
 
     public int getTenantsID() {
-        return tenantsID;
+        return tenantId;
     }
 
-    public void setTenantsID(int tenantsID) {
-        this.tenantsID = tenantsID;
+    public void setTenantsID(int tenantId) {
+        this.tenantId = tenantId;
     }
 
-    public int getRoomID() {
-        return roomID;
+    @Override
+    public String toString() {
+        return "Contracts{" +
+                "contractId=" + contractId +
+                ", roomId=" + roomId +
+                ", tenantId=" + tenantId +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", rentPrice=" + rentPrice +
+                ", depositAmount=" + depositAmount +
+                ", status=" + status +
+                ", note='" + note + '\'' +
+                '}';
     }
-
-    public void setRoomID(int roomID) {
-        this.roomID = roomID;
-    }
-
 }
