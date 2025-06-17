@@ -56,22 +56,19 @@ public class ListUsersServlet extends HttpServlet {
         Users user = (Users) session.getAttribute("user");
         request.setAttribute("user", user);
         String sortBy = request.getParameter("sortBy");
-        //ArrayList<Users> users = dao.getUsers();
-        //.setAttribute("users", users);
 
         if (session.getAttribute("user") != null) {
-            if (user.getRoleid() == 1) {
-
+            if (user.getRoleId() == 1) {
                 // Lấy trang hiện tại từ tham số URL, mặc định là 1
                 int currentPage = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
-                int productsPerPage = 10; // Số sản phẩm trên mỗi trang
+                int usersPerPage = 10; // Số người dùng trên mỗi trang
 
-                // Lấy tổng số sản phẩm cho shop hiện tại
+                // Lấy tổng số người dùng
                 int totalUser = dao.getTotalManagerAndTenantUsers();
-                int totalPages = (int) Math.ceil((double) totalUser / productsPerPage);
+                int totalPages = (int) Math.ceil((double) totalUser / usersPerPage);
 
-                // Lấy danh sách sản phẩm cho trang hiện tại
-                ArrayList<Users> users = dao.getManagerAndTenantUsersByPage(currentPage, productsPerPage);
+                // Lấy danh sách người dùng cho trang hiện tại
+                ArrayList<Users> users = dao.getManagerAndTenantUsersByPage(currentPage, usersPerPage);
 
                 // Thiết lập các thuộc tính cho JSP
                 request.setAttribute("users", users);
@@ -81,26 +78,26 @@ public class ListUsersServlet extends HttpServlet {
                 RequestDispatcher requestDispatcher = request.getRequestDispatcher("UsersManager/ListUsers.jsp");
                 requestDispatcher.forward(request, response);
                 return;
-            } else if (user.getRoleid() == 2) {
+            } else if (user.getRoleId() == 2) {
                 // Lấy trang hiện tại từ tham số URL, mặc định là 1
                 int currentPage = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
-                int productsPerPage = 10; // Số sản phẩm trên mỗi trang
+                int usersPerPage = 10; // Số người dùng trên mỗi trang
 
-                // Lấy tổng số sản phẩm cho shop hiện tại
-                int totalUser = dao.getTotalManagerAndTenantUsers();
-                int totalPages = (int) Math.ceil((double) totalUser / productsPerPage);
+                // Lấy tổng số người dùng cho role 3 (tenant)
+                int totalUser = dao.getTotalUsersByRole(3);
+                int totalPages = (int) Math.ceil((double) totalUser / usersPerPage);
 
-                // Lấy danh sách sản phẩm cho trang hiện tại
-                ArrayList<Users> user1 = dao.getManagerAndTenantUsersByPage(currentPage, productsPerPage);
+                // Lấy danh sách người dùng cho trang hiện tại (chỉ role 3 - tenant)
+                ArrayList<Users> user1 = dao.getUsersByRole(3);
 
                 // Xử lý sắp xếp
                 if (sortBy != null) {
                     switch (sortBy) {
                         case "name_asc":
-                            user1.sort(Comparator.comparing(Users::getUsername));
+                            user1.sort(Comparator.comparing(Users::getFullName));
                             break;
                         case "name_desc":
-                            user1.sort(Comparator.comparing(Users::getUsername).reversed());
+                            user1.sort(Comparator.comparing(Users::getFullName).reversed());
                             break;
                     }
                 }
@@ -114,7 +111,7 @@ public class ListUsersServlet extends HttpServlet {
                 requestDispatcher.forward(request, response);
                 return;
             } else {
-                RequestDispatcher requestDispatcher = request.getRequestDispatcher("userdetail?id=" + user.getID());
+                RequestDispatcher requestDispatcher = request.getRequestDispatcher("userdetail?id=" + user.getUserId());
                 requestDispatcher.forward(request, response);
                 return;
             }
@@ -154,10 +151,10 @@ public class ListUsersServlet extends HttpServlet {
                 } else {
                     request.setAttribute("message", "Kết quả tìm kiếm cho: " + information);
                 }
-                int productsPerPage = 10;
+                int usersPerPage = 10;
                 // Cập nhật currentPage và totalPages
-                int totalUsers = users.size(); // Tổng sản phẩm tìm được
-                int totalPages = (int) Math.ceil(totalUsers / productsPerPage); // Cập nhật với số sản phẩm mỗi trang
+                int totalUsers = users.size(); // Tổng người dùng tìm được
+                int totalPages = (int) Math.ceil((double) totalUsers / usersPerPage); // Cập nhật với số người dùng mỗi trang
 
                 // Thiết lập các thuộc tính cho JSP
                 request.setAttribute("users", users);
