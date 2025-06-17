@@ -4,121 +4,45 @@
  */
 package model;
 
-import java.sql.Date;
 
-/**
- *
- * @author ADMIN
- */
+
+
 public class Devices {
-    private int deviceID;
-    private String name;
-    private int quantity;
-    private String status;
-    private int roomID;
-    private Date CreateAt;
-    private Date UpdateAt;
-    private int CreateBy;
-    private int isDelete;
-    private Date deletedAt;
-    private int deleteBy;
+    private int deviceId;
+    private String deviceName;
 
+    // Constructors
     public Devices() {
     }
 
-    public Devices(int deviceID, String name, int quantity, String status, int roomID) {
-        this.deviceID = deviceID;
-        this.name = name;
-        this.quantity = quantity;
-        this.status = status;
-        this.roomID = roomID;
+    public Devices(int deviceId, String deviceName) {
+        this.deviceId = deviceId;
+        this.deviceName = deviceName;
     }
 
-    public int getDeviceID() {
-        return deviceID;
+    // Getters and Setters
+    public int getDeviceId() {
+        return deviceId;
     }
 
-    public void setDeviceID(int deviceID) {
-        this.deviceID = deviceID;
+    public void setDeviceId(int deviceId) {
+        this.deviceId = deviceId;
     }
 
-    public String getName() {
-        return name;
+    public String getDeviceName() {
+        return deviceName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
-    public int getQuantity() {
-        return quantity;
+    @Override
+    public String toString() {
+        return "Device{" +
+                "deviceId=" + deviceId +
+                ", deviceName='" + deviceName + '\'' +
+                '}';
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public int getRoomID() {
-        return roomID;
-    }
-
-    public void setRoomID(int roomID) {
-        this.roomID = roomID;
-    }
- public Date getCreateAt() {
-        return CreateAt;
-    }
-
-    public void setCreateAt(Date CreateAt) {
-        this.CreateAt = CreateAt;
-    }
-
-    public Date getUpdateAt() {
-        return UpdateAt;
-    }
-
-    public void setUpdateAt(Date UpdateAt) {
-        this.UpdateAt = UpdateAt;
-    }
-
-    public int getCreateBy() {
-        return CreateBy;
-    }
-
-    public void setCreateBy(int CreateBy) {
-        this.CreateBy = CreateBy;
-    }
-
-    public int getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(int isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    public Date getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(Date deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    public int getDeleteBy() {
-        return deleteBy;
-    }
-
-    public void setDeleteBy(int deleteBy) {
-        this.deleteBy = deleteBy;
-    }
-    
 }
