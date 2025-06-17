@@ -1,189 +1,521 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="model.Contracts" %>
-<%@ page import="model.Users" %>
-<%@ page import="dal.DAOContract" %>
-<%@ page import="dal.DAOUser" %>
-<%@ page import="java.text.NumberFormat" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="java.util.Locale" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Danh sách hợp đồng</title>
-        <base href="${pageContext.request.contextPath}/">
-        <link rel="stylesheet" href="css/product.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    </head>
-
-    <body>
-        <%
-            DAOUser dao = new DAOUser();
-            Users u = (Users) request.getAttribute("user");
-            ArrayList<Contracts> contracts = (ArrayList<Contracts>) request.getAttribute("contracts");
-            NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        %>
-        <%
-            Integer currentPage = (Integer) request.getAttribute("currentPage");
-            Integer totalPages = (Integer) request.getAttribute("totalPages");
-            String message = (String) request.getAttribute("message");
-
-            // Kiểm tra xem các biến có được nhận hay không
-            if (currentPage == null || totalPages == null) {
-                out.println("<script>alert('Không thể nhận được currentPage hoặc totalPages.');</script>");
-            }
-        %>
-
-        <!-- Header -->
-        <%--<div class="header">
-            <div class="container">
-                <img src="Image/logo.png" alt="logo" class="home-logo">
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hợp đồng của tôi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .contract-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .contract-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .search-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .btn-gradient {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .contract-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .status-expired {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            color: white;
+        }
+        .status-pending {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        .contract-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .info-item {
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #495057;
+            margin-top: 0.2rem;
+        }
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            margin: 2rem 0;
+        }
+        .empty-icon {
+            font-size: 4rem;
+            color: #adb5bd;
+            margin-bottom: 1rem;
+        }
+        .pagination .page-link {
+            border: none;
+            margin: 0 2px;
+            border-radius: 8px;
+            color: #667eea;
+        }
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+        }
+        .alert {
+            border-radius: 15px;
+            border: none;
+        }
+        .welcome-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i class="fas fa-file-contract me-3"></i>Hợp đồng của tôi
+                    </h1>
+                    <p class="mb-0 mt-2 opacity-75">Xem và quản lý các hợp đồng thuê phòng</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a class="btn btn-light btn-lg" href="TenantHomepage">
+                        <i class="fas fa-home me-2"></i>Trang chủ
+                    </a>
+                </div>
             </div>
-            <div class="header__navbar-item navbar__user">
-                <span class="navbar__user--name">
-                    <%= u.getFullName()%>
-                </span>
-                <div class="navbar__user--info">
-                    <div class="navbar__info--wrapper">
-                        <a href="userdetail?id=<%= u.getID()%>" class="navbar__info--item">Tài khoản của tôi</a>
-                    </div>
-                    <div class="navbar__info--wrapper">
-                        <a href="logout" class="navbar__info--item">Đăng xuất</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Alert Messages -->
+        <c:if test="${not empty sessionScope.successMessage}">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                ${sessionScope.successMessage}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <c:remove var="successMessage" scope="session"/>
+        </c:if>
+        
+        <c:if test="${not empty sessionScope.errorMessage}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${sessionScope.errorMessage}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <c:remove var="errorMessage" scope="session"/>
+        </c:if>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="text-primary mb-1">
+                        <i class="fas fa-user-circle me-2"></i>Chào mừng trở lại!
+                    </h4>
+                    <p class="text-muted mb-0">Dưới đây là danh sách tất cả hợp đồng thuê phòng của bạn</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div class="me-3">
+                            <small class="text-muted d-block">Tổng hợp đồng</small>
+                            <h3 class="text-primary mb-0">
+                                <c:choose>
+                                    <c:when test="${searchMode}">
+                                        ${contracts.size()}
+                                    </c:when>
+                                    <c:otherwise>
+                                        ${totalContracts}
+                                    </c:otherwise>
+                                </c:choose>
+                            </h3>
+                        </div>
+                        <i class="fas fa-chart-bar fa-2x text-primary opacity-50"></i>
                     </div>
                 </div>
             </div>
-        </div>--%>
+        </div>
 
-        <div class="body">
-            <div class="body-container">
-                <!-- Menu Sidebar -->
-                <div class="mainmenu">
-                    <ul class="mainmenu-list row no-gutters">
-                        <li class="mainmenu__list-item"><a href="listrooms"><i class="fa-solid fa-door-closed list-item-icon"></i>Phòng</a></li>
-                        <li class="mainmenu__list-item"><a href="listservices"><i class="fa-solid fa-bell-concierge list-item-icon"></i>Dịch vụ</a></li>
-                        <li class="mainmenu__list-item"><a href="listcontracts"><i class="fa-solid fa-file-signature list-item-icon"></i>Hợp đồng</a></li>
-                        <li class="mainmenu__list-item"><a href="listinvoices"><i class="fa-solid fa-receipt list-item-icon"></i>Hóa đơn</a></li>
+        <!-- Search Box -->
+        <div class="search-box">
+            <form method="GET" action="${pageContext.request.contextPath}/listcontracts" class="mb-0">
+                <input type="hidden" name="action" value="search">
+                <input type="hidden" name="userView" value="true">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-0" 
+                                   name="keyword" 
+                                   placeholder="Tìm kiếm theo mã phòng, ngày ký hợp đồng..."
+                                   value="${keyword}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button type="submit" class="btn btn-light btn-lg me-2">
+                                <i class="fas fa-search me-2"></i>Tìm kiếm
+                            </button>
+                            <c:if test="${searchMode}">
+                                <a href="${pageContext.request.contextPath}/listcontracts?userView=true" 
+                                   class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-times me-2"></i>Hủy
+                                </a>
+                            </c:if>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Results Info -->
+        <c:if test="${searchMode}">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Tìm thấy <strong>${contracts.size()}</strong> hợp đồng với từ khóa: "<strong>${keyword}</strong>"
+            </div>
+        </c:if>
+
+        <!-- Contract List -->
+        <c:choose>
+            <c:when test="${empty contracts}">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">
+                        <c:choose>
+                            <c:when test="${searchMode}">
+                                Không tìm thấy hợp đồng nào
+                            </c:when>
+                            <c:otherwise>
+                                Bạn chưa có hợp đồng nào
+                            </c:otherwise>
+                        </c:choose>
+                    </h3>
+                    <p class="text-muted">
+                        <c:choose>
+                            <c:when test="${searchMode}">
+                                Thử tìm kiếm với từ khóa khác hoặc liên hệ với quản lý để biết thêm thông tin
+                            </c:when>
+                            <c:otherwise>
+                                Liên hệ với quản lý để đăng ký thuê phòng và tạo hợp đồng
+                            </c:otherwise>
+                        </c:choose>
+                    </p>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="row">
+                    <c:forEach var="contract" items="${contracts}" varStatus="status">
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card contract-card h-100">
+                                <!-- Status Badge -->
+                                <div class="contract-status">
+                                    <c:choose>
+                                        <c:when test="${contract.status == 1}">
+                                            <span class="badge status-badge status-active">
+                                                <i class="fas fa-check-circle me-1"></i>Đang hoạt động
+                                            </span>
+                                        </c:when>
+                                        <c:when test="${contract.status == 2}">
+                                            <span class="badge status-badge status-expired">
+                                                <i class="fas fa-times-circle me-1"></i>Đã hết hạn
+                                            </span>
+                                        </c:when>
+                                        <c:when test="${contract.status == 0}">
+                                            <span class="badge status-badge status-pending">
+                                                <i class="fas fa-clock me-1"></i>Chờ xử lý
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge status-badge bg-secondary">
+                                                <i class="fas fa-question-circle me-1"></i>Không xác định
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+
+                                <!-- Card Header -->
+                                <div class="card-header bg-primary text-white">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-home fa-2x me-3"></i>
+                                        <div>
+                                            <h5 class="mb-0">Phòng ${contract.roomID}</h5>
+                                            <small class="opacity-75">Mã hợp đồng: #${contract.contractId}</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Body -->
+                                <div class="card-body contract-info">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="info-item">
+                                                <div class="info-label">
+                                                    <i class="fas fa-calendar-alt me-1"></i>Ngày bắt đầu
+                                                </div>
+                                                <div class="info-value">
+                                                    <fmt:formatDate value="${contract.startDate}" pattern="dd/MM/yyyy"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="info-item">
+                                                <div class="info-label">
+                                                    <i class="fas fa-calendar-check me-1"></i>Ngày kết thúc
+                                                </div>
+                                                <div class="info-value">
+                                                    <c:choose>
+                                                        <c:when test="${contract.endDate != null}">
+                                                            <fmt:formatDate value="${contract.endDate}" pattern="dd/MM/yyyy"/>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="text-muted">Chưa xác định</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="info-item">
+                                                <div class="info-label">
+                                                    <i class="fas fa-money-bill-wave me-1"></i>Giá thuê hàng tháng
+                                                </div>
+                                                <div class="info-value text-success">
+                                                    <fmt:formatNumber value="${contract.rentPrice}" pattern="#,###"/> VNĐ
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <c:if test="${contract.depositAmount != null && contract.depositAmount > 0}">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="info-item">
+                                                    <div class="info-label">
+                                                        <i class="fas fa-shield-alt me-1"></i>Tiền cọc
+                                                    </div>
+                                                    <div class="info-value text-warning">
+                                                        <fmt:formatNumber value="${contract.depositAmount}" pattern="#,###"/> VNĐ
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:if>
+
+                                    <c:if test="${not empty contract.note}">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="info-item">
+                                                    <div class="info-label">
+                                                        <i class="fas fa-sticky-note me-1"></i>Ghi chú
+                                                    </div>
+                                                    <div class="info-value text-muted">
+                                                        ${contract.note}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:if>
+                                </div>
+
+                                <!-- Card Footer -->
+                                <div class="card-footer bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>ID Người thuê: ${contract.tenantsID}
+                                        </small>
+                                        <a href="${pageContext.request.contextPath}/listcontracts?action=view&id=${contract.contractId}&userView=true" 
+                                           class="btn btn-gradient btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </c:otherwise>
+        </c:choose>
+
+        <!-- Pagination -->
+        <c:if test="${not searchMode and totalPages > 1}">
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Phân trang hợp đồng">
+                    <ul class="pagination pagination-lg">
+                        <!-- Previous Button -->
+                        <c:if test="${currentPage > 1}">
+                            <li class="page-item">
+                                <a class="page-link" href="${pageContext.request.contextPath}/listcontracts?page=${currentPage - 1}&userView=true">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        </c:if>
+                        
+                        <!-- Page Numbers -->
+                        <c:forEach begin="1" end="${totalPages}" var="pageNum">
+                            <c:choose>
+                                <c:when test="${pageNum == currentPage}">
+                                    <li class="page-item active">
+                                        <span class="page-link">${pageNum}</span>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/listcontracts?page=${pageNum}&userView=true">
+                                            ${pageNum}
+                                        </a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+                        
+                        <!-- Next Button -->
+                        <c:if test ="${currentPage < totalPages}">
+                            <li class="page-item">
+                                <a class="page-link" href="${pageContext.request.contextPath}/listcontracts?page=${currentPage + 1}&userView=true">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </c:if>
                     </ul>
-                </div>
-
-                <!-- Main Content -->
-                <div class="homepage-body">
-                    <div class="body-head">
-                        <h3 class="body__head-title">Danh sách hợp đồng</h3>
-                        <div class="search-container">
-                            <!-- Search Form -->
-                            <form action="listcontracts" method="post">
-                                <input type="text" id="information" name="information" 
-                                       placeholder="Tìm kiếm hợp đồng..." class="search-input">
-                                <input type="submit" class="search-button" value="Tìm kiếm">
-                            </form>
-
-                            <% if (message != null && !message.isEmpty()) { %>
-                            <div id="toast-message" class="toast-message"><%= message %></div>
-                            <% } %>
-
-                            <!-- Sort Dropdown -->
-                            <form action="listcontracts" method="get">
-                                <select name="sortBy" class="sort-dropdown" onchange="this.form.submit()">
-                                    <option value="" disabled selected>Sắp xếp theo</option>
-                                    <option value="start_date_asc">Ngày bắt đầu tăng dần</option>
-                                    <option value="start_date_desc">Ngày bắt đầu giảm dần</option>
-                                    <option value="end_date_asc">Ngày kết thúc tăng dần</option>
-                                    <option value="end_date_desc">Ngày kết thúc giảm dần</option>
-                                    <option value="price_asc">Giá thuê tăng dần</option>
-                                    <option value="price_desc">Giá thuê giảm dần</option>
-                                    <option value="room_asc">Phòng A-Z</option>
-                                    <option value="room_desc">Phòng Z-A</option>
-                                </select>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Contracts Table -->
-                    <div class="table-container">
-                        <table class="product-table">
-                            <thead>
-                                <tr class="table-header">
-                                    <th class="table-header-item">Mã hợp đồng</th>
-                                    <th class="table-header-item">Phòng</th>
-                                    <th class="table-header-item">Giá thuê</th>
-                                    <th class="table-header-item">Ngày bắt đầu</th>
-                                    <th class="table-header-item">Ngày kết thúc</th>
-                                    <th class="table-header-item">Tiền cọc</th>
-                                    <th class="table-header-item">Số người thuê</th>
-                                    <th class="table-header-item">Ghi chú</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (contracts != null && !contracts.isEmpty()) {
-                                    for (Contracts contract : contracts) { %>
-                                <tr class="table-row">
-                                    <td class="table-cell"><%= contract.getContractId() %></td>
-                                    <td class="table-cell">Phòng <%= contract.getRoomID() %></td>
-                                    <td class="table-cell"><%= currencyFormat.format(contract.getDealPrice()) %> VND/tháng</td>
-                                    <td class="table-cell"><%= dateFormat.format(contract.getStartDate()) %></td>
-                                    <td class="table-cell"><%= dateFormat.format(contract.getEndDate()) %></td>
-                                    <td class="table-cell"><%= currencyFormat.format(contract.getDepositAmount()) %> VND</td>
-                                    <td class="table-cell"><%= contract.getTenantCount() %> người</td>
-                                    <td class="table-cell description"><%= contract.getNote() != null ? contract.getNote() : "Không có ghi chú" %></td>
-                                </tr>
-                                <% }
-                                } else { %>
-                                <tr>
-                                    <td colspan="8" class="table-cell" style="text-align: center;">Không có hợp đồng nào.</td>
-                                </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <%--<div class="pagination">
-                        <div class="pagination-controls">
-                            <button class="pagination-button" 
-                                    <% if (currentPage <= 1) { %> disabled <% } %>
-                                    onclick="window.location.href = 'listcontracts?page=<%= currentPage - 1 %>'">
-                                Trước
-                            </button>
-
-                            <span class="pagination-info">Trang <%= currentPage %> / <%= totalPages %></span>
-
-                            <button class="pagination-button" 
-                                    <% if (currentPage >= totalPages) { %> disabled <% } %>
-                                    onclick="window.location.href = 'listcontracts?page=<%= currentPage + 1 %>'">
-                                Sau
-                            </button>
-                        </div>
-                    </div>--%>
-                </div>
+                </nav>
             </div>
-        </div>
+        </c:if>
 
-        <!-- Footer -->
-        <div class="footer">
-            <div class="container">
-                <p>&copy; 2025 Công ty TNHH G3. Tất cả quyền được bảo lưu.</p>
+        <!-- Page Info -->
+        <c:if test="${not searchMode and not empty contracts}">
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    Hiển thị ${(currentPage - 1) * contractsPerPage + 1} - 
+                    ${(currentPage - 1) * contractsPerPage + contracts.size()} 
+                    trong tổng số ${totalContracts} hợp đồng
+                </small>
             </div>
-        </div>
+        </c:if>
+    </div>
 
-        <!-- Toast Message Script -->
-        <script>
-            window.onload = function () {
-                var toast = document.getElementById("toast-message");
-                if (toast) {
-                    toast.style.display = "block";
-                    setTimeout(function () {
-                        toast.style.opacity = "0";
-                        setTimeout(() => toast.style.display = "none", 500);
-                    }, 3000);
-                }
-            };
-        </script>
-    </body>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+
+        // Search form enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="keyword"]');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        this.form.submit();
+                    }
+                });
+            }
+        });
+
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
 </html>
