@@ -1,154 +1,124 @@
 package model;
 
-import java.sql.Date;
+import java.math.BigDecimal;
 
 public class Rooms {
     
-    private int roomID;
-    private String Address;
-    private String Description;
-    private String ImageLink; 
-    private boolean Status;
-    private double Price;
-    private String RoomType;
-    private int RentalAreaid;
-    private Date CreateAt;
-    private Date UpdateAt;
-    private int CreateBy;
-    private int isDelete;
-    private Date deletedAt;
-    private int deleteBy;
-
+    private int roomId;
+    private int rentalAreaId;
+    private String roomNumber;
+    private BigDecimal area;
+    private BigDecimal price;
+    private int maxTenants;
+    private int status; // 0: Available, 1: Occupied, 2: Under Maintenance
+    private String description;
+    // Transient fields for display purposes
+    private String rentalAreaName;
+    private String currentTenant;
+    
     public Rooms() {
     }
 
-    public Rooms(int roomID, String Address, String Description, String ImageLink, boolean Status, double Price, String RoomType, int RentalAreaid, Date CreateAt, Date UpdateAt, int CreateBy, int isDelete, Date deletedAt, int deleteBy) {
-        this.roomID = roomID;
-        this.Address = Address;
-        this.Description = Description;
-        this.ImageLink = ImageLink;
-        this.Status = Status;
-        this.Price = Price;
-        this.RoomType = RoomType;
-        this.RentalAreaid = RentalAreaid;
-        this.CreateAt = CreateAt;
-        this.UpdateAt = UpdateAt;
-        this.CreateBy = CreateBy;
-        this.isDelete = isDelete;
-        this.deletedAt = deletedAt;
-        this.deleteBy = deleteBy;
+    public Rooms(int roomId, int rentalAreaId, String roomNumber, BigDecimal area, BigDecimal price, int maxTenants, int status, String description, String rentalAreaName, String currentTenant) {
+        this.roomId = roomId;
+        this.rentalAreaId = rentalAreaId;
+        this.roomNumber = roomNumber;
+        this.area = area;
+        this.price = price;
+        this.maxTenants = maxTenants;
+        this.status = status;
+        this.description = description;
+        this.rentalAreaName = rentalAreaName;
+        this.currentTenant = currentTenant;
     }
 
-    public int getRoomID() {
-        return roomID;
+    public int getRoomId() {
+        return roomId;
     }
 
-    public void setRoomID(int roomID) {
-        this.roomID = roomID;
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
     }
 
-    public String getAddress() {
-        return Address;
+    public int getRentalAreaId() {
+        return rentalAreaId;
     }
 
-    public void setAddress(String Address) {
-        this.Address = Address;
+    public void setRentalAreaId(int rentalAreaId) {
+        this.rentalAreaId = rentalAreaId;
+    }
+
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public BigDecimal getArea() {
+        return area;
+    }
+
+    public void setArea(BigDecimal area) {
+        this.area = area;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public int getMaxTenants() {
+        return maxTenants;
+    }
+
+    public void setMaxTenants(int maxTenants) {
+        this.maxTenants = maxTenants;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
-    public void setDescription(String Description) {
-        this.Description = Description;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getImageLink() {
-        return ImageLink;
+    public String getRentalAreaName() {
+        return rentalAreaName;
     }
 
-    public void setImageLink(String ImageLink) {
-        this.ImageLink = ImageLink;
+    public void setRentalAreaName(String rentalAreaName) {
+        this.rentalAreaName = rentalAreaName;
     }
 
-    public boolean isStatus() {
-        return Status;
+    public String getCurrentTenant() {
+        return currentTenant;
     }
 
-    public void setStatus(boolean Status) {
-        this.Status = Status;
+    public void setCurrentTenant(String currentTenant) {
+        this.currentTenant = currentTenant;
     }
 
-    public double getPrice() {
-        return Price;
+    // Helper method to get status as string
+    public String getStatusAsString() {
+        switch (status) {
+            case 0: return "Available";
+            case 1: return "Occupied";
+            case 2: return "Maintenance";
+            default: return "Unknown";
+        }
     }
-
-    public void setPrice(double Price) {
-        this.Price = Price;
-    }
-
-    public String getRoomType() {
-        return RoomType;
-    }
-
-    public void setRoomType(String RoomType) {
-        this.RoomType = RoomType;
-    }
-
-    public int getRentalAreaid() {
-        return RentalAreaid;
-    }
-
-    public void setRentalAreaid(int RentalAreaid) {
-        this.RentalAreaid = RentalAreaid;
-    }
-
-    public Date getCreateAt() {
-        return CreateAt;
-    }
-
-    public void setCreateAt(Date CreateAt) {
-        this.CreateAt = CreateAt;
-    }
-
-    public Date getUpdateAt() {
-        return UpdateAt;
-    }
-
-    public void setUpdateAt(Date UpdateAt) {
-        this.UpdateAt = UpdateAt;
-    }
-
-    public int getCreateBy() {
-        return CreateBy;
-    }
-
-    public void setCreateBy(int CreateBy) {
-        this.CreateBy = CreateBy;
-    }
-
-    public int getIsDelete() {
-        return isDelete;
-    }
-
-    public void setIsDelete(int isDelete) {
-        this.isDelete = isDelete;
-    }
-
-    public Date getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(Date deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
-    public int getDeleteBy() {
-        return deleteBy;
-    }
-
-    public void setDeleteBy(int deleteBy) {
-        this.deleteBy = deleteBy;
-    }
-    
 }

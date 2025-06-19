@@ -1,11 +1,8 @@
 package model;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
-/**
- *
- * @author ADMIN
- */
 public class RentalArea {
     
     private int rentalAreaId;
@@ -63,5 +60,28 @@ public class RentalArea {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    @Override
+    public String toString() {
+        return "RentalArea{" +
+                "rentalAreaId=" + rentalAreaId +
+                ", managerId=" + managerId +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RentalArea that = (RentalArea) o;
+        return rentalAreaId == that.rentalAreaId &&
+                managerId == that.managerId &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(address, that.address) &&
+                Objects.equals(createdAt, that.createdAt);
     }
 } 

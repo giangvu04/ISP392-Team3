@@ -2,31 +2,27 @@
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>Controller.loginservlet.LoginServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>LogoutServlet</servlet-name>
-        <servlet-class>Controller.LogoutServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.LoginServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListRoomsServlet</servlet-name>
-        <servlet-class>Controller.roomservlet.ListRoomsServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.ListRoomsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListUsersServlet</servlet-name>
-        <servlet-class>Controller.userservlet.ListUsersServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.ListUsersServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UserDetailServlet</servlet-name>
-        <servlet-class>Controller.userservlet.UserDetailServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.UserDetailServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListContractsServlet</servlet-name>
-        <servlet-class>Controller.contractservlet.ListContractsServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.ListContractsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UpdateUsersServlet</servlet-name>
-        <servlet-class>Controller.userservlet.UpdateUsersServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.UpdateUsersServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ResetPasswordServlet</servlet-name>
@@ -34,39 +30,39 @@
     </servlet>
     <servlet>
         <servlet-name>DeleteUserServlet</servlet-name>
-        <servlet-class>Controller.userservlet.DeleteUserServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.DeleteUserServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RegisterServlet</servlet-name>
-        <servlet-class>Controller.userservlet.RegisterServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.RegisterServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AdminUserManagementServlet</servlet-name>
-        <servlet-class>Controller.userservlet.AdminUserManagementServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.AdminUserManagementServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AdminHomepageServlet</servlet-name>
-        <servlet-class>Controller.AdminHomepageServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.AdminHomepageServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ManagerHomepageServlet</servlet-name>
-        <servlet-class>Controller.ManagerHomepageServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.ManagerHomepageServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>TenantHomepageServlet</servlet-name>
-        <servlet-class>Controller.TenantHomepageServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.TenantHomepageServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>TestDatabaseServlet</servlet-name>
-        <servlet-class>Controller.TestDatabaseServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.TestDatabaseServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>TestRedirectServlet</servlet-name>
-        <servlet-class>Controller.TestRedirectServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.TestRedirectServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>TestCreateUserServlet</servlet-name>
-        <servlet-class>Controller.TestCreateUserServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.TestCreateUserServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>TestDatabaseSchemaServlet</servlet-name>
@@ -74,19 +70,19 @@
     </servlet>
     <servlet>
         <servlet-name>BillServlet</servlet-name>
-        <servlet-class>Controller.billservlet.BillServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.BillServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListBillsServlet</servlet-name>
-        <servlet-class>Controller.billservlet.ListBillsServlet</servlet-class>
+        <servlet-class>Controller.adminservlet.ListBillsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>Controller.loginservlet.LogoutServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>LogoutServlet</servlet-name>
-        <url-pattern>/logout</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ListRoomsServlet</servlet-name>
@@ -159,5 +155,9 @@
     <servlet-mapping>
         <servlet-name>ListBillsServlet</servlet-name>
         <url-pattern>/listbills</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
     </servlet-mapping>
 </web-app>
