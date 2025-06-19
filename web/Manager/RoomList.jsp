@@ -212,7 +212,7 @@
                                                         <a href="roomdetail?id=${room.id}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
-                                                        <a href="editroom?id=${room.id}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                        <a href="updateroom?id=${room.id}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
                                                         <c:if test="${room.status == 'Available'}">

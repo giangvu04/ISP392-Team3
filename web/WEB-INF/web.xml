@@ -80,6 +80,14 @@
         <servlet-name>LogoutServlet</servlet-name>
         <servlet-class>Controller.loginservlet.LogoutServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AddRoomServlet</servlet-name>
+        <servlet-class>Controller.roomservlet.AddRoomServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateRoomServlet</servlet-name>
+        <servlet-class>Controller.roomservlet.UpdateRoomServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -159,5 +167,13 @@
     <servlet-mapping>
         <servlet-name>LogoutServlet</servlet-name>
         <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddRoomServlet</servlet-name>
+        <url-pattern>/addroom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateRoomServlet</servlet-name>
+        <url-pattern>/updateroom</url-pattern>
     </servlet-mapping>
 </web-app>
