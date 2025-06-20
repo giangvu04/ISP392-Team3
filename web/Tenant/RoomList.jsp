@@ -138,19 +138,19 @@
                                         <div class="d-flex justify-content-between align-items-start mb-3">
                                             <h5 class="card-title mb-0">Phòng ${room.roomNumber}</h5>
                                             <c:choose>
-                                                <c:when test="${room.status == 'Available'}">
+                                                <c:when test="${room.status == 0}">
                                                     <span class="badge status-available">
                                                         <i class="fas fa-check-circle me-1"></i>
                                                         Còn trống
                                                     </span>
                                                 </c:when>
-                                                <c:when test="${room.status == 'Occupied'}">
+                                                <c:when test="${room.status == 1}">
                                                     <span class="badge status-occupied">
                                                         <i class="fas fa-user me-1"></i>
                                                         Đã thuê
                                                     </span>
                                                 </c:when>
-                                                <c:when test="${room.status == 'Maintenance'}">
+                                                <c:when test="${room.status == 2}">
                                                     <span class="badge status-maintenance">
                                                         <i class="fas fa-tools me-1"></i>
                                                         Bảo trì
@@ -169,8 +169,8 @@
                                                     <div class="fw-bold">${room.rentalAreaName}</div>
                                                 </div>
                                                 <div class="col-6">
-                                                    <small class="text-muted">Loại phòng:</small>
-                                                    <div class="fw-bold">${room.roomType}</div>
+                                                    <small class="text-muted">Diện tích:</small>
+                                                    <div class="fw-bold">${room.area}</div>
                                                 </div>
                                             </div>
                                         </div>
