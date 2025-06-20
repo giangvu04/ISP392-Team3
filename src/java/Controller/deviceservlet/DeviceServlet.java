@@ -151,7 +151,7 @@ public class DeviceServlet extends HttpServlet {
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        request.getRequestDispatcher("/views/device/add.jsp").forward(request, response);
+        request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
     }
     
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
@@ -225,7 +225,7 @@ public class DeviceServlet extends HttpServlet {
             // Validation
             if (deviceName == null || deviceName.trim().isEmpty()) {
                 setErrorMessage(request, "Tên thiết bị không được để trống");
-                request.getRequestDispatcher("/views/device/add.jsp").forward(request, response);
+                request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
                 return;
             }
             
@@ -233,7 +233,7 @@ public class DeviceServlet extends HttpServlet {
             if (deviceDAO.isDeviceNameExists(deviceName.trim(), 0)) {
                 setErrorMessage(request, "Tên thiết bị đã tồn tại");
                 request.setAttribute("deviceName", deviceName);
-                request.getRequestDispatcher("/views/device/add.jsp").forward(request, response);
+                request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
                 return;
             }
             
@@ -250,16 +250,16 @@ public class DeviceServlet extends HttpServlet {
             
             if (newDeviceId > 0) {
                 setSuccessMessage(request, "Thêm thiết bị thành công!");
-                response.sendRedirect("device?action=list");
+                response.sendRedirect("listdevices?action=list");
             } else {
                 setErrorMessage(request, "Lỗi khi thêm thiết bị");
-                request.getRequestDispatcher("/views/device/add.jsp").forward(request, response);
+                request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
             }
             
         } catch (IllegalArgumentException e) {
             setErrorMessage(request, e.getMessage());
             request.setAttribute("deviceName", request.getParameter("deviceName"));
-            request.getRequestDispatcher("/views/device/add.jsp").forward(request, response);
+            request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
         } catch (Exception e) {
             handleError(request, response, "Lỗi khi thêm thiết bị: " + e.getMessage());
         }

@@ -81,11 +81,7 @@ public class DAODevices {
         }
 
         // Soft delete bằng cách thêm "[Deleted]" vào tên
-        String sql = """
-            UPDATE [HouseSharing].[dbo].[devices] 
-            SET [device_name] = CONCAT([device_name], ' [Deleted]') 
-            WHERE [device_id] = ?
-            """;
+        String sql = "DELETE FROM [HouseSharing].[dbo].[devices] WHERE [device_id] = ?";
         
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, deviceId);
