@@ -6,7 +6,7 @@
     </servlet>
     <servlet>
         <servlet-name>ListRoomsServlet</servlet-name>
-        <servlet-class>Controller.adminservlet.ListRoomsServlet</servlet-class>
+        <servlet-class>Controller.roomservlet.ListRoomsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListUsersServlet</servlet-name>
@@ -18,7 +18,7 @@
     </servlet>
     <servlet>
         <servlet-name>ListContractsServlet</servlet-name>
-        <servlet-class>Controller.adminservlet.ListContractsServlet</servlet-class>
+        <servlet-class>Controller.contractservlet.ListContractsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UpdateUsersServlet</servlet-name>
@@ -70,11 +70,11 @@
     </servlet>
     <servlet>
         <servlet-name>BillServlet</servlet-name>
-        <servlet-class>Controller.adminservlet.BillServlet</servlet-class>
+        <servlet-class>Controller.billservlet.BillServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListBillsServlet</servlet-name>
-        <servlet-class>Controller.adminservlet.ListBillsServlet</servlet-class>
+        <servlet-class>Controller.billservlet.ListBillsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>LogoutServlet</servlet-name>
