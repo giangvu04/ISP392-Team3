@@ -18,19 +18,31 @@ public class AddRoomServlet extends HttpServlet {
         request.getRequestDispatcher("Manager/addRoom.jsp").forward(request, response);
     }
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            // Get parameters from the form
-            int rentalAreaId = Integer.parseInt(request.getParameter("rentalAreaId"));
-            String roomNumber = request.getParameter("roomNumber");
-            BigDecimal area = new BigDecimal(request.getParameter("area"));
-            BigDecimal price = new BigDecimal(request.getParameter("price"));
-            int maxTenants = Integer.parseInt(request.getParameter("maxTenants"));
-            int status = Integer.parseInt(request.getParameter("status"));
-            String description = request.getParameter("description");
 
-            // Create a new room object
+        // Get all parameters from the request
+        String rentalAreaIdStr = request.getParameter("rentalAreaId");
+        String roomNumber = request.getParameter("roomNumber");
+        String areaStr = request.getParameter("area");
+        String priceStr = request.getParameter("price");
+        String maxTenantsStr = request.getParameter("maxTenants");
+        String statusStr = request.getParameter("status");
+        String description = request.getParameter("description");
+
+        // Initialize error message
+        String errorMessage = null;
+
+        try {
+            // Validate and parse parameters
+            int rentalAreaId = Integer.parseInt(rentalAreaIdStr);
+            BigDecimal area = new BigDecimal(areaStr);
+            BigDecimal price = new BigDecimal(priceStr);
+            int maxTenants = Integer.parseInt(maxTenantsStr);
+            int status = Integer.parseInt(statusStr);
+
+            // Create room object
             Rooms room = new Rooms();
             room.setRentalAreaId(rentalAreaId);
             room.setRoomNumber(roomNumber);
@@ -40,24 +52,36 @@ public class AddRoomServlet extends HttpServlet {
             room.setStatus(status);
             room.setDescription(description);
 
-            // Add the room to the database
+            // Attempt to add the room
             boolean success = DAORooms.INSTANCE.addRoom(room);
 
             if (success) {
-                request.getSession().setAttribute("message", "Room added successfully!");
-                request.getSession().setAttribute("messageType", "success");
+                // Redirect to success page or room listing
+                response.sendRedirect("roomList.jsp?success=true");
+                return;
             } else {
-                request.getSession().setAttribute("message", "Failed to add room. Please try again.");
-                request.getSession().setAttribute("messageType", "danger");
+                errorMessage = "Failed to add room. The rental area might not exist.";
             }
-
-            response.sendRedirect("listrooms");
-
+        } catch (NumberFormatException e) {
+            errorMessage = "Invalid number format in one of the fields.";
         } catch (Exception e) {
-            e.printStackTrace();
-            request.getSession().setAttribute("message", "An error occurred: " + e.getMessage());
-            request.getSession().setAttribute("messageType", "danger");
-            response.sendRedirect("Manager/addRoom.jsp");
+            errorMessage = "An unexpected error occurred: " + e.getMessage();
+            e.printStackTrace(); // Log the full error for debugging
         }
+
+        // If we get here, there was an error
+        request.setAttribute("error", errorMessage);
+
+        // Preserve the form inputs so user doesn't lose their data
+        request.setAttribute("rentalAreaId", rentalAreaIdStr);
+        request.setAttribute("roomNumber", roomNumber);
+        request.setAttribute("area", areaStr);
+        request.setAttribute("price", priceStr);
+        request.setAttribute("maxTenants", maxTenantsStr);
+        request.setAttribute("status", statusStr);
+        request.setAttribute("description", description);
+
+        // Forward back to the form page
+        request.getRequestDispatcher("Manager/addRoom.jsp").forward(request, response);
     }
 }

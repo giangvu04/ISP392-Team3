@@ -187,7 +187,7 @@
                                         
                                         <div class="d-grid">
                                             <c:if test="${room.status == 'Available'}">
-                                                <a href="roomdetail?id=${room.id}" class="btn btn-primary">
+                                                <a href="roomdetail?id=${room.roomId}" class="btn btn-primary">
                                                     <i class="fas fa-eye me-2"></i>
                                                     Xem chi tiết
                                                 </a>

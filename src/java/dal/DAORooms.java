@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DAORooms {
+
     public static final DAORooms INSTANCE = new DAORooms();
     protected Connection connect;
 
@@ -22,8 +23,7 @@ public class DAORooms {
         ArrayList<Rooms> rooms = new ArrayList<>();
         String sql = "SELECT * FROM rooms";
 
-        try (PreparedStatement statement = connect.prepareStatement(sql); 
-             ResultSet rs = statement.executeQuery()) {
+        try (PreparedStatement statement = connect.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
 
             while (rs.next()) {
                 Rooms room = new Rooms();
@@ -35,7 +35,7 @@ public class DAORooms {
                 room.setMaxTenants(rs.getInt("max_tenants"));
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
-                
+
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -71,8 +71,24 @@ public class DAORooms {
 
     // Add a new room
     public boolean addRoom(Rooms room) {
-        String sql = "INSERT INTO rooms (rental_area_id, room_number, area, price, max_tenants, status, description) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // First check if the rental area exists
+        String checkSql = "SELECT COUNT(*) FROM rental_areas WHERE rental_area_id = ?";
+        try (PreparedStatement checkPs = connect.prepareStatement(checkSql)) {
+            checkPs.setInt(1, room.getRentalAreaId());
+            ResultSet rs = checkPs.executeQuery();
+            if (rs.next() && rs.getInt(1) == 0) {
+                // Rental area doesn't exist
+                System.err.println("Rental area with ID " + room.getRentalAreaId() + " doesn't exist");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // Proceed with insertion if rental area exists
+        String sql = "INSERT INTO rooms (rental_area_id, room_number, area, price, max_tenants, status, description) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, room.getRentalAreaId());
             ps.setString(2, room.getRoomNumber());
@@ -81,7 +97,7 @@ public class DAORooms {
             ps.setInt(5, room.getMaxTenants());
             ps.setInt(6, room.getStatus());
             ps.setString(7, room.getDescription());
-            
+
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -91,8 +107,8 @@ public class DAORooms {
 
     // Update room information
     public boolean updateRoom(Rooms room) {
-        String sql = "UPDATE rooms SET rental_area_id = ?, room_number = ?, area = ?, price = ?, " +
-                     "max_tenants = ?, status = ?, description = ? WHERE room_id = ?";
+        String sql = "UPDATE rooms SET rental_area_id = ?, room_number = ?, area = ?, price = ?, "
+                + "max_tenants = ?, status = ?, description = ? WHERE room_id = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, room.getRentalAreaId());
             ps.setString(2, room.getRoomNumber());
@@ -102,7 +118,7 @@ public class DAORooms {
             ps.setInt(6, room.getStatus());
             ps.setString(7, room.getDescription());
             ps.setInt(8, room.getRoomId());
-            
+
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,7 +132,7 @@ public class DAORooms {
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, status);
             ps.setInt(2, roomId);
-            
+
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -127,10 +143,10 @@ public class DAORooms {
     // Get rooms by page (for pagination)
     public ArrayList<Rooms> getRoomsByPage(int page, int roomsPerPage, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.name as rental_area_name " +
-                     "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "WHERE r.rental_area_id = ? " +
-                     "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT r.*, ra.name as rental_area_name "
+                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "WHERE r.rental_area_id = ? "
+                + "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, rentalAreaId);
@@ -150,7 +166,7 @@ public class DAORooms {
                 room.setDescription(rs.getString("description"));
                 // Additional field for display
                 room.setRentalAreaName(rs.getString("rental_area_name"));
-                
+
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -177,10 +193,10 @@ public class DAORooms {
     // Search rooms by room number or description
     public ArrayList<Rooms> searchRooms(String searchTerm, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.name as rental_area_name " +
-                     "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "WHERE r.rental_area_id = ? AND " +
-                     "(LOWER(r.room_number) LIKE ? OR LOWER(r.description) LIKE ?)";
+        String sql = "SELECT r.*, ra.name as rental_area_name "
+                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "WHERE r.rental_area_id = ? AND "
+                + "(LOWER(r.room_number) LIKE ? OR LOWER(r.description) LIKE ?)";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             String searchPattern = "%" + searchTerm.toLowerCase() + "%";
@@ -200,7 +216,7 @@ public class DAORooms {
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
                 room.setRentalAreaName(rs.getString("rental_area_name"));
-                
+
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -212,9 +228,9 @@ public class DAORooms {
     // Get rooms by status
     public ArrayList<Rooms> getRoomsByStatus(int status, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.area_name as rental_area_name " +
-                     "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "WHERE r.rental_area_id = ? AND r.status = ?";
+        String sql = "SELECT r.*, ra.area_name as rental_area_name "
+                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "WHERE r.rental_area_id = ? AND r.status = ?";
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, rentalAreaId);
@@ -232,7 +248,7 @@ public class DAORooms {
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
                 room.setRentalAreaName(rs.getString("rental_area_name"));
-                
+
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -240,9 +256,10 @@ public class DAORooms {
         }
         return rooms;
     }
-    
+
     // You'll need to add this method to the Rooms model as a transient field
     public static class RoomWithDetails extends Rooms {
+
         private String rentalAreaName;
         private String currentTenant;
 
@@ -263,7 +280,7 @@ public class DAORooms {
             this.currentTenant = currentTenant;
         }
     }
-    
+
     public static void main(String[] args) {
         DAORooms dao = DAORooms.INSTANCE;
     }
