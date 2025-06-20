@@ -125,7 +125,7 @@ public class DeviceInRoomServlet extends HttpServlet {
             request.setAttribute("devicesPerPage", DEVICES_PER_PAGE);
             
             // Forward đến JSP
-            request.getRequestDispatcher("/views/deviceinroom/list.jsp").forward(request, response);
+            request.getRequestDispatcher("/Deviceinroom/list.jsp").forward(request, response);
             
         } catch (Exception e) {
             handleError(request, response, "Lỗi khi tải danh sách thiết bị trong phòng: " + e.getMessage());
@@ -176,7 +176,7 @@ public class DeviceInRoomServlet extends HttpServlet {
             request.setAttribute("keyword", keyword.trim());
             request.setAttribute("searchMode", true);
             
-            request.getRequestDispatcher("/views/deviceinroom/list.jsp").forward(request, response);
+            request.getRequestDispatcher("/Deviceinroom/list.jsp").forward(request, response);
             
         } catch (Exception e) {
             handleError(request, response, "Lỗi khi tìm kiếm thiết bị: " + e.getMessage());
@@ -202,7 +202,7 @@ public class DeviceInRoomServlet extends HttpServlet {
                 }
             }
             
-            request.getRequestDispatcher("/views/deviceinroom/add.jsp").forward(request, response);
+            request.getRequestDispatcher("/Deviceinroom/add.jsp").forward(request, response);
             
         } catch (Exception e) {
             handleError(request, response, "Lỗi khi tải form thêm thiết bị: " + e.getMessage());
@@ -443,7 +443,7 @@ public class DeviceInRoomServlet extends HttpServlet {
             throws ServletException, IOException {
         
         setErrorMessage(request, errorMessage);
-        request.getRequestDispatcher("/views/error.jsp").forward(request, response);
+        request.getRequestDispatcher("/error.jsp").forward(request, response);
     }
     
     private void setErrorMessage(HttpServletRequest request, String message) {

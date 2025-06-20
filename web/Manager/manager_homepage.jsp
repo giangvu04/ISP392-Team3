@@ -74,10 +74,20 @@
                                 <i class="fas fa-receipt me-2"></i>
                                 Hóa đơn
                             </a>
-                            <a class="nav-link" href="listdevices">
+                            <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="equipmentDropdown" role="button" data-bs-toggle="collapse" data-bs-target="#equipmentSubmenu" aria-expanded="false" aria-controls="equipmentSubmenu">
                                 <i class="fas fa-tools me-2"></i>
                                 Thiết bị
                             </a>
+                            <div class="collapse submenu" id="equipmentSubmenu">
+                                <a class="nav-link" href="listdevices">                                  
+                                    Danh sách thiết bị
+                                </a>
+                                <a class="nav-link" href="deviceinroom">                                   
+                                    Thiết bị trong phòng
+                                </a>
+                            </div>
+                        </div>
                             <a class="nav-link" href="listservices">
                                 <i class="fas fa-concierge-bell me-2"></i>
                                 Dịch vụ

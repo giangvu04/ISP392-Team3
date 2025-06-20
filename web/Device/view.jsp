@@ -11,84 +11,59 @@
 </head>
 <body>
     <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-header bg-info text-white">
-                        <h4 class="mb-0">
-                            <i class="fas fa-eye me-2"></i>
-                            Xem chi tiết thiết bị
-                        </h4>
-                    </div>
-                    <div class="card-body">
-                        <!-- Hiển thị thông báo lỗi -->
-                        <c:if test="${not empty errorMessage}">
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                ${errorMessage}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        </c:if>
+        <h3 class="text-info mb-4">
+            <i class="fas fa-eye me-2"></i>Xem chi tiết thiết bị
+        </h3>
 
-                        <!-- Thông tin thiết bị -->
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-hashtag me-1"></i>
-                                ID thiết bị
-                            </label>
-                            <input type="text" class="form-control" value="${device.deviceId}" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-tag me-1"></i>
-                                Tên thiết bị
-                            </label>
-                            <input type="text" class="form-control" value="${device.deviceName}" readonly>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="${pageContext.request.contextPath}/listdevices?action=list" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>
-                                Quay lại danh sách
-                            </a>
-                            <div>
-                                <a href="${pageContext.request.contextPath}/listdevices?action=edit&id=${device.deviceId}" class="btn btn-primary">
-                                    <i class="fas fa-edit me-2"></i>
-                                    Chỉnh sửa
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Thông tin bổ sung -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h6 class="card-title">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Lưu ý
-                        </h6>
-                        <ul class="mb-0">
-                            <li>Thông tin hiển thị ở đây chỉ mang tính chất tham khảo.</li>
-                            <li>Để chỉnh sửa, vui lòng nhấp vào nút "Chỉnh sửa".</li>
-                        </ul>
-                    </div>
-                </div>
+        <c:if test="${not empty errorMessage}">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${errorMessage}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+        </c:if>
+
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">
+                <i class="fas fa-hashtag me-1"></i>ID thiết bị:
+            </label>
+            <div class="col-sm-10">
+                <input type="text" readonly class="form-control-plaintext" value="${device.deviceId}">
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">
+                <i class="fas fa-tag me-1"></i>Tên thiết bị:
+            </label>
+            <div class="col-sm-10">
+                <input type="text" readonly class="form-control-plaintext" value="${device.deviceName}">
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="${pageContext.request.contextPath}/listdevices?action=list" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+            </a>
+            <a href="${pageContext.request.contextPath}/listdevices?action=edit&id=${device.deviceId}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            </a>
+        </div>
+
+        <div class="mt-4">
+            <h6><i class="fas fa-info-circle me-2"></i>Lưu ý</h6>
+            <ul>
+                <li>Thông tin chỉ mang tính chất tham khảo.</li>
+                <li>Để chỉnh sửa, vui lòng nhấp vào nút "Chỉnh sửa".</li>
+            </ul>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Tự động ẩn alert sau 5 giây -->
     <script>
-        setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                new bootstrap.Alert(alert).close();
             });
         }, 5000);
     </script>
