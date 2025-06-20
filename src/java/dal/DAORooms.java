@@ -127,7 +127,7 @@ public class DAORooms {
     // Get rooms by page (for pagination)
     public ArrayList<Rooms> getRoomsByPage(int page, int roomsPerPage, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.area_name as rental_area_name " +
+        String sql = "SELECT r.*, ra.name as rental_area_name " +
                      "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
                      "WHERE r.rental_area_id = ? " +
                      "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -177,7 +177,7 @@ public class DAORooms {
     // Search rooms by room number or description
     public ArrayList<Rooms> searchRooms(String searchTerm, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.area_name as rental_area_name " +
+        String sql = "SELECT r.*, ra.name as rental_area_name " +
                      "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
                      "WHERE r.rental_area_id = ? AND " +
                      "(LOWER(r.room_number) LIKE ? OR LOWER(r.description) LIKE ?)";

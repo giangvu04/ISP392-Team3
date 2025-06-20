@@ -115,7 +115,7 @@ public class ListRoomsServlet extends HttpServlet {
             
             request.getRequestDispatcher(destination).forward(request, response);
         } else {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("login");
         }
     }
 

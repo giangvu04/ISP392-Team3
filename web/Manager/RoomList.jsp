@@ -154,7 +154,7 @@
                                         <tr>
                                             <th>Số phòng</th>
                                             <th>Khu vực</th>
-                                            <th>Loại phòng</th>
+                                            <th>Diện tích</th>
                                             <th>Giá (VNĐ/tháng)</th>
                                             <th>Trạng thái</th>
                                             <th>Người thuê hiện tại</th>
@@ -168,7 +168,7 @@
                                                     <strong>${room.roomNumber}</strong>
                                                 </td>
                                                 <td>${room.rentalAreaName}</td>
-                                                <td>${room.roomType}</td>
+                                                <td>${room.area}</td>
                                                 <td>
                                                     <span class="fw-bold text-primary">
                                                         ${room.price}
@@ -176,19 +176,19 @@
                                                 </td>
                                                 <td>
                                                     <c:choose>
-                                                        <c:when test="${room.status == 'Available'}">
+                                                        <c:when test="${room.status == 0}">
                                                             <span class="badge status-available">
                                                                 <i class="fas fa-check-circle me-1"></i>
                                                                 Còn trống
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${room.status == 'Occupied'}">
+                                                        <c:when test="${room.status == 1}">
                                                             <span class="badge status-occupied">
                                                                 <i class="fas fa-user me-1"></i>
                                                                 Đã thuê
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${room.status == 'Maintenance'}">
+                                                        <c:when test="${room.status == 3}">
                                                             <span class="badge status-maintenance">
                                                                 <i class="fas fa-tools me-1"></i>
                                                                 Bảo trì
@@ -209,14 +209,14 @@
                                                 </td>
                                                 <td>
                                                     <div class="btn-group" role="group">
-                                                        <a href="roomdetail?id=${room.id}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                        <a href="roomdetail?id=${room.roomId}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
-                                                        <a href="updateroom?id=${room.id}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                        <a href="updateroom?id=${room.roomId}" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
-                                                        <c:if test="${room.status == 'Available'}">
-                                                            <a href="assignroom?id=${room.id}" class="btn btn-sm btn-outline-success" title="Gán người thuê">
+                                                        <c:if test="${room.status == 0}">
+                                                            <a href="assignroom?id=${room.roomId}" class="btn btn-sm btn-outline-success" title="Gán người thuê">
                                                                 <i class="fas fa-user-plus"></i>
                                                             </a>
                                                         </c:if>
