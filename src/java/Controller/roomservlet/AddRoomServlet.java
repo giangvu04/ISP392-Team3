@@ -57,7 +57,7 @@ public class AddRoomServlet extends HttpServlet {
 
             if (success) {
                 // Redirect to success page or room listing
-                response.sendRedirect("roomList.jsp?success=true");
+                response.sendRedirect("Manager/RoomList.jsp?success=true");
                 return;
             } else {
                 errorMessage = "Failed to add room. The rental area might not exist.";

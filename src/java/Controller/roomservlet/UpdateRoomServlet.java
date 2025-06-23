@@ -15,7 +15,7 @@ public class UpdateRoomServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int roomId = Integer.parseInt(request.getParameter("roomId"));
+            int roomId = Integer.parseInt(request.getParameter("id"));
             Rooms room = DAORooms.INSTANCE.getRoomById(roomId);
             
             if (room != null) {
