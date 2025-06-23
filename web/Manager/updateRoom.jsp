@@ -169,8 +169,8 @@
                                     <div class="col-md-6">
                                         <label for="status" class="formLabel">Status</label>
                                         <select class="form-select" id="status" name="status" required>
-                                            <option value="1" <%= room.getStatus() == 0 ? "selected" : "" %>>Còn trống</option>
-                                            <option value="0" <%= room.getStatus() == 1 ? "selected" : "" %>>Đã thuê</option>
+                                            <option value="0" <%= room.getStatus() == 0 ? "selected" : "" %>>Còn trống</option>
+                                            <option value="1" <%= room.getStatus() == 1 ? "selected" : "" %>>Đã thuê</option>
                                             <option value="2" <%= room.getStatus() == 2 ? "selected" : "" %>>Bảo trì</option>
                                         </select>
                                     </div>
