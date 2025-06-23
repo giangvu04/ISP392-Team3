@@ -28,38 +28,63 @@ public class ListRoomsServlet extends HttpServlet {
         request.setAttribute("message", "");
 
         Users user = (Users) session.getAttribute("user");
-        
+
         if (user != null) {
             request.setAttribute("user", user);
-            
+
             // Get current page from URL parameter, default to 1
             int currentPage = Integer.parseInt(request.getParameter("page") != null ? request.getParameter("page") : "1");
             int roomsPerPage = 5; // Rooms per page
             String sortBy = request.getParameter("sortBy");
             String sortOrder = request.getParameter("sortOrder");
             String searchTerm = request.getParameter("searchTerm");
-            
+
             // Get rental area ID based on user role
             int rentalAreaId = 0; // Default to 0 (all areas) for admin and tenant
+            ArrayList<Rooms> rooms = new ArrayList<>(); // Initialize empty list
+
             if (user.getRoleId() == 2) { // Manager
                 RentalArea rentalArea = daoRentalArea.getRentalAreaByManagerId(user.getUserId());
                 if (rentalArea != null) {
                     rentalAreaId = rentalArea.getRentalAreaId();
                 }
+            } else if (user.getRoleId() == 3) { // Tenant
+                RentalArea rentalArea = daoRentalArea.getRentalAreaByTenantId(user.getUserId());
+                if (rentalArea != null) {
+                    rentalAreaId = rentalArea.getRentalAreaId();
+                }
             }
-            
+
             // Get rooms based on search or all rooms
-            ArrayList<Rooms> rooms;
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 rooms = dao.searchRooms(searchTerm, rentalAreaId);
             } else {
+                // For tenants, only show available rooms
+                if (user.getRoleId() == 3) {
+                    rooms = dao.getRoomsByStatus(0, rentalAreaId);
+                } else {
+                    rooms = dao.getRoomsByPage(currentPage, roomsPerPage, rentalAreaId);
+                }
+            }
+
+            // Handle case where tenant has no rental area assigned
+            if (user.getRoleId() == 3 && rentalAreaId == 0) {
+                request.setAttribute("error", "Bạn chưa được gán vào khu thuê nhà nào");
+            }
+
+            // Get rooms based on search or all rooms
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                rooms = dao.searchRooms(searchTerm, rentalAreaId);
+            } else if (user.getRoleId() == 3) { // Tenant sees only available rooms
+                rooms = dao.getRoomsByStatus(0, rentalAreaId);
+            } else {
                 rooms = dao.getRoomsByPage(currentPage, roomsPerPage, rentalAreaId);
             }
-            
+
             // Get total rooms and total pages
             int totalRooms = dao.getTotalRooms(rentalAreaId);
             int totalPages = (int) Math.ceil((double) totalRooms / roomsPerPage);
-            
+
             // Handle sorting
             if (sortBy != null && sortOrder != null) {
                 switch (sortBy) {
@@ -86,7 +111,7 @@ public class ListRoomsServlet extends HttpServlet {
                         break;
                 }
             }
-            
+
             // Set attributes for JSP
             request.setAttribute("rooms", rooms);
             request.setAttribute("currentPage", currentPage);
@@ -112,7 +137,7 @@ public class ListRoomsServlet extends HttpServlet {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
                     return;
             }
-            
+
             request.getRequestDispatcher(destination).forward(request, response);
         } else {
             response.sendRedirect("login");
