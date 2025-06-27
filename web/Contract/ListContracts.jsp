@@ -142,6 +142,25 @@
             margin-bottom: 2rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .filter-btn {
+            margin: 0.25rem;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -199,7 +218,7 @@
                             <small class="text-muted d-block">Tổng hợp đồng</small>
                             <h3 class="text-primary mb-0">
                                 <c:choose>
-                                    <c:when test="${searchMode}">
+                                    <c:when test="${searchMode or statusMode}">
                                         ${contracts.size()}
                                     </c:when>
                                     <c:otherwise>
@@ -214,11 +233,41 @@
             </div>
         </div>
 
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Lọc theo trạng thái:
+                    </h6>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-end">
+                        <a href="${pageContext.request.contextPath}/mycontract" 
+                           class="btn btn-outline-primary filter-btn ${empty param.status ? 'active' : ''}">
+                            <i class="fas fa-th me-1"></i>Tất cả
+                        </a>
+                        <a href="${pageContext.request.contextPath}/mycontract?action=status&status=1" 
+                           class="btn btn-outline-success filter-btn ${param.status == '1' ? 'active' : ''}">
+                            <i class="fas fa-check-circle me-1"></i>Đang hoạt động
+                        </a>
+                        <a href="${pageContext.request.contextPath}/mycontract?action=status&status=0" 
+                           class="btn btn-outline-warning filter-btn ${param.status == '0' ? 'active' : ''}">
+                            <i class="fas fa-clock me-1"></i>Chờ xử lý
+                        </a>
+                        <a href="${pageContext.request.contextPath}/mycontract?action=status&status=2" 
+                           class="btn btn-outline-danger filter-btn ${param.status == '2' ? 'active' : ''}">
+                            <i class="fas fa-times-circle me-1"></i>Đã hết hạn
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Search Box -->
         <div class="search-box">
-            <form method="GET" action="${pageContext.request.contextPath}/listcontracts" class="mb-0">
+            <form method="GET" action="${pageContext.request.contextPath}/mycontract" class="mb-0">
                 <input type="hidden" name="action" value="search">
-                <input type="hidden" name="userView" value="true">
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <div class="input-group input-group-lg">
@@ -238,7 +287,7 @@
                                 <i class="fas fa-search me-2"></i>Tìm kiếm
                             </button>
                             <c:if test="${searchMode}">
-                                <a href="${pageContext.request.contextPath}/listcontracts?userView=true" 
+                                <a href="${pageContext.request.contextPath}/mycontract" 
                                    class="btn btn-outline-light btn-lg">
                                     <i class="fas fa-times me-2"></i>Hủy
                                 </a>
@@ -257,6 +306,22 @@
             </div>
         </c:if>
 
+        <!-- Status Filter Results Info -->
+        <c:if test="${statusMode}">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Hiển thị <strong>${contracts.size()}</strong> hợp đồng với trạng thái: 
+                <strong>
+                    <c:choose>
+                        <c:when test="${status == 1}">Đang hoạt động</c:when>
+                        <c:when test="${status == 0}">Không hoạt động</c:when>
+                        <%-- <c:when test="${status == 2}">Đã hết hạn</c:when> --%>
+                        <c:otherwise>Không xác định</c:otherwise>
+                    </c:choose>
+                </strong>
+            </div>
+        </c:if>
+
         <!-- Contract List -->
         <c:choose>
             <c:when test="${empty contracts}">
@@ -269,6 +334,9 @@
                             <c:when test="${searchMode}">
                                 Không tìm thấy hợp đồng nào
                             </c:when>
+                            <c:when test="${statusMode}">
+                                Không có hợp đồng nào với trạng thái này
+                            </c:when>
                             <c:otherwise>
                                 Bạn chưa có hợp đồng nào
                             </c:otherwise>
@@ -279,11 +347,19 @@
                             <c:when test="${searchMode}">
                                 Thử tìm kiếm với từ khóa khác hoặc liên hệ với quản lý để biết thêm thông tin
                             </c:when>
+                            <c:when test="${statusMode}">
+                                Thử lọc với trạng thái khác hoặc xem tất cả hợp đồng
+                            </c:when>
                             <c:otherwise>
                                 Liên hệ với quản lý để đăng ký thuê phòng và tạo hợp đồng
                             </c:otherwise>
                         </c:choose>
                     </p>
+                    <c:if test="${searchMode or statusMode}">
+                        <a href="${pageContext.request.contextPath}/mycontract" class="btn btn-gradient mt-3">
+                            <i class="fas fa-arrow-left me-2"></i>Xem tất cả hợp đồng
+                        </a>
+                    </c:if>
                 </div>
             </c:when>
             <c:otherwise>
@@ -306,7 +382,7 @@
                                         </c:when>
                                         <c:when test="${contract.status == 0}">
                                             <span class="badge status-badge status-pending">
-                                                <i class="fas fa-clock me-1"></i>Chờ xử lý
+                                                <i class="fas fa-clock me-1"></i>Không hoạt động
                                             </span>
                                         </c:when>
                                         <c:otherwise>
@@ -410,7 +486,7 @@
                                         <small class="text-muted">
                                             <i class="fas fa-user me-1"></i>ID Người thuê: ${contract.tenantsID}
                                         </small>
-                                        <a href="${pageContext.request.contextPath}/listcontracts?action=view&id=${contract.contractId}&userView=true" 
+                                        <a href="${pageContext.request.contextPath}/mycontract?action=view&id=${contract.contractId}" 
                                            class="btn btn-gradient btn-sm">
                                             <i class="fas fa-eye me-1"></i>Xem chi tiết
                                         </a>
@@ -424,14 +500,14 @@
         </c:choose>
 
         <!-- Pagination -->
-        <c:if test="${not searchMode and totalPages > 1}">
+        <c:if test="${not searchMode and not statusMode and totalPages > 1}">
             <div class="d-flex justify-content-center mt-4">
                 <nav aria-label="Phân trang hợp đồng">
                     <ul class="pagination pagination-lg">
                         <!-- Previous Button -->
                         <c:if test="${currentPage > 1}">
                             <li class="page-item">
-                                <a class="page-link" href="${pageContext.request.contextPath}/listcontracts?page=${currentPage - 1}&userView=true">
+                                <a class="page-link" href="${pageContext.request.contextPath}/mycontract?page=${currentPage - 1}">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                             </li>
@@ -447,7 +523,7 @@
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item">
-                                        <a class="page-link" href="${pageContext.request.contextPath}/listcontracts?page=${pageNum}&userView=true">
+                                        <a class="page-link" href="${pageContext.request.contextPath}/mycontract?page=${pageNum}">
                                             ${pageNum}
                                         </a>
                                     </li>
@@ -456,9 +532,9 @@
                         </c:forEach>
                         
                         <!-- Next Button -->
-                        <c:if test ="${currentPage < totalPages}">
+                        <c:if test="${currentPage < totalPages}">
                             <li class="page-item">
-                                <a class="page-link" href="${pageContext.request.contextPath}/listcontracts?page=${currentPage + 1}&userView=true">
+                                <a class="page-link" href="${pageContext.request.contextPath}/mycontract?page=${currentPage + 1}">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </li>
@@ -469,7 +545,7 @@
         </c:if>
 
         <!-- Page Info -->
-        <c:if test="${not searchMode and not empty contracts}">
+        <c:if test="${not searchMode and not statusMode and not empty contracts}">
             <div class="text-center mt-3">
                 <small class="text-muted">
                     Hiển thị ${(currentPage - 1) * contractsPerPage + 1} - 
@@ -511,9 +587,24 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Highlight active filter button
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = window.location.href;
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(function(btn) {
+                if (btn.href === currentUrl) {
+                    btn.classList.add('active');
+                }
             });
         });
     </script>

@@ -269,7 +269,7 @@ public class ListContractsServlet extends HttpServlet {
             }
             
             request.setAttribute("contract", contract);
-            request.getRequestDispatcher("/views/contract/edit.jsp").forward(request, response);
+            request.getRequestDispatcher("/Contract/UpdateListContracts.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
             setErrorMessage(request, "ID hợp đồng không hợp lệ");
