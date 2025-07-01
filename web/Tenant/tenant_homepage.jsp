@@ -62,7 +62,7 @@
                                 <i class="fas fa-bed me-2"></i>
                                 Xem phòng
                             </a>
-                            <a class="nav-link" href="mycontract">
+                            <a class="nav-link" href="listcontracts">
                                 <i class="fas fa-file-contract me-2"></i>
                                 Hợp đồng của tôi
                             </a>

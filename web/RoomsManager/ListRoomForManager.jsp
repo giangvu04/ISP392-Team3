@@ -6,6 +6,8 @@
 <%@ page import="dal.DAOUser" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="model.Contracts" %>
+<%@ page import="dal.DAOContract" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -62,7 +64,7 @@
                     <ul class="mainmenu-list row no-gutters">
                         <li class="mainmenu__list-item"><a href="listrooms"><i class="fa-solid fa-door-closed list-item-icon"></i>Phòng</a></li>
                         <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-users list-item-icon"></i>Người thuê</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-file-signature list-item-icon"></i>Hợp đồng</a></li>
+                        <li class="mainmenu__list-item"><a href="listcontracts"><i class="fa-solid fa-file-signature list-item-icon"></i>Hợp đồng</a></li>
                         <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-receipt list-item-icon"></i>Hóa đơn</a></li>
                         <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-bell-concierge list-item-icon"></i>Dịch vụ</a></li>
                         <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-screwdriver-wrench list-item-icon"></i>Bảo trì</a></li>
