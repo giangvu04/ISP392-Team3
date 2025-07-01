@@ -1,5 +1,6 @@
 package dal;
 
+import java.math.BigDecimal;
 import model.Contracts;
 import java.sql.*;
 import java.util.ArrayList;
@@ -126,22 +127,20 @@ public class DAOContract {
     }
 
     // Delete contract
-    public void deleteContract(int contractId) {
-        if (contractId <= 0) {
-            throw new IllegalArgumentException("Invalid contract ID");
-        }
-
-        String sql = "DELETE FROM [dbo].[contracts] WHERE [contract_id]=?";
-        try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, contractId);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("No contract found with ID: " + contractId);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error deleting contract: " + e.getMessage(), e);
-        }
+    public boolean deleteContract(int contractId) {
+    if (contractId <= 0) {
+        throw new IllegalArgumentException("Invalid contract ID");
     }
+
+    String sql = "DELETE FROM [dbo].[contracts] WHERE [contract_id]=?";
+    try (PreparedStatement ps = connect.prepareStatement(sql)) {
+        ps.setInt(1, contractId);
+        int rowsAffected = ps.executeUpdate();
+        return rowsAffected > 0; // Trả về true nếu có ít nhất 1 dòng bị xóa
+    } catch (SQLException e) {
+        throw new RuntimeException("Error deleting contract: " + e.getMessage(), e);
+    }
+}
 
     // Get contract by ID
     public Contracts getContractById(int id) {
@@ -472,7 +471,374 @@ public class DAOContract {
         }
         return false;
     }
+    // Bổ sung các phương thức sau vào class DAOContract:
 
+    // Get contracts by tenant ID (không phân trang - khác với getContractsByTenantId đã có)
+    public ArrayList<Contracts> getContractsByTenant(int tenantId) {
+        if (tenantId <= 0) {
+            throw new IllegalArgumentException("Invalid tenant ID");
+        }
+
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT [contract_id], [room_id], [tenant_id], [start_date], [end_date], " +
+                    "[rent_price], [deposit_amount], [status], [note] FROM [dbo].[contracts] " +
+                    "WHERE [tenant_id] = ? ORDER BY [contract_id] DESC";
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Contracts contract = new Contracts();
+                contract.setContractId(rs.getInt("contract_id"));
+                contract.setRoomID(rs.getInt("room_id"));
+                contract.setTenantsID(rs.getInt("tenant_id"));
+                contract.setStartDate(rs.getDate("start_date"));
+                contract.setEndDate(rs.getDate("end_date"));
+                contract.setRentPrice(rs.getBigDecimal("rent_price"));
+                contract.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                contract.setStatus(rs.getInt("status"));
+                contract.setNote(rs.getString("note"));
+                
+                contracts.add(contract);
+            }
+            
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching contracts by tenant: " + e.getMessage(), e);
+        }
+        
+        return contracts;
+    }
+
+    // Get contracts by rental area ID (cho Manager)
+    public ArrayList<Contracts> getContractsByRentalArea(int rentalAreaId) {
+        if (rentalAreaId <= 0) {
+            throw new IllegalArgumentException("Invalid rental area ID");
+        }
+
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT c.[contract_id], c.[room_id], c.[tenant_id], c.[start_date], c.[end_date], " +
+                    "c.[rent_price], c.[deposit_amount], c.[status], c.[note] " +
+                    "FROM [dbo].[contracts] c " +
+                    "INNER JOIN [dbo].[rooms] r ON c.[room_id] = r.[room_id] " +
+                    "WHERE r.[rental_area_id] = ? " +
+                    "ORDER BY c.[contract_id] DESC";
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, rentalAreaId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Contracts contract = new Contracts();
+                contract.setContractId(rs.getInt("contract_id"));
+                contract.setRoomID(rs.getInt("room_id"));
+                contract.setTenantsID(rs.getInt("tenant_id"));
+                contract.setStartDate(rs.getDate("start_date"));
+                contract.setEndDate(rs.getDate("end_date"));
+                contract.setRentPrice(rs.getBigDecimal("rent_price"));
+                contract.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                contract.setStatus(rs.getInt("status"));
+                contract.setNote(rs.getString("note"));
+                
+                contracts.add(contract);
+            }
+            
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching contracts by rental area: " + e.getMessage(), e);
+        }
+        
+        return contracts;
+    }
+
+    // Get contracts by rental area with pagination (cho Manager)
+    public ArrayList<Contracts> getContractsByRentalAreaAndPage(int rentalAreaId, int page, int pageSize) {
+        if (rentalAreaId <= 0 || page < 1 || pageSize <= 0) {
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT c.[contract_id], c.[room_id], c.[tenant_id], c.[start_date], c.[end_date], " +
+                    "c.[rent_price], c.[deposit_amount], c.[status], c.[note] " +
+                    "FROM [dbo].[contracts] c " +
+                    "INNER JOIN [dbo].[rooms] r ON c.[room_id] = r.[room_id] " +
+                    "WHERE r.[rental_area_id] = ? " +
+                    "ORDER BY c.[contract_id] DESC " +
+                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, rentalAreaId);
+            ps.setInt(2, (page - 1) * pageSize);
+            ps.setInt(3, pageSize);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Contracts contract = new Contracts();
+                contract.setContractId(rs.getInt("contract_id"));
+                contract.setRoomID(rs.getInt("room_id"));
+                contract.setTenantsID(rs.getInt("tenant_id"));
+                contract.setStartDate(rs.getDate("start_date"));
+                contract.setEndDate(rs.getDate("end_date"));
+                contract.setRentPrice(rs.getBigDecimal("rent_price"));
+                contract.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                contract.setStatus(rs.getInt("status"));
+                contract.setNote(rs.getString("note"));
+                
+                contracts.add(contract);
+            }
+            
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching contracts by rental area and page: " + e.getMessage(), e);
+        }
+        
+        return contracts;
+    }
+
+    // Count total contracts by rental area (cho Manager)
+    public int getTotalContractsByRentalArea(int rentalAreaId) {
+        if (rentalAreaId <= 0) {
+            throw new IllegalArgumentException("Invalid rental area ID");
+        }
+
+        String sql = "SELECT COUNT(*) FROM [dbo].[contracts] c " +
+                    "INNER JOIN [dbo].[rooms] r ON c.[room_id] = r.[room_id] " +
+                    "WHERE r.[rental_area_id] = ?";
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, rentalAreaId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting contracts by rental area: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    // Search contracts by keyword and rental area (cho Manager)
+    public ArrayList<Contracts> getContractsBySearchAndRentalArea(String keyword, int rentalAreaId) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search keyword cannot be empty");
+        }
+        if (rentalAreaId <= 0) {
+            throw new IllegalArgumentException("Invalid rental area ID");
+        }
+
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT c.[contract_id], c.[room_id], c.[tenant_id], c.[start_date], c.[end_date], " +
+                    "c.[rent_price], c.[deposit_amount], c.[status], c.[note] " +
+                    "FROM [dbo].[contracts] c " +
+                    "INNER JOIN [dbo].[rooms] r ON c.[room_id] = r.[room_id] " +
+                    "WHERE r.[rental_area_id] = ? AND (" +
+                    "CAST(c.[contract_id] AS VARCHAR) LIKE ? OR " +
+                    "CAST(c.[room_id] AS VARCHAR) LIKE ? OR " +
+                    "CAST(c.[tenant_id] AS VARCHAR) LIKE ? OR " +
+                    "CAST(c.[rent_price] AS VARCHAR) LIKE ? OR " +
+                    "c.[note] LIKE ?) " +
+                    "ORDER BY c.[contract_id] DESC";
+
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            String searchPattern = "%" + keyword.trim() + "%";
+            ps.setInt(1, rentalAreaId);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ps.setString(4, searchPattern);
+            ps.setString(5, searchPattern);
+            ps.setString(6, searchPattern);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setRoomID(rs.getInt("room_id"));
+                c.setTenantsID(rs.getInt("tenant_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setRentPrice(rs.getBigDecimal("rent_price"));
+                c.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                c.setStatus(rs.getInt("status"));
+                c.setNote(rs.getString("note"));
+
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching contracts by rental area: " + e.getMessage(), e);
+        }
+
+        return contracts;
+    }
+
+    // Get contracts by status and rental area (cho Manager)
+    public ArrayList<Contracts> getContractsByStatusAndRentalArea(int status, int rentalAreaId) {
+        if (rentalAreaId <= 0) {
+            throw new IllegalArgumentException("Invalid rental area ID");
+        }
+
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT c.[contract_id], c.[room_id], c.[tenant_id], c.[start_date], c.[end_date], " +
+                    "c.[rent_price], c.[deposit_amount], c.[status], c.[note] " +
+                    "FROM [dbo].[contracts] c " +
+                    "INNER JOIN [dbo].[rooms] r ON c.[room_id] = r.[room_id] " +
+                    "WHERE c.[status] = ? AND r.[rental_area_id] = ? " +
+                    "ORDER BY c.[contract_id] DESC";
+
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ps.setInt(2, rentalAreaId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setRoomID(rs.getInt("room_id"));
+                c.setTenantsID(rs.getInt("tenant_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setRentPrice(rs.getBigDecimal("rent_price"));
+                c.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                c.setStatus(rs.getInt("status"));
+                c.setNote(rs.getString("note"));
+
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching contracts by status and rental area: " + e.getMessage(), e);
+        }
+
+        return contracts;
+    }
+
+    // Get contracts by status and tenant
+    public ArrayList<Contracts> getContractsByStatusAndTenant(int status, int tenantId) {
+        if (tenantId <= 0) {
+            throw new IllegalArgumentException("Invalid tenant ID");
+        }
+
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT [contract_id], [room_id], [tenant_id], [start_date], [end_date], " +
+                    "[rent_price], [deposit_amount], [status], [note] FROM [dbo].[contracts] " +
+                    "WHERE [status] = ? AND [tenant_id] = ? ORDER BY [contract_id] DESC";
+
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ps.setInt(2, tenantId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setRoomID(rs.getInt("room_id"));
+                c.setTenantsID(rs.getInt("tenant_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setRentPrice(rs.getBigDecimal("rent_price"));
+                c.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                c.setStatus(rs.getInt("status"));
+                c.setNote(rs.getString("note"));
+
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching contracts by status and tenant: " + e.getMessage(), e);
+        }
+
+        return contracts;
+    }
+
+    // Validate contract data before adding/updating
+    public boolean isValidContract(Contracts contract) {
+        if (contract == null) {
+            return false;
+        }
+        
+        // Check required fields
+        if (contract.getRoomID() <= 0 || contract.getTenantsID() <= 0) {
+            return false;
+        }
+        
+        if (contract.getStartDate() == null) {
+            return false;
+        }
+        
+        if (contract.getRentPrice() == null || contract.getRentPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            return false;
+        }
+        
+        // Check if end date is after start date (if provided)
+        if (contract.getEndDate() != null && contract.getEndDate().before(contract.getStartDate())) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Get active contract for a room
+    public Contracts getActiveContractByRoomId(int roomId) {
+        if (roomId <= 0) {
+            throw new IllegalArgumentException("Invalid room ID");
+        }
+
+        String sql = "SELECT [contract_id], [room_id], [tenant_id], [start_date], [end_date], " +
+                    "[rent_price], [deposit_amount], [status], [note] FROM [dbo].[contracts] " +
+                    "WHERE [room_id] = ? AND [status] = 1";
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setRoomID(rs.getInt("room_id"));
+                c.setTenantsID(rs.getInt("tenant_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setRentPrice(rs.getBigDecimal("rent_price"));
+                c.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                c.setStatus(rs.getInt("status"));
+                c.setNote(rs.getString("note"));
+                return c;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching active contract by room ID: " + e.getMessage(), e);
+        }
+        
+        return null;
+    }
+
+    // Get active contract for a tenant
+    public Contracts getActiveContractByTenantId(int tenantId) {
+        if (tenantId <= 0) {
+            throw new IllegalArgumentException("Invalid tenant ID");
+        }
+
+        String sql = "SELECT [contract_id], [room_id], [tenant_id], [start_date], [end_date], " +
+                    "[rent_price], [deposit_amount], [status], [note] FROM [dbo].[contracts] " +
+                    "WHERE [tenant_id] = ? AND [status] = 1 ORDER BY [start_date] DESC";
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setRoomID(rs.getInt("room_id"));
+                c.setTenantsID(rs.getInt("tenant_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setRentPrice(rs.getBigDecimal("rent_price"));
+                c.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                c.setStatus(rs.getInt("status"));
+                c.setNote(rs.getString("note"));
+                return c;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching active contract by tenant ID: " + e.getMessage(), e);
+        }
+        
+        return null;
+    }
     // Test main method
     public static void main(String[] args) {
         try {
