@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controller.loginservlet;
 
 import dal.DAO;
@@ -17,10 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.StringWriter;
 
-/**
- *
- * @author ADMIN
- */
 public class LoginServlet extends HttpServlet {
 
     @Override
@@ -60,18 +52,19 @@ public class LoginServlet extends HttpServlet {
                 }
 
                 if (user != null && userDAO.authenticateUser(name, password) && user.isActive()) {
+                    request.getSession().setAttribute("user", user);
                     session.setAttribute("user", user);
                     redirectToHomepage(user, response);
                 } else {
                     request.setAttribute("message", "Hãy xem lại tài khoản và mật khẩu hoặc tài khoản đã bị vô hiệu hóa!");
                     request.setAttribute("name", name);
                     request.setAttribute("password", password);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("login");
                     dispatcher.forward(request, response);
                 }
             } else {
                 request.setAttribute("message", "Vui lòng nhập tài khoản và mật khẩu!");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("login");
                 dispatcher.forward(request, response);
             }
         } catch (Exception e) {
@@ -79,7 +72,7 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("name", name);
             request.setAttribute("password", password);
             request.setAttribute("message", "Có lỗi xảy ra. Vui lòng thử lại!");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("Login/Login.jsp");
             dispatcher.forward(request, response);
         }
     }

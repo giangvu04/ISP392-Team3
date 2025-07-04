@@ -1,5 +1,6 @@
 package Controller.roomservlet;
 
+import dal.DAORentalArea;
 import dal.DAORooms;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -8,13 +9,24 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import model.RentalArea;
 import model.Rooms;
-
+import model.Users;
+@WebServlet(name = "AddRoomServlet", urlPatterns = {"/addroom"})
 public class AddRoomServlet extends HttpServlet {
-
+    private DAORentalArea rentaldao = DAORentalArea.INSTANCE;
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Forward to the add room JSP
+        Users user = (Users) request.getSession().getAttribute("user");
+        if(user == null){
+            request.getSession().setAttribute("error","Phiên đã hết hạn vui lòng login lại !");
+            response.sendRedirect("login");
+            return;
+        }
+        List<RentalArea> rental = rentaldao.getListRentalAreaByManagerId(user.getUserId());
+        request.setAttribute("rentail", rental);
         request.getRequestDispatcher("Manager/addRoom.jsp").forward(request, response);
     }
 
@@ -57,15 +69,21 @@ public class AddRoomServlet extends HttpServlet {
 
             if (success) {
                 // Redirect to success page or room listing
-                response.sendRedirect("Manager/RoomList.jsp?success=true");
+                request.getSession().setAttribute("ms", "Thêm phòng thành công");
+                response.sendRedirect("listrooms");
                 return;
             } else {
-                errorMessage = "Failed to add room. The rental area might not exist.";
+                request.getSession().setAttribute("error", "Thêm phòng không thành công");
+                response.sendRedirect("listrooms");
+                return;
             }
         } catch (NumberFormatException e) {
-            errorMessage = "Invalid number format in one of the fields.";
+            request.getSession().setAttribute("error", "Đã có lỗi xảy ra. Vui lòng thử lại");
+            response.sendRedirect("listrooms");
+            return;
         } catch (Exception e) {
-            errorMessage = "An unexpected error occurred: " + e.getMessage();
+            request.getSession().setAttribute("error", "Đã có lỗi xảy ra. Vui lòng thử lại");
+            response.sendRedirect("listrooms");
             e.printStackTrace(); // Log the full error for debugging
         }
 
@@ -85,3 +103,4 @@ public class AddRoomServlet extends HttpServlet {
         request.getRequestDispatcher("Manager/addRoom.jsp").forward(request, response);
     }
 }
+

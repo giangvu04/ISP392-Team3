@@ -536,6 +536,25 @@ public class DAOUser {
         return roles;
     }
 
+    public boolean updatePassword(String email, String password) {
+        String sql = "UPDATE dbo.users SET password_hash = ? WHERE email = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setString(1, password); // Giả định password đã được mã hóa ở tầng servlet
+            ps.setString(2, email);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Cập nhật mật khẩu thành công cho email: " + email);
+                return true;
+            }
+            System.out.println("⚠️ Không tìm thấy email để cập nhật: " + email);
+            return false;
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi cập nhật mật khẩu: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public static void main(String[] args) throws Exception {
         DAOUser dao = new DAOUser();
         ArrayList<Users> users = dao.getUsers();

@@ -1,47 +1,95 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Add New Room</title>
-        <base href="${pageContext.request.contextPath}/">
+        <title>Thêm phòng mới </title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        <link href="css/addUpdateRoom.css" rel="stylesheet">
+        <link href="css/homepage.css" rel="stylesheet">
+        <style>
+            :root {
+                --primary-gradient: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+                --sidebar-bg: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+                --card-shadow: 0 6px 10px rgba(0,0,0,0.08);
+            }
+
+            .sidebar {
+                min-height: 100vh;
+                background: var(--sidebar-bg);
+            }
+
+            .sidebar .navLink {
+                color: rgba(255,255,255,0.85);
+                padding: 12px 20px;
+                margin: 4px 0;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .sidebar .navLink:hover,
+            .sidebar .navLink.active {
+                background-color: rgba(255,255,255,0.15);
+                color: white;
+                transform: translateX(5px);
+            }
+
+            .mainContent {
+                background-color: #f5f7ff;
+                min-height: 100vh;
+            }
+
+            .card {
+                border: none;
+                border-radius: 12px;
+                box-shadow: var(--card-shadow);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+            }
+
+            .formSection {
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                box-shadow: var(--card-shadow);
+            }
+
+            .btnPrimary {
+                background: var(--primary-gradient);
+                border: none;
+                padding: 10px 25px;
+                border-radius: 8px;
+            }
+
+            .formLabel {
+                font-weight: 500;
+                color: #555;
+            }
+
+            .alert {
+                border-radius: 8px;
+            }
+        </style>
     </head>
     <body>
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 d-md-block sidebar">
-                    <div class="position-sticky pt-3">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="navLink" href="ManagerHomepage">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="navLink active" href="listrooms">
-                                    <i class="fas fa-door-open me-2"></i>Quản lý Phòng
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="navLink" href="#">
-                                    <i class="fas fa-users me-2"></i>Quản lý Người thuê
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                <jsp:include page="../Sidebar/SideBarManager.jsp"/>
 
                 <!-- Main content -->
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mainContent">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Add New Room</h1>
+                        <h1 class="h2">Thêm phòng mới</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
                             <a href="listrooms" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Back to Rooms
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
                             </a>
                         </div>
                     </div>
@@ -54,8 +102,15 @@
                                 <form action="addroom" method="POST">
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="rentalAreaId" class="formLabel">Rental Area ID</label>
-                                            <input type="number" class="form-control" id="rentalAreaId" name="rentalAreaId" required>
+                                            <label for="rentalAreaId" class="formLabel">Khu vực</label>
+                                            <!--                                            <input type="number" class="form-control" id="rentalAreaId" name="rentalAreaId" required>-->
+                                            <select class="form-control" id="rentalAreaId" name="rentalAreaId" required>
+                                                <option value="">Lựa chọn</option>
+                                                <c:forEach var="rentail" items="${rentail}">
+
+                                                    <option value=${rentail.rentalAreaId} >${rentail.name}</option>
+                                                </c:forEach>
+                                            </select>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="roomNumber" class="formLabel">Room Number</label>
