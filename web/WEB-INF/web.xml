@@ -88,6 +88,18 @@
         <servlet-name>UpdateRoomServlet</servlet-name>
         <servlet-class>Controller.roomservlet.UpdateRoomServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AddContractsList</servlet-name>
+        <servlet-class>Controller.contractservlet.AddContractsList</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateContractsList</servlet-name>
+        <servlet-class>Controller.contractservlet.UpdateContractsList</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteContractsServlet</servlet-name>
+        <servlet-class>Controller.contractservlet.DeleteContractsServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
@@ -176,4 +188,17 @@
         <servlet-name>UpdateRoomServlet</servlet-name>
         <url-pattern>/updateroom</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddContractsList</servlet-name>
+        <url-pattern>/addcontract</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateContractsList</servlet-name>
+        <url-pattern>/updatecontract</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteContractsServlet</servlet-name>
+        <url-pattern>/deletecontract</url-pattern>
+    </servlet-mapping>
+
 </web-app>
