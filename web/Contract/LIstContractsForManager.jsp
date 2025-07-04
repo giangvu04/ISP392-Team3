@@ -346,7 +346,7 @@
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             <div class="action-buttons">
-                                                                <a href="${pageContext.request.contextPath}/listcontracts?action=view&contractId=${contract.contractId}" 
+                                                                <a href="${pageContext.request.contextPath}/contractdetail?id=${contract.contractId}" 
                                                                    class="btn btn-sm btn-outline-info" 
                                                                    title="Xem chi tiết">
                                                                     <i class="fas fa-eye"></i>

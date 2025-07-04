@@ -162,22 +162,6 @@ public class ListContractsServlet extends HttpServlet {
         doGet(request, response);
     }
     
-    private void setSuccessMessage(HttpServletRequest request, String message) {
-        HttpSession session = request.getSession();
-        session.setAttribute("successMessage", message);
-    }
-    
-    private void setErrorMessage(HttpServletRequest request, String message) {
-        HttpSession session = request.getSession();
-        session.setAttribute("errorMessage", message);
-    }
-    
-    private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
-            throws ServletException, IOException {
-        request.setAttribute("errorMessage", errorMessage);
-        request.getRequestDispatcher("/error.jsp").forward(request, response);
-    }
-
     @Override
     public String getServletInfo() {
         return "Servlet for contract management";
