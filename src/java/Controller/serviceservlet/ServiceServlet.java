@@ -5,6 +5,7 @@
 
 package Controller.serviceservlet;
 
+import dal.DAORentalArea;
 import dal.DAOServices;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import model.RentalArea;
 import model.Services;
 
 /**
@@ -26,6 +28,7 @@ public class ServiceServlet extends HttpServlet {
     private final DAOServices serviceDAO = DAOServices.INSTANCE;
     private static final int SERVICES_PER_PAGE = 10;
 
+    private final DAORentalArea renDAO = DAORentalArea.INSTANCE;
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -46,9 +49,6 @@ public class ServiceServlet extends HttpServlet {
                     break;
                 case "edit":
                     showEditForm(request, response);
-                    break;
-                case "delete":
-                    deleteService(request, response);
                     break;
                 case "view":
                     viewService(request, response);
@@ -77,6 +77,7 @@ public class ServiceServlet extends HttpServlet {
                 case "update":
                     updateService(request, response);
                     break;
+                
                 default:
                     response.sendRedirect("listservices?action=list");
                     break;
@@ -97,7 +98,9 @@ public class ServiceServlet extends HttpServlet {
                 if (page < 1) page = 1;
             } catch (NumberFormatException ignored) {}
         }
+        List<RentalArea> rentalAreaId = renDAO.getAllRent();
 
+        request.setAttribute("retalArea", rentalAreaId);
         List<Services> services = serviceDAO.getAllServices(); // hoặc phân trang nếu bạn muốn
         int totalServices = services.size();
         int totalPages = (int) Math.ceil((double) totalServices / SERVICES_PER_PAGE);
@@ -130,6 +133,8 @@ public class ServiceServlet extends HttpServlet {
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        List<RentalArea> rentalAreaId = renDAO.getAllRent();
+        request.setAttribute("retalArea", rentalAreaId);
         request.getRequestDispatcher("/Service/add.jsp").forward(request, response);
     }
 
@@ -170,7 +175,7 @@ public class ServiceServlet extends HttpServlet {
     private void addService(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int rentalAreaId = Integer.parseInt(request.getParameter("rentalAreaId"));
+            int rentalAreaId = Integer.parseInt(request.getParameter("addRentalArea"));
             String name = request.getParameter("serviceName");
             double unitPrice = Double.parseDouble(request.getParameter("unitPrice"));
             String unit = request.getParameter("unitName");
@@ -187,6 +192,7 @@ public class ServiceServlet extends HttpServlet {
                 request.getRequestDispatcher("/Service/add.jsp").forward(request, response);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             handleError(request, response, "Lỗi khi thêm dịch vụ: " + e.getMessage());
         }
     }
@@ -212,17 +218,6 @@ public class ServiceServlet extends HttpServlet {
         }
     }
 
-    private void deleteService(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            int id = Integer.parseInt(request.getParameter("id"));
-            serviceDAO.deleteService(id);
-            setSuccessMessage(request, "Xóa thành công!");
-            response.sendRedirect("listservices?action=list");
-        } catch (Exception e) {
-            handleError(request, response, "Lỗi khi xóa dịch vụ: " + e.getMessage());
-        }
-    }
 
     // Utility
     private void setSuccessMessage(HttpServletRequest request, String msg) {
