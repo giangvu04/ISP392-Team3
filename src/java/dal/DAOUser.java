@@ -535,7 +535,7 @@ public class DAOUser {
         }
         return roles;
     }
-
+    
     public static void main(String[] args) throws Exception {
         DAOUser dao = new DAOUser();
         ArrayList<Users> users = dao.getUsers();

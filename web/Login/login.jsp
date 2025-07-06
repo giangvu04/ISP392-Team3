@@ -1,9 +1,3 @@
-<%-- 
-    Document   : login
-    Created on : Feb 3, 2025, 9:34:38 PM
-    Author     : ADMIN
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -146,6 +140,9 @@
                 <div class="support">
                     Hỗ trợ: <a href="tel:0388258116">0388258116</a>
                 </div>
+                            <div style="margin-top: 20px" class="forget">
+                    <a href="forgetPassword">Quên mật khẩu</a>
+                </div>            
 
             </div>
             <% String message = (String) request.getAttribute("message"); %>
