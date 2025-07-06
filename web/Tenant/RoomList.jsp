@@ -191,17 +191,15 @@
                                             </div>
 
                                             <div class="d-grid">
-                                                <c:if test="${room.status == 'Available'}">
-                                                    <a href="roomdetail?id=${room.roomId}" class="btn btn-primary">
-                                                        <i class="fas fa-eye me-2"></i>
-                                                        Xem chi tiết
+                                                <a href="roomdetail?id=${room.roomId}" class="btn btn-primary">
+                                                    <i class="fas fa-eye me-2"></i>
+                                                    Xem chi tiết
+                                                </a>
+                                                <c:if test="${room.status == 0}">
+                                                    <a href="booking?id=${room.roomId}" class="btn btn-primary">
+                                                        <i class="fas fa-home me-2"></i>
+                                                        Booking
                                                     </a>
-                                                </c:if>
-                                                <c:if test="${room.status != 'Available'}">
-                                                    <button class="btn btn-secondary" disabled>
-                                                        <i class="fas fa-eye me-2"></i>
-                                                        Xem chi tiết
-                                                    </button>
                                                 </c:if>
                                             </div>
                                         </div>

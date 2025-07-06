@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.RentalArea;
+import model.RentalHistory;
 
 public class DAORooms {
 
@@ -21,11 +23,13 @@ public class DAORooms {
     // Get all rooms
     public ArrayList<Rooms> getAllRooms() {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT * FROM rooms";
+        String sql = "SELECT * FROM dbo.rooms JOIN dbo.rental_areas ON rental_areas.rental_area_id = rooms.rental_area_id";
 
         try (PreparedStatement statement = connect.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
 
             while (rs.next()) {
+                RentalArea ren = new RentalArea();
+                ren.setName(rs.getString("name"));
                 Rooms room = new Rooms();
                 room.setRoomId(rs.getInt("room_id"));
                 room.setRentalAreaId(rs.getInt("rental_area_id"));
@@ -35,7 +39,7 @@ public class DAORooms {
                 room.setMaxTenants(rs.getInt("max_tenants"));
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
-
+                room.setRetalArea(ren);
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -143,15 +147,29 @@ public class DAORooms {
     // Get rooms by page (for pagination)
     public ArrayList<Rooms> getRoomsByPage(int page, int roomsPerPage, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.name as rental_area_name "
-                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
-                + "WHERE r.rental_area_id = ? "
-                + "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql;
+
+        if (rentalAreaId == 0) {
+            sql = "SELECT r.*, ra.name as rental_area_name "
+                    + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else {
+            sql = "SELECT r.*, ra.name as rental_area_name "
+                    + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "WHERE r.rental_area_id = ? "
+                    + "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, rentalAreaId);
-            ps.setInt(2, (page - 1) * roomsPerPage);
-            ps.setInt(3, roomsPerPage);
+            if (rentalAreaId == 0) {
+                ps.setInt(1, (page - 1) * roomsPerPage);
+                ps.setInt(2, roomsPerPage);
+            } else {
+                ps.setInt(1, rentalAreaId);
+                ps.setInt(2, (page - 1) * roomsPerPage);
+                ps.setInt(3, roomsPerPage);
+            }
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -164,7 +182,6 @@ public class DAORooms {
                 room.setMaxTenants(rs.getInt("max_tenants"));
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
-                // Additional field for display
                 room.setRentalAreaName(rs.getString("rental_area_name"));
 
                 rooms.add(room);
@@ -177,9 +194,17 @@ public class DAORooms {
 
     // Get total count of rooms (for pagination)
     public int getTotalRooms(int rentalAreaId) {
-        String sql = "SELECT COUNT(*) FROM rooms WHERE rental_area_id = ?";
+        String sql;
+        if (rentalAreaId == 0) {
+            sql = "SELECT COUNT(*) FROM rooms";
+        } else {
+            sql = "SELECT COUNT(*) FROM rooms WHERE rental_area_id = ?";
+        }
+
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, rentalAreaId);
+            if (rentalAreaId != 0) {
+                ps.setInt(1, rentalAreaId);
+            }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -193,16 +218,31 @@ public class DAORooms {
     // Search rooms by room number or description
     public ArrayList<Rooms> searchRooms(String searchTerm, int rentalAreaId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT r.*, ra.name as rental_area_name "
-                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
-                + "WHERE r.rental_area_id = ? AND "
-                + "(LOWER(r.room_number) LIKE ? OR LOWER(r.description) LIKE ?)";
+        String sql;
+
+        if (rentalAreaId == 0) {
+            sql = "SELECT r.*, ra.name as rental_area_name "
+                    + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "WHERE (LOWER(r.room_number) LIKE ? OR LOWER(r.description) LIKE ?";
+        } else {
+            sql = "SELECT r.*, ra.name as rental_area_name "
+                    + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "WHERE r.rental_area_id = ? AND "
+                    + "(LOWER(r.room_number) LIKE ? OR LOWER(r.description) LIKE ?)";
+        }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             String searchPattern = "%" + searchTerm.toLowerCase() + "%";
-            ps.setInt(1, rentalAreaId);
-            ps.setString(2, searchPattern);
-            ps.setString(3, searchPattern);
+
+            if (rentalAreaId == 0) {
+                ps.setString(1, searchPattern);
+                ps.setString(2, searchPattern);
+            } else {
+                ps.setInt(1, rentalAreaId);
+                ps.setString(2, searchPattern);
+                ps.setString(3, searchPattern);
+            }
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -257,28 +297,128 @@ public class DAORooms {
         return rooms;
     }
 
-    // You'll need to add this method to the Rooms model as a transient field
-    public static class RoomWithDetails extends Rooms {
+    // Get all rooms by rental area (for tenants)
+    public ArrayList<Rooms> getRoomsByRentalArea(int rentalAreaId) {
+        ArrayList<Rooms> rooms = new ArrayList<>();
+        String sql = "SELECT r.*, ra.name as rental_area_name "
+                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "WHERE r.rental_area_id = ?";
 
-        private String rentalAreaName;
-        private String currentTenant;
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, rentalAreaId);
+            ResultSet rs = ps.executeQuery();
 
-        // Getters and setters
-        public String getRentalAreaName() {
-            return rentalAreaName;
+            while (rs.next()) {
+                Rooms room = new Rooms();
+                room.setRoomId(rs.getInt("room_id"));
+                room.setRentalAreaId(rs.getInt("rental_area_id"));
+                room.setRoomNumber(rs.getString("room_number"));
+                room.setArea(rs.getBigDecimal("area"));
+                room.setPrice(rs.getBigDecimal("price"));
+                room.setMaxTenants(rs.getInt("max_tenants"));
+                room.setStatus(rs.getInt("status"));
+                room.setDescription(rs.getString("description"));
+                room.setRentalAreaName(rs.getString("rental_area_name"));
+
+                rooms.add(room);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rooms;
+    }
+
+    // Get count of available rooms (status = 0)
+    public int getAvailableRoomsCount(int rentalAreaId) {
+        String sql;
+        if (rentalAreaId == 0) {
+            sql = "SELECT COUNT(*) FROM rooms WHERE status = 0";
+        } else {
+            sql = "SELECT COUNT(*) FROM rooms WHERE rental_area_id = ? AND status = 0";
         }
 
-        public void setRentalAreaName(String rentalAreaName) {
-            this.rentalAreaName = rentalAreaName;
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (rentalAreaId != 0) {
+                ps.setInt(1, rentalAreaId);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Get count of occupied rooms (status = 1)
+    public int getOccupiedRoomsCount(int rentalAreaId) {
+        String sql;
+        if (rentalAreaId == 0) {
+            sql = "SELECT COUNT(*) FROM rooms WHERE status = 1";
+        } else {
+            sql = "SELECT COUNT(*) FROM rooms WHERE rental_area_id = ? AND status = 1";
         }
 
-        public String getCurrentTenant() {
-            return currentTenant;
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (rentalAreaId != 0) {
+                ps.setInt(1, rentalAreaId);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return 0;
+    }
 
-        public void setCurrentTenant(String currentTenant) {
-            this.currentTenant = currentTenant;
+    public boolean checkExistRoomForManager(int roomID, int userID) {
+        String sql = "SELECT COUNT(*) AS count\n"
+                + "FROM dbo.rental_areas ra\n"
+                + "JOIN dbo.rooms r ON r.rental_area_id = ra.rental_area_id\n"
+                + "WHERE ra.manager_id = ? AND r.room_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, userID);
+            ps.setInt(2, roomID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) { // Di chuyển con trỏ đến hàng đầu tiên
+                int count = rs.getInt("count"); // Lấy giá trị cột count
+                return count > 0; // Trả về true nếu count > 0
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return false; // Trả về false nếu không có kết quả hoặc xảy ra lỗi
+    }
+    public List<RentalHistory> getTop5RentalHistory(int roomId) {
+        List<RentalHistory> historyList = new ArrayList<>();
+        String sql = "SELECT TOP 5 RentailHistoryID, RentalID, RoomID, TenantID, TenantName, StartDate, EndDate, RentPrice, Notes, CreatedAt " +
+                     "FROM RentalHistory " +
+                     "WHERE RoomID = ? " +
+                     "ORDER BY StartDate DESC";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RentalHistory history = new RentalHistory();
+                history.setRentailHistoryID(rs.getInt("RentailHistoryID"));
+                history.setRentalID(rs.getInt("RentalID"));
+                history.setRoomID(rs.getInt("RoomID"));
+                history.setTenantID(rs.getInt("TenantID"));
+                history.setTenantName(rs.getString("TenantName"));
+                history.setStartDate(rs.getString("StartDate"));
+                history.setEndDate(rs.getString("EndDate"));
+                history.setRentPrice(rs.getDouble("RentPrice")); // Sử dụng getDouble thay vì getBigDecimal
+                history.setNotes(rs.getString("Notes"));
+                history.setCreatedAt(rs.getString("CreatedAt"));
+                historyList.add(history);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return historyList;
     }
 
     public static void main(String[] args) {

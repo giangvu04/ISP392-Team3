@@ -75,19 +75,19 @@
                                 Hóa đơn
                             </a>
                             <div class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="equipmentDropdown" role="button" data-bs-toggle="collapse" data-bs-target="#equipmentSubmenu" aria-expanded="false" aria-controls="equipmentSubmenu">
-                                <i class="fas fa-tools me-2"></i>
-                                Thiết bị
-                            </a>
-                            <div class="collapse submenu" id="equipmentSubmenu">
-                                <a class="nav-link" href="listdevices">                                  
-                                    Danh sách thiết bị
+                                <a class="nav-link dropdown-toggle" href="#" id="equipmentDropdown" role="button" data-bs-toggle="collapse" data-bs-target="#equipmentSubmenu" aria-expanded="false" aria-controls="equipmentSubmenu">
+                                    <i class="fas fa-tools me-2"></i>
+                                    Thiết bị
                                 </a>
-                                <a class="nav-link" href="deviceinroom">                                   
-                                    Thiết bị trong phòng
-                                </a>
+                                <div class="collapse submenu" id="equipmentSubmenu">
+                                    <a class="nav-link" href="listdevices">                                  
+                                        Danh sách thiết bị
+                                    </a>
+                                    <a class="nav-link" href="deviceinroom">                                   
+                                        Thiết bị trong phòng
+                                    </a>
+                                </div>
                             </div>
-                        </div>
                             <a class="nav-link" href="listservices">
                                 <i class="fas fa-concierge-bell me-2"></i>
                                 Dịch vụ
@@ -127,7 +127,7 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <h6 class="card-title">Tổng số phòng</h6>
-                                                <h3 class="mb-0">25</h3>
+                                                <h3 class="mb-0">${totalRooms}</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="fas fa-bed fa-2x"></i>
@@ -142,7 +142,7 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <h6 class="card-title">Phòng đã thuê</h6>
-                                                <h3 class="mb-0">18</h3>
+                                                <h3 class="mb-0">${occupiedRooms}</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="fas fa-user-check fa-2x"></i>
@@ -157,7 +157,7 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <h6 class="card-title">Phòng trống</h6>
-                                                <h3 class="mb-0">7</h3>
+                                                <h3 class="mb-0">${availableRooms}</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="fas fa-door-open fa-2x"></i>
@@ -171,7 +171,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="card-title">Hợp đồng mới</h6>
+                                                <h6 class="card-title">Hợp đồng hiện tại</h6>
                                                 <h3 class="mb-0">3</h3>
                                             </div>
                                             <div class="align-self-center">
@@ -236,10 +236,10 @@
                                         <div class="mb-3">
                                             <div class="d-flex justify-content-between">
                                                 <span>Tỷ lệ lấp đầy</span>
-                                                <span class="fw-bold">72%</span>
+                                                <span class="fw-bold">${totalRooms > 0 ? (occupiedRooms * 100 / totalRooms) : 0}%</span>
                                             </div>
                                             <div class="progress mt-1">
-                                                <div class="progress-bar bg-success" style="width: 72%"></div>
+                                                <div class="progress-bar bg-success" style="width: ${totalRooms > 0 ? (occupiedRooms * 100 / totalRooms) : 0}%"></div>
                                             </div>
                                         </div>
                                         <div class="mb-3">

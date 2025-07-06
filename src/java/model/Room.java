@@ -2,7 +2,11 @@ package model;
 
 import java.math.BigDecimal;
 
-public class Rooms {
+/**
+ *
+ * @author ADMIN
+ */
+public class Room {
     
     private int roomId;
     private int rentalAreaId;
@@ -10,17 +14,14 @@ public class Rooms {
     private BigDecimal area;
     private BigDecimal price;
     private int maxTenants;
-    private int status; // 0: Available, 1: Occupied, 2: Under Maintenance
+    private int status; // 0: Trống, 1: Đã có người thuê, 2: Đang sửa chữa
     private String description;
-    // Transient fields for display purposes
-    private String rentalAreaName;
-    private String currentTenant;
-    private RentalArea retalArea;
-    
-    public Rooms() {
+
+    public Room() {
     }
 
-    public Rooms(int roomId, int rentalAreaId, String roomNumber, BigDecimal area, BigDecimal price, int maxTenants, int status, String description, String rentalAreaName, String currentTenant) {
+    public Room(int roomId, int rentalAreaId, String roomNumber, BigDecimal area, 
+                BigDecimal price, int maxTenants, int status, String description) {
         this.roomId = roomId;
         this.rentalAreaId = rentalAreaId;
         this.roomNumber = roomNumber;
@@ -29,8 +30,6 @@ public class Rooms {
         this.maxTenants = maxTenants;
         this.status = status;
         this.description = description;
-        this.rentalAreaName = rentalAreaName;
-        this.currentTenant = currentTenant;
     }
 
     public int getRoomId() {
@@ -97,37 +96,25 @@ public class Rooms {
         this.description = description;
     }
 
-    public String getRentalAreaName() {
-        return rentalAreaName;
-    }
-
-    public void setRentalAreaName(String rentalAreaName) {
-        this.rentalAreaName = rentalAreaName;
-    }
-
-    public String getCurrentTenant() {
-        return currentTenant;
-    }
-
-    public void setCurrentTenant(String currentTenant) {
-        this.currentTenant = currentTenant;
-    }
-    
-    public RentalArea getRetalArea() {
-        return retalArea;
-    }
-
-    public void setRetalArea(RentalArea retalArea) {
-        this.retalArea = retalArea;
-    }
-
-    // Helper method to get status as string
-    public String getStatusAsString() {
+    // Helper methods for status
+    public String getStatusText() {
         switch (status) {
-            case 0: return "Available";
-            case 1: return "Occupied";
-            case 2: return "Maintenance";
-            default: return "Unknown";
+            case 0: return "Trống";
+            case 1: return "Đã thuê";
+            case 2: return "Đang sửa chữa";
+            default: return "Không xác định";
         }
     }
-}
+
+    public boolean isAvailable() {
+        return status == 0;
+    }
+
+    public boolean isOccupied() {
+        return status == 1;
+    }
+
+    public boolean isUnderMaintenance() {
+        return status == 2;
+    }
+} 
