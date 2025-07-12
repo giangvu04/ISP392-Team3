@@ -240,7 +240,10 @@
                                                        class="btn btn-sm btn-outline-info" title="Xem chi tiết">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    
+                                                    <a href="${pageContext.request.contextPath}/deviceinroom?action=edit&roomId=${deviceInRoom.roomId}&deviceId=${deviceInRoom.deviceId}" 
+                                                       class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
                                                     <button type="button" class="btn btn-sm btn-outline-danger" 
                                                             title="Xóa thiết bị" 
                                                             onclick="confirmDelete(${deviceInRoom.roomId}, ${deviceInRoom.deviceId}, '${deviceInRoom.deviceName}')">

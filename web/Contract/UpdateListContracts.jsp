@@ -8,9 +8,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Update Contract</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="css/homepage.css" rel="stylesheet">
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
@@ -109,7 +106,32 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <jsp:include page="../Sidebar/SideBarManager.jsp"/>
+            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: var(--sidebar-bg);">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="navItem">
+                            <a class="navLink" href="ManagerHomepage">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="navItem">
+                            <a class="navLink" href="listrooms">
+                                <i class="fas fa-door-open me-2"></i>Quản lý Phòng
+                            </a>
+                        </li>
+                        <li class="navItem">
+                            <a class="navLink active" href="listcontracts">
+                                <i class="fas fa-file-contract me-2"></i>Quản lý Hợp đồng
+                            </a>
+                        </li>
+                        <li class="navItem">
+                            <a class="navLink" href="#">
+                                <i class="fas fa-users me-2"></i>Quản lý Người thuê
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mainContent">

@@ -24,7 +24,6 @@ private int id;
     private String dueDate;
     private String status;
     private String createdDate;
-    private String emailTelnant;
     
 
     // Constructor mặc định
@@ -44,14 +43,6 @@ private int id;
         this.dueDate = dueDate;
         this.status = status;
         this.createdDate = createdDate;
-    }
-
-    public String getEmailTelnant() {
-        return emailTelnant;
-    }
-
-    public void setEmailTelnant(String emailTelnant) {
-        this.emailTelnant = emailTelnant;
     }
 
     // Getters và Setters

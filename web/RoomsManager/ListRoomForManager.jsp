@@ -181,7 +181,6 @@
                 <p>&copy; 2025 Công ty TNHH G3. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
-        <jsp:include page="../Message.jsp"/>
 
         <!-- Toast Message Script -->
         <script>

@@ -78,19 +78,20 @@ public class DAODeviceInRoom {
 
     // Add device to room
     public void addDeviceToRoom(DeviceInRoom deviceInRoom) {
-        if (deviceInRoom.getRoomId() <= 0 || deviceInRoom.getDeviceId() <= 0||
+        if (deviceInRoom.getRoomId() <= 0 || deviceInRoom.getDeviceId() <= 0 || deviceInRoom.getQuantity() <= 0 ||
             deviceInRoom.getStatus() == null || deviceInRoom.getStatus().trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid device in room data");
         }
 
         String sql = """
-            INSERT INTO [HouseSharing].[dbo].[devices_in_room] ([room_id], [device_id], [status]) 
-            VALUES (?, ?, ?)
+            INSERT INTO [HouseSharing].[dbo].[devices_in_room] ([room_id], [device_id], [quantity], [status]) 
+            VALUES (?, ?, ?, ?)
             """;
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, deviceInRoom.getRoomId());
             ps.setInt(2, deviceInRoom.getDeviceId());
-            ps.setString(3, deviceInRoom.getStatus());
+            ps.setInt(3, deviceInRoom.getQuantity());
+            ps.setString(4, deviceInRoom.getStatus());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding device to room: " + e.getMessage(), e);
@@ -133,28 +134,6 @@ public class DAODeviceInRoom {
         String sql = """
             UPDATE [HouseSharing].[dbo].[devices_in_room] 
             SET [status] = 'Ngưng hoạt động' 
-            WHERE [device_id] = ? AND [room_id] = ?
-            """;
-        try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, deviceId);
-            ps.setInt(2, roomId);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("No device in room found with room ID: " + roomId +
-                                      " and device ID: " + deviceId);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error removing device from room: " + e.getMessage(), e);
-        }
-    }
-    
-    public void deleteDeviceFromRoom(int deviceId, int roomId) {
-        if (deviceId <= 0 || roomId <= 0) {
-            throw new IllegalArgumentException("Invalid device or room ID");
-        }
-
-        String sql = """
-            DELETE FROM [HouseSharing].[dbo].[devices_in_room] 
             WHERE [device_id] = ? AND [room_id] = ?
             """;
         try (PreparedStatement ps = connect.prepareStatement(sql)) {

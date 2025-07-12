@@ -66,7 +66,7 @@
                                 <i class="fas fa-file-contract me-2"></i>
                                 Hợp đồng của tôi
                             </a>
-                            <a class="nav-link" href="listbills">
+                            <a class="nav-link" href="mybills">
                                 <i class="fas fa-receipt me-2"></i>
                                 Hóa đơn của tôi
                             </a>

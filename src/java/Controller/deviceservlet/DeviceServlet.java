@@ -187,28 +187,30 @@ public class DeviceServlet extends HttpServlet {
     
     private void viewDevice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         try {
             String deviceIdStr = request.getParameter("id");
             if (deviceIdStr == null || deviceIdStr.isEmpty()) {
                 setErrorMessage(request, "ID thiết bị không hợp lệ");
-                response.sendRedirect("listdevices?action=list");
+                response.sendRedirect("device?action=list");
                 return;
             }
-
+            
             int deviceId = Integer.parseInt(deviceIdStr);
             Devices device = deviceDAO.getDeviceById(deviceId);
-
+            
             if (device == null) {
                 setErrorMessage(request, "Không tìm thấy thiết bị với ID: " + deviceId);
-                response.sendRedirect("listdevices?action=list");
+                response.sendRedirect("device?action=list");
                 return;
             }
-
+            
             request.setAttribute("device", device);
             request.getRequestDispatcher("/Device/view.jsp").forward(request, response);
+            
         } catch (NumberFormatException e) {
             setErrorMessage(request, "ID thiết bị không hợp lệ");
-            response.sendRedirect("listdevices?action=list");
+            response.sendRedirect("device?action=list");
         } catch (Exception e) {
             handleError(request, response, "Lỗi khi tải thông tin thiết bị: " + e.getMessage());
         }
@@ -216,60 +218,49 @@ public class DeviceServlet extends HttpServlet {
     
     private void addDevice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         try {
             String deviceName = request.getParameter("deviceName");
-            String deviceCode = request.getParameter("deviceCode");
-            String latestWarrantyDate = request.getParameter("latestWarrantyDate");
-            String purchaseDate = request.getParameter("purchaseDate");
-            String warrantyExpiryDate = request.getParameter("warrantyExpiryDate");
-
+            
             // Validation
             if (deviceName == null || deviceName.trim().isEmpty()) {
                 setErrorMessage(request, "Tên thiết bị không được để trống");
                 request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
                 return;
             }
-
+            
             // Kiểm tra tên thiết bị đã tồn tại
-            if (deviceDAO.isDeviceCodeExists(deviceCode.trim())) {
+            if (deviceDAO.isDeviceNameExists(deviceName.trim(), 0)) {
                 setErrorMessage(request, "Tên thiết bị đã tồn tại");
                 request.setAttribute("deviceName", deviceName);
                 request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
                 return;
             }
-
+            
             // Tạo thiết bị mới
             Devices device = new Devices();
             device.setDeviceName(deviceName.trim());
-            device.setDeviceCode(deviceCode != null ? deviceCode.trim() : "");
-            device.setLatestWarrantyDate(latestWarrantyDate != null ? latestWarrantyDate.trim() : "");
-            device.setPurchaseDate(purchaseDate != null ? purchaseDate.trim() : "");
-            device.setWarrantyExpiryDate(warrantyExpiryDate != null ? warrantyExpiryDate.trim() : "");
-
+            
             // Lấy userId từ session (giả sử đã login)
-//            HttpSession session = request.getSession();
-//            Integer userId = (Integer) session.getAttribute("userId");
-//            if (userId == null) userId = 1; // Default user nếu chưa login
-
-            boolean isSuccess = deviceDAO.addDevice(device);
-
-            if (isSuccess) {
+            HttpSession session = request.getSession();
+            Integer userId = (Integer) session.getAttribute("userId");
+            if (userId == null) userId = 1; // Default user nếu chưa login
+            
+            int newDeviceId = deviceDAO.addDevice(device, userId);
+            
+            if (newDeviceId > 0) {
                 setSuccessMessage(request, "Thêm thiết bị thành công!");
                 response.sendRedirect("listdevices?action=list");
             } else {
                 setErrorMessage(request, "Lỗi khi thêm thiết bị");
                 request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
             }
+            
         } catch (IllegalArgumentException e) {
             setErrorMessage(request, e.getMessage());
             request.setAttribute("deviceName", request.getParameter("deviceName"));
-            request.setAttribute("deviceCode", request.getParameter("deviceCode"));
-            request.setAttribute("latestWarrantyDate", request.getParameter("latestWarrantyDate"));
-            request.setAttribute("purchaseDate", request.getParameter("purchaseDate"));
-            request.setAttribute("warrantyExpiryDate", request.getParameter("warrantyExpiryDate"));
             request.getRequestDispatcher("/Device/add.jsp").forward(request, response);
         } catch (Exception e) {
-            e.printStackTrace();
             handleError(request, response, "Lỗi khi thêm thiết bị: " + e.getMessage());
         }
     }
@@ -280,10 +271,6 @@ public class DeviceServlet extends HttpServlet {
         try {
             String deviceIdStr = request.getParameter("deviceId");
             String deviceName = request.getParameter("deviceName");
-            String deviceCode = request.getParameter("deviceCode");
-            String latestWarrantyDate = request.getParameter("latestWarrantyDate");
-            String purchaseDate = request.getParameter("purchaseDate");
-            String warrantyExpiryDate = request.getParameter("warrantyExpiryDate");
             
             if (deviceIdStr == null || deviceIdStr.isEmpty()) {
                 setErrorMessage(request, "ID thiết bị không hợp lệ");
@@ -299,19 +286,18 @@ public class DeviceServlet extends HttpServlet {
                 response.sendRedirect("listdevices?action=edit&id=" + deviceId);
                 return;
             }
-            if (latestWarrantyDate == null || latestWarrantyDate.trim().isEmpty()) {
-                setErrorMessage(request, "Thời gian bảo hành gần nhất không được để trống");
+            
+            // Kiểm tra tên thiết bị đã tồn tại (trừ thiết bị hiện tại)
+            if (deviceDAO.isDeviceNameExists(deviceName.trim(), deviceId)) {
+                setErrorMessage(request, "Tên thiết bị đã tồn tại");
                 response.sendRedirect("listdevices?action=edit&id=" + deviceId);
                 return;
             }
+            
             // Cập nhật thiết bị
             Devices device = new Devices();
             device.setDeviceId(deviceId);
             device.setDeviceName(deviceName.trim());
-            device.setDeviceCode(deviceCode);
-            device.setLatestWarrantyDate(latestWarrantyDate);
-            device.setPurchaseDate(purchaseDate);
-            device.setWarrantyExpiryDate(warrantyExpiryDate);
             
             deviceDAO.updateDevice(device);
             
@@ -326,7 +312,6 @@ public class DeviceServlet extends HttpServlet {
             String deviceIdStr = request.getParameter("deviceId");
             response.sendRedirect("listdevices?action=edit&id=" + deviceIdStr);
         } catch (Exception e) {
-            e.printStackTrace();
             handleError(request, response, "Lỗi khi cập nhật thiết bị: " + e.getMessage());
         }
     }

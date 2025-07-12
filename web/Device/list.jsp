@@ -262,12 +262,6 @@
                                         <th scope="col">
                                             <i class="fas fa-tv me-2"></i>Tên thiết bị
                                         </th>
-                                        <th scope="col">
-                                            <i class="fas fa-tv me-2"></i>Mã máy
-                                        </th>
-                                        <th scope="col">
-                                            <i class="fas fa-tv me-2"></i>Ngày mua
-                                        </th>
                                         <th scope="col" class="text-center" style="width: 200px;">
                                             <i class="fas fa-cogs me-2"></i>Thao tác
                                         </th>
@@ -293,22 +287,6 @@
                                                     <div>
                                                         <h6 class="mb-0">${device.deviceName}</h6>
                                                         <small class="text-muted">ID: ${device.deviceId}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle">
-                                                <div class="d-flex align-items-center">                                                                                                                                                      
-                                                    <div>
-                                                        
-                                                        <h6 class="text-muted">ID: ${device.deviceCode}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle">
-                                                <div class="d-flex align-items-center">                                                                                                                                                      
-                                                    <div>
-                                                        
-                                                        <h6 class="text-muted">ID: ${device.purchaseDate}</small>
                                                     </div>
                                                 </div>
                                             </td>

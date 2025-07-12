@@ -58,46 +58,6 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="deviceCode" class="form-label">
-                                    <i class="fas fa-barcode me-1"></i>
-                                    Mã thiết bị
-                                </label>
-                                <input type="text" class="form-control" id="deviceCode" name="deviceCode"
-                                       value="${device.deviceCode}" readonly>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="latestWarrantyDate" class="form-label">
-                                    <i class="fas fa-calendar-alt me-1"></i>
-                                    Thời gian bảo hành gần nhất
-                                </label>
-                                <input type="text" class="form-control" id="latestWarrantyDate" 
-                                       name="latestWarrantyDate" value="${device.latestWarrantyDate}" 
-                                       placeholder="Nhập ngày (VD: 2025-07-01)">
-                                <div class="invalid-feedback">
-                                    Vui lòng nhập thời gian bảo hành hợp lệ
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="purchaseDate" class="form-label">
-                                    <i class="fas fa-calendar-check me-1"></i>
-                                    Ngày mua máy
-                                </label>
-                                <input type="text" class="form-control" id="purchaseDate" 
-                                       value="${device.purchaseDate}" readonly name="purchaseDate">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="warrantyExpiryDate" class="form-label">
-                                    <i class="fas fa-calendar-times me-1"></i>
-                                    Thời gian hết hạn bảo hành
-                                </label>
-                                <input type="text" class="form-control" id="warrantyExpiryDate" 
-                                       value="${device.warrantyExpiryDate}" name="warrantyExpiryDate" readonly>
-                            </div>
-
                             <div class="d-flex justify-content-between">
                                 <a href="listdevices?action=list" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>
@@ -127,7 +87,6 @@
                         </h6>
                         <ul class="mb-0">
                             <li>Tên thiết bị là bắt buộc và không được để trống</li>
-                            <li>Thời gian bảo hành gần nhất có thể được cập nhật</li>
                             <li>Tên thiết bị phải là duy nhất trong hệ thống</li>
                             <li>Độ dài tối đa của tên thiết bị là 100 ký tự</li>
                         </ul>
@@ -161,10 +120,8 @@
                 form.classList.add('was-validated');
             }, false);
             
-            // Validation tên thiết bị và thời gian bảo hành
+            // Validation tên thiết bị
             var deviceNameInput = document.getElementById('deviceName');
-            var latestWarrantyDateInput = document.getElementById('latestWarrantyDate');
-            
             deviceNameInput.addEventListener('input', function() {
                 var value = this.value.trim();
                 
@@ -176,16 +133,6 @@
                     this.setCustomValidity('');
                 }
             });
-
-            latestWarrantyDateInput.addEventListener('input', function() {
-                var value = this.value.trim();
-                // Không bắt buộc, chỉ kiểm tra độ dài tối đa 10 ký tự (VD: 2025-07-01)
-                if (value.length > 10) {
-                    this.setCustomValidity('Thời gian bảo hành không được vượt quá 10 ký tự');
-                } else {
-                    this.setCustomValidity('');
-                }
-            });
             
             // Xử lý reset form
             var resetBtn = document.querySelector('button[type="reset"]');
@@ -193,9 +140,7 @@
                 form.classList.remove('was-validated');
                 // Reset về giá trị ban đầu
                 deviceNameInput.value = '${device.deviceName}';
-                latestWarrantyDateInput.value = '${device.latestWarrantyDate}';
                 deviceNameInput.setCustomValidity('');
-                latestWarrantyDateInput.setCustomValidity('');
             });
         })();
         
