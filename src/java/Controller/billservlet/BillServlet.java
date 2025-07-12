@@ -4,6 +4,7 @@
  */
 package Controller.billservlet;
 
+import Controller.billservlet.*;
 import dal.DAOBill;
 import model.Bill;
 import java.io.IOException;
@@ -16,6 +17,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Users;
+import dal.DAOUser;
 
 /**
  *
@@ -43,7 +47,14 @@ public class BillServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+        HttpSession session = request.getSession(false);
+        Users user = (session != null) ? (Users) session.getAttribute("user") : null;
+
+    if (user == null) {
+        // Người dùng chưa đăng nhập → điều hướng về trang login
+        response.sendRedirect("login.jsp");
+        return;
+    }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -89,11 +100,12 @@ public class BillServlet extends HttpServlet {
     private void listBills(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            ArrayList<Bill> bills = daoBill.getAllBills();
+            Users user = (Users) request.getSession().getAttribute("user");
+            ArrayList<Bill> bills = daoBill.getAllBills(user);
             request.setAttribute("bills", bills);
-            request.setAttribute("totalBills", daoBill.getTotalBills());
-            request.setAttribute("totalRevenue", daoBill.getTotalRevenue());
-            request.getRequestDispatcher("/bill/list.jsp").forward(request, response);
+            request.setAttribute("totalBills", daoBill.getTotalBills(user));
+            request.setAttribute("totalRevenue", daoBill.getTotalRevenue(user));
+            request.getRequestDispatcher("/Bill/list.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi lấy danh sách hóa đơn: " + e.getMessage());
@@ -106,18 +118,32 @@ public class BillServlet extends HttpServlet {
         if (request.getMethod().equals("POST")) {
             try {
                 // Lấy dữ liệu từ form
-                String tenantName = request.getParameter("tenantName");
-                String roomNumber = request.getParameter("roomNumber");
+                String tenantRoom = request.getParameter("tenantRoom");
+                String[] parts = tenantRoom != null ? tenantRoom.split(",") : new String[0];
+                int tenantId = parts.length > 0 ? Integer.parseInt(parts[0]) : 0;
+                int roomId = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+
                 double electricityCost = Double.parseDouble(request.getParameter("electricityCost"));
                 double waterCost = Double.parseDouble(request.getParameter("waterCost"));
                 double serviceCost = Double.parseDouble(request.getParameter("serviceCost"));
                 String dueDate = request.getParameter("dueDate");
                 String status = request.getParameter("status");
-
-                // Tính tổng
                 double total = electricityCost + waterCost + serviceCost;
 
-                // Tạo đối tượng Bill
+                // Lấy thông tin người thuê và phòng
+                String tenantName = "";
+                String roomNumber = "";
+                ArrayList<Users> tenants = (ArrayList<Users>) request.getSession().getAttribute("tenants");
+                if (tenants != null) {
+                    for (Users u : tenants) {
+                        if (u.getUserId() == tenantId && u.getRoomId() == roomId) {
+                            tenantName = u.getFullName();
+                            roomNumber = u.getRoomNumber();
+                            break;
+                        }
+                    }
+                }
+
                 Bill bill = new Bill();
                 bill.setTenantName(tenantName);
                 bill.setRoomNumber(roomNumber);
@@ -127,23 +153,28 @@ public class BillServlet extends HttpServlet {
                 bill.setTotal(total);
                 bill.setDueDate(dueDate);
                 bill.setStatus(status);
+                bill.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 
-                // Tạo ngày hiện tại
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                bill.setCreatedDate(sdf.format(new Date()));
-
-                // Thêm vào database
-                daoBill.addBill(bill);
+                // Thêm vào database (cần sửa DAOBill.addBill để nhận đủ tenantId, roomId)
+                daoBill.addBill(bill, tenantId, roomId);
 
                 request.setAttribute("success", "Thêm hóa đơn thành công!");
-                response.sendRedirect("BillServlet?action=list");
+                response.sendRedirect("listbills");
             } catch (Exception e) {
                 e.printStackTrace();
                 request.setAttribute("error", "Lỗi khi thêm hóa đơn: " + e.getMessage());
-                request.getRequestDispatcher("/bill/add.jsp").forward(request, response);
+                request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
             }
         } else {
-            request.getRequestDispatcher("/bill/add.jsp").forward(request, response);
+            // Lấy user hiện tại (manager)
+            Users user = (Users) request.getSession().getAttribute("user");
+            ArrayList<Users> tenants = new ArrayList<>();
+            if (user != null && user.getRoleId() == 2) { // 2 = manager
+                tenants = dal.DAOUser.INSTANCE.getTenantsByManager(user.getUserId());
+            }
+            request.setAttribute("tenants", tenants);
+            request.getSession().setAttribute("tenants", tenants);
+            request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
         }
     }
 
@@ -154,15 +185,15 @@ public class BillServlet extends HttpServlet {
             Bill bill = daoBill.getBillById(id);
             if (bill != null) {
                 request.setAttribute("bill", bill);
-                request.getRequestDispatcher("/bill/edit.jsp").forward(request, response);
+                request.getRequestDispatcher("/Bill/edit.jsp").forward(request, response);
             } else {
                 request.setAttribute("error", "Không tìm thấy hóa đơn!");
-                response.sendRedirect("BillServlet?action=list");
+                response.sendRedirect("listbills");
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi lấy thông tin hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -197,11 +228,11 @@ public class BillServlet extends HttpServlet {
             daoBill.updateBill(bill);
 
             request.setAttribute("success", "Cập nhật hóa đơn thành công!");
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi cập nhật hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -211,11 +242,11 @@ public class BillServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             daoBill.deleteBill(id);
             request.setAttribute("success", "Xóa hóa đơn thành công!");
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi xóa hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -225,7 +256,7 @@ public class BillServlet extends HttpServlet {
             String searchType = request.getParameter("searchType");
             String searchValue = request.getParameter("searchValue");
             ArrayList<Bill> bills = new ArrayList<>();
-
+            Users user = (Users) request.getSession().getAttribute("user");
             if (searchType != null && searchValue != null && !searchValue.trim().isEmpty()) {
                 switch (searchType) {
                     case "tenantName":
@@ -235,24 +266,24 @@ public class BillServlet extends HttpServlet {
                         bills = daoBill.searchBillsByRoomNumber(searchValue);
                         break;
                     case "status":
-                        bills = daoBill.getBillsByStatus(searchValue);
+                        bills = daoBill.getBillsByStatus(user,searchValue);
                         break;
                     default:
-                        bills = daoBill.getAllBills();
+                        bills = daoBill.getAllBills(user);
                         break;
                 }
             } else {
-                bills = daoBill.getAllBills();
+                bills = daoBill.getAllBills(user);
             }
 
             request.setAttribute("bills", bills);
             request.setAttribute("searchType", searchType);
             request.setAttribute("searchValue", searchValue);
-            request.getRequestDispatcher("/bill/list.jsp").forward(request, response);
+            request.getRequestDispatcher("/Bill/list.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi tìm kiếm hóa đơn: " + e.getMessage());
-            request.getRequestDispatcher("/bill/list.jsp").forward(request, response);
+            request.getRequestDispatcher("/Bill/list.jsp").forward(request, response);
         }
     }
 
@@ -263,15 +294,15 @@ public class BillServlet extends HttpServlet {
             Bill bill = daoBill.getBillById(id);
             if (bill != null) {
                 request.setAttribute("bill", bill);
-                request.getRequestDispatcher("/bill/view.jsp").forward(request, response);
+                request.getRequestDispatcher("/Bill/view.jsp").forward(request, response);
             } else {
                 request.setAttribute("error", "Không tìm thấy hóa đơn!");
-                response.sendRedirect("BillServlet?action=list");
+                response.sendRedirect("listbills");
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi xem thông tin hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -282,11 +313,11 @@ public class BillServlet extends HttpServlet {
             String status = request.getParameter("status");
             daoBill.updateBillStatus(id, status);
             request.setAttribute("success", "Cập nhật trạng thái hóa đơn thành công!");
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi cập nhật trạng thái hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 

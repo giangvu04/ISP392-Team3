@@ -300,7 +300,7 @@ public class ListContractsServlet extends HttpServlet {
             }
             
             request.setAttribute("contract", contract);
-            request.getRequestDispatcher("/views/contract/view.jsp").forward(request, response);
+            request.getRequestDispatcher("/Contract/ViewContracts.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
             setErrorMessage(request, "ID hợp đồng không hợp lệ");

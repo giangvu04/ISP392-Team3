@@ -15,6 +15,8 @@ public class Rooms {
     // Transient fields for display purposes
     private String rentalAreaName;
     private String currentTenant;
+    private RentalArea retalArea;
+    private String imageUrl;
     
     public Rooms() {
     }
@@ -34,6 +36,22 @@ public class Rooms {
 
     public int getRoomId() {
         return roomId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public RentalArea getRetalArea() {
+        return retalArea;
+    }
+
+    public void setRetalArea(RentalArea retalArea) {
+        this.retalArea = retalArea;
     }
 
     public void setRoomId(int roomId) {

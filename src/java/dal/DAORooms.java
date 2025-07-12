@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.RentalArea;
+import model.RentalHistory;
 
 public class DAORooms {
 
@@ -21,11 +23,13 @@ public class DAORooms {
     // Get all rooms
     public ArrayList<Rooms> getAllRooms() {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        String sql = "SELECT * FROM rooms";
+        String sql = "SELECT * FROM dbo.rooms JOIN dbo.rental_areas ON rental_areas.rental_area_id = rooms.rental_area_id";
 
         try (PreparedStatement statement = connect.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
 
             while (rs.next()) {
+                RentalArea ren = new RentalArea();
+                ren.setName(rs.getString("name"));
                 Rooms room = new Rooms();
                 room.setRoomId(rs.getInt("room_id"));
                 room.setRentalAreaId(rs.getInt("rental_area_id"));
@@ -35,7 +39,7 @@ public class DAORooms {
                 room.setMaxTenants(rs.getInt("max_tenants"));
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
-
+                room.setRetalArea(ren);
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -255,6 +259,53 @@ public class DAORooms {
             e.printStackTrace();
         }
         return rooms;
+    }
+
+    public boolean checkExistRoomForManager(int roomID, int userID) {
+        String sql = "SELECT COUNT(*) AS count\n"
+                + "FROM dbo.rental_areas ra\n"
+                + "JOIN dbo.rooms r ON r.rental_area_id = ra.rental_area_id\n"
+                + "WHERE ra.manager_id = ? AND r.room_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, userID);
+            ps.setInt(2, roomID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) { // Di chuyển con trỏ đến hàng đầu tiên
+                int count = rs.getInt("count"); // Lấy giá trị cột count
+                return count > 0; // Trả về true nếu count > 0
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Trả về false nếu không có kết quả hoặc xảy ra lỗi
+    }
+    public List<RentalHistory> getTop5RentalHistory(int roomId) {
+        List<RentalHistory> historyList = new ArrayList<>();
+        String sql = "SELECT TOP 5 RentailHistoryID, RentalID, RoomID, TenantID, TenantName, StartDate, EndDate, RentPrice, Notes, CreatedAt " +
+                     "FROM RentalHistory " +
+                     "WHERE RoomID = ? " +
+                     "ORDER BY StartDate DESC";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, roomId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RentalHistory history = new RentalHistory();
+                history.setRentailHistoryID(rs.getInt("RentailHistoryID"));
+                history.setRentalID(rs.getInt("RentalID"));
+                history.setRoomID(rs.getInt("RoomID"));
+                history.setTenantID(rs.getInt("TenantID"));
+                history.setTenantName(rs.getString("TenantName"));
+                history.setStartDate(rs.getString("StartDate"));
+                history.setEndDate(rs.getString("EndDate"));
+                history.setRentPrice(rs.getDouble("RentPrice")); // Sử dụng getDouble thay vì getBigDecimal
+                history.setNotes(rs.getString("Notes"));
+                history.setCreatedAt(rs.getString("CreatedAt"));
+                historyList.add(history);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return historyList;
     }
 
     // You'll need to add this method to the Rooms model as a transient field

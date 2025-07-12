@@ -94,7 +94,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Tìm kiếm
                                 </button>
-                                <a href="BillServlet?action=list" class="btn btn-secondary">
+                                <a href="listbills" class="btn btn-secondary">
                                     <i class="fas fa-refresh"></i> Làm mới
                                 </a>
                             </div>

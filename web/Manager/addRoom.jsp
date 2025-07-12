@@ -1,10 +1,14 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Add New Room</title>
+        <title>Thêm phòng mới </title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="css/homepage.css" rel="stylesheet">
         <style>
             :root {
                 --primary-gradient: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
@@ -77,35 +81,15 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: var(--sidebar-bg);">
-                    <div class="position-sticky pt-3">
-                        <ul class="nav flex-column">
-                            <li class="navItem">
-                                <a class="navLink" href="ManagerHomepage">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="navItem">
-                                <a class="navLink active" href="listrooms">
-                                    <i class="fas fa-door-open me-2"></i>Quản lý Phòng
-                                </a>
-                            </li>
-                            <li class="navItem">
-                                <a class="navLink" href="#">
-                                    <i class="fas fa-users me-2"></i>Quản lý Người thuê
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                <jsp:include page="../Sidebar/SideBarManager.jsp"/>
 
                 <!-- Main content -->
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mainContent">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">Add New Room</h1>
+                        <h1 class="h2">Thêm phòng mới</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
                             <a href="listrooms" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Back to Rooms
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
                             </a>
                         </div>
                     </div>
@@ -118,8 +102,15 @@
                                 <form action="addroom" method="POST">
                                     <div class="row mb-3">
                                         <div class="col-md-6">
-                                            <label for="rentalAreaId" class="formLabel">Rental Area ID</label>
-                                            <input type="number" class="form-control" id="rentalAreaId" name="rentalAreaId" required>
+                                            <label for="rentalAreaId" class="formLabel">Khu vực</label>
+<!--                                            <input type="number" class="form-control" id="rentalAreaId" name="rentalAreaId" required>-->
+                                            <select class="form-control" id="rentalAreaId" name="rentalAreaId" required>
+                                                <option value="">Lựa chọn</option>
+                                                <c:forEach var="rentail" items="${rentail}">
+                                                    
+                                                    <option value=${rentail.rentalAreaId} >${rentail.name}</option>
+                                                </c:forEach>
+                                            </select>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="roomNumber" class="formLabel">Room Number</label>
