@@ -38,8 +38,23 @@ public class ManagerHomepageServlet extends HttpServlet {
             return;
         }
         
+<<<<<<< Updated upstream
         // Manager is authenticated and authorized
         request.setAttribute("user", user);
+=======
+//        // Get room statistics
+//        DAORooms daoRooms = DAORooms.INSTANCE;
+//        int totalRooms = daoRooms.getTotalRooms(0); // 0 means all rental areas
+//        int availableRooms = daoRooms.getAvailableRoomsCount(0);
+//        int occupiedRooms = daoRooms.getOccupiedRoomsCount(0);
+//        
+//        // Set attributes for JSP
+//        request.setAttribute("user", user);
+//        request.setAttribute("totalRooms", totalRooms);
+//        request.setAttribute("availableRooms", availableRooms);
+//        request.setAttribute("occupiedRooms", occupiedRooms);
+        
+>>>>>>> Stashed changes
         request.getRequestDispatcher("Manager/manager_homepage.jsp").forward(request, response);
     }
 

@@ -2,10 +2,6 @@
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     ">
     <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>Controller.loginservlet.LoginServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ListRoomsServlet</servlet-name>
         <servlet-class>Controller.roomservlet.ListRoomsServlet</servlet-class>
     </servlet>
@@ -90,10 +86,6 @@
         <servlet-class>Controller.roomservlet.UpdateRoomServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>ListRoomsServlet</servlet-name>
         <url-pattern>/listrooms</url-pattern>
     </servlet-mapping>
@@ -177,4 +169,20 @@
         <servlet-name>UpdateRoomServlet</servlet-name>
         <url-pattern>/updateroom</url-pattern>
     </servlet-mapping>
+<<<<<<< Updated upstream
 </web-app>
+=======
+    <servlet-mapping>
+        <servlet-name>AddContractsList</servlet-name>
+        <url-pattern>/addcontract</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateContractsList</servlet-name>
+        <url-pattern>/updatecontract</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteContractsServlet</servlet-name>
+        <url-pattern>/deletecontract</url-pattern>
+    </servlet-mapping>
+</web-app>
+>>>>>>> Stashed changes

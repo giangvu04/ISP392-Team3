@@ -32,24 +32,29 @@ public class DAOUser {
         return false;
     }
 
-    public void Register(Users user) {
+    public boolean Register(Users user) {
         String sql = "INSERT INTO users (role_id, full_name, phone_number, email, password_hash, citizen_id, address, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, user.getRoleId());
             ps.setString(2, user.getFullName());
             ps.setString(3, user.getPhoneNumber());
             ps.setString(4, user.getEmail());
-            ps.setString(5, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
+//            ps.setString(5, DAO.PasswordUtils.hashPassword(user.getPasswordHash()));
+            ps.setString(5, user.getPasswordHash());
             ps.setString(6, user.getCitizenId());
             ps.setString(7, user.getAddress());
             ps.setBoolean(8, user.isActive());
             ps.setTimestamp(9, today);
-            ps.executeUpdate();
+            int row = ps.executeUpdate();
+            if(row>0){
+                return true;
+            }
             System.out.println("✅ Đăng ký người dùng thành công!");
         } catch (SQLException e) {
             System.err.println("❌ Lỗi đăng ký người dùng: " + e.getMessage());
             e.printStackTrace();
         }
+        return false;
     }
 
     public ArrayList<Users> getUsers() {
