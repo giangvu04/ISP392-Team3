@@ -169,20 +169,17 @@
         <servlet-name>UpdateRoomServlet</servlet-name>
         <url-pattern>/updateroom</url-pattern>
     </servlet-mapping>
-<<<<<<< Updated upstream
-</web-app>
-=======
-    <servlet-mapping>
+
+<!--    <servlet-mapping>
         <servlet-name>AddContractsList</servlet-name>
         <url-pattern>/addcontract</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UpdateContractsList</servlet-name>
         <url-pattern>/updatecontract</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
+    </servlet-mapping>-->
+<!--    <servlet-mapping>
         <servlet-name>DeleteContractsServlet</servlet-name>
         <url-pattern>/deletecontract</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping>-->
 </web-app>
->>>>>>> Stashed changes

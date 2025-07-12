@@ -431,13 +431,6 @@
                         Cần hỗ trợ? <a href="tel:0388258116">0388258116</a>
                     </div>
                 </div>
-<<<<<<< Updated upstream
-                            <div style="margin-top: 20px" class="forget">
-                    <a href="forgetPassword">Quên mật khẩu</a>
-                </div>            
-
-=======
->>>>>>> Stashed changes
             </div>
             
                         <script>
