@@ -103,3 +103,4 @@ public class AddRoomServlet extends HttpServlet {
         request.getRequestDispatcher("Manager/addRoom.jsp").forward(request, response);
     }
 }
+

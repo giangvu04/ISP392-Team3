@@ -1,5 +1,6 @@
 package Controller.adminservlet;
 
+import dal.DAORooms;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -38,8 +39,18 @@ public class ManagerHomepageServlet extends HttpServlet {
             return;
         }
         
-        // Manager is authenticated and authorized
+        // Get room statistics
+        DAORooms daoRooms = DAORooms.INSTANCE;
+        int totalRooms = daoRooms.getTotalRooms(0); // 0 means all rental areas
+        int availableRooms = daoRooms.getAvailableRoomsCount(0);
+        int occupiedRooms = daoRooms.getOccupiedRoomsCount(0);
+        
+        // Set attributes for JSP
         request.setAttribute("user", user);
+        request.setAttribute("totalRooms", totalRooms);
+        request.setAttribute("availableRooms", availableRooms);
+        request.setAttribute("occupiedRooms", occupiedRooms);
+        
         request.getRequestDispatcher("Manager/manager_homepage.jsp").forward(request, response);
     }
 
