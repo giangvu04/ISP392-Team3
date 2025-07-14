@@ -6,12 +6,15 @@
 <%@ page import="dal.DAOUser" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Quản lý phòng</title>
+        <title>Danh sách phòng</title>
         <base href="${pageContext.request.contextPath}/">
         <link rel="stylesheet" href="css/product.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -28,11 +31,10 @@
             Integer currentPage = (Integer) request.getAttribute("currentPage");
             Integer totalPages = (Integer) request.getAttribute("totalPages");
 
+            // Kiểm tra xem các biến có được nhận hay không
             if (currentPage == null || totalPages == null) {
                 out.println("<script>alert('Không thể nhận được currentPage hoặc totalPages.');</script>");
             }
-            
-            String message = (String) request.getAttribute("message");
         %>
 
         <!-- Header -->
@@ -57,23 +59,20 @@
 
         <div class="body">
             <div class="body-container">
-                <!-- Menu Sidebar - Manager Version -->
+                <!-- Menu Sidebar -->
                 <div class="mainmenu">
                     <ul class="mainmenu-list row no-gutters">
                         <li class="mainmenu__list-item"><a href="listrooms"><i class="fa-solid fa-door-closed list-item-icon"></i>Phòng</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-users list-item-icon"></i>Người thuê</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-file-signature list-item-icon"></i>Hợp đồng</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-receipt list-item-icon"></i>Hóa đơn</a></li>
                         <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-bell-concierge list-item-icon"></i>Dịch vụ</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-screwdriver-wrench list-item-icon"></i>Bảo trì</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-chart-pie list-item-icon"></i>Báo cáo</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-file-signature list-item-icon"></i>Liên hệ</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-user list-item-icon"></i>Tài khoản</a></li>
                     </ul>
                 </div>
 
                 <!-- Main Content -->
                 <div class="homepage-body">
                     <div class="body-head">
-                        <h3 class="body__head-title">Quản lý phòng</h3>
+                        <h3 class="body__head-title">Danh sách phòng</h3>
                         <div class="search-container">
                             <!-- Search Form -->
                             <form action="listrooms" method="post">
@@ -100,13 +99,10 @@
                                     <option value="type_desc">Loại phòng Z-A</option>
                                 </select>
                             </form>
-
-                            <!-- Add Room Button (from ListProductForOwner) -->
-                            <a href="addroom" class="add-product-button">Thêm phòng</a>
                         </div>
                     </div>
 
-                    <!-- Rooms Table - Enhanced for Manager -->
+                    <!-- Rooms Table -->
                     <div class="table-container">
                         <table class="product-table">
                             <thead>
@@ -118,7 +114,6 @@
                                     <th class="table-header-item">Loại phòng</th>
                                     <th class="table-header-item">Mô tả</th>
                                     <th class="table-header-item">Trạng thái</th>
-                                    <th class="table-header-item" style="width: 120px">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -137,15 +132,6 @@
                                         <span class="status-badge <%= room.isStatus() ? "status-occupied" : "status-available" %>">
                                             <%= room.isStatus() ? "Đã thuê" : "Trống" %>
                                         </span>
-                                    </td>
-                                    <td class="table-cell">
-                                        <a href="updateroom?id=<%= room.getRoomID() %>" class="action-button">Sửa</a>
-                                        <button style="margin-top: 8px" class="action-button" 
-                                                onclick="if (confirm('Bạn có chắc muốn xóa phòng này?')) {
-                                                            window.location.href = 'deleteroom?id=<%= room.getRoomID() %>';
-                                                        }">
-                                            Xóa
-                                        </button>
                                     </td>
                                 </tr>
                                 <% } %>
@@ -181,7 +167,6 @@
                 <p>&copy; 2025 Công ty TNHH G3. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
-        <jsp:include page="../Message.jsp"/>
 
         <!-- Toast Message Script -->
         <script>
@@ -196,6 +181,5 @@
                 }
             };
         </script>
-        <jsp:include page="../Message.jsp"/>
     </body>
 </html>

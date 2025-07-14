@@ -158,12 +158,12 @@
                         </div>
                     </div>
                     
-                    <!-- Rental History -->
+                    <!-- Rental History (Top 5 Contracts) -->
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0">
                                 <i class="fas fa-history me-2"></i>
-                                Lịch sử thuê phòng (Top 5)
+                                Lịch sử hợp đồng gần nhất (Top 5)
                             </h5>
                         </div>
                         <div class="card-body p-0">
@@ -171,49 +171,92 @@
                                 <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Tên người thuê</th>
+                                            <th>Mã hợp đồng</th>
+                                            <th>Người thuê (ID)</th>
                                             <th>Ngày bắt đầu</th>
                                             <th>Ngày kết thúc</th>
                                             <th>Giá thuê (VNĐ/tháng)</th>
-                                            <th>Ghi chú</th>
+                                            <th>Tiền cọc</th>
+                                            <th>Trạng thái</th>
+                                        
+                                            <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <c:forEach var="history" items="${rentalHistory}">
+                                        <c:forEach var="c" items="${contracts}">
                                             <tr>
-                                                <td>${history.tenantName}</td>
-                                                <td>${history.startDate}</td>
+                                                <td>${c.contractId}</td>
+                                                <td>${c.nameTelnant}</td>
+                                                <td>${c.startDate}</td>
                                                 <td>
-                                                    <c:if test="${not empty history.endDate}">
-                                                        ${history.endDate}
+                                                    <c:if test="${not empty c.endDate}">
+                                                        ${c.endDate}
                                                     </c:if>
-                                                    <c:if test="${empty history.endDate}">
+                                                    <c:if test="${empty c.endDate}">
                                                         <span class="text-muted">-</span>
                                                     </c:if>
                                                 </td>
+                                                <td><span class="fw-bold text-primary">${c.rentPrice}</span></td>
+                                                <td>${c.depositAmount}</td>
                                                 <td>
-                                                    <span class="fw-bold text-primary">
-                                                        ${history.rentPrice}
-                                                    </span>
+                                                    <c:choose>
+                                                        <c:when test="${c.status == 1}"><span class="badge bg-success">Đang hiệu lực</span></c:when>
+                                                        <c:when test="${c.status == 0}"><span class="badge bg-secondary">Chờ duyệt</span></c:when>
+                                                        <c:when test="${c.status == 2}"><span class="badge bg-danger">Đã kết thúc</span></c:when>
+                                                        <c:otherwise><span class="badge bg-warning">${c.status}</span></c:otherwise>
+                                                    </c:choose>
                                                 </td>
+                                                
                                                 <td>
-                                                    <c:if test="${not empty history.notes}">
-                                                        ${history.notes}
+                                                    <a href="listcontracts?action=view&amp;id=${c.contractId}" class="btn btn-sm btn-outline-primary mb-1" title="Xem chi tiết">
+                                                        <i class="fas fa-eye"></i> Xem chi tiết
+                                                    </a>
+                                                    <c:if test="${c.status != 1}">
+                                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editContractModal${c.contractId}"><i class="fas fa-edit"></i> Sửa</button>
                                                     </c:if>
-                                                    <c:if test="${empty history.notes}">
-                                                        <span class="text-muted">-</span>
-                                                    </c:if>
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="editContractModal${c.contractId}" tabindex="-1" aria-labelledby="editContractModalLabel${c.contractId}" aria-hidden="true">
+                                                      <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                          <form method="post" action="updateContract">
+                                                            <div class="modal-header">
+                                                              <h5 class="modal-title" id="editContractModalLabel${c.contractId}">Chỉnh sửa hợp đồng #${c.contractId}</h5>
+                                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                              <input type="hidden" name="contractId" value="${c.contractId}" />
+                                                              <div class="mb-3">
+                                                                <label class="form-label">Trạng thái</label>
+                                                                <select class="form-select" name="status">
+                                                                  <option value="0" ${c.status == 0 ? 'selected' : ''}>Chờ duyệt</option>
+                                                                  <option value="1" ${c.status == 1 ? 'selected' : ''}>Đang hiệu lực</option>
+                                                                  <option value="2" ${c.status == 2 ? 'selected' : ''}>Đã kết thúc</option>
+                                                                </select>
+                                                              </div>
+                                                              <div class="mb-3">
+                                                                <label class="form-label">Tiền cọc</label>
+                                                                <input type="number" class="form-control" name="depositAmount" value="${c.depositAmount}" min="0" step="1000" required />
+                                                              </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                              <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                                                            </div>
+                                                          </form>
+                                                        </div>
+                                                      </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
                                 </table>
                             </div>
-                            <c:if test="${empty rentalHistory}">
+                            <c:if test="${empty contracts}">
                                 <div class="text-center py-5">
                                     <i class="fas fa-history fa-3x text-muted mb-3"></i>
-                                    <h5 class="text-muted">Không có lịch sử thuê</h5>
-                                    <p class="text-muted">Phòng này chưa có lịch sử thuê hoặc chưa được cập nhật.</p>
+                                    <h5 class="text-muted">Không có hợp đồng nào</h5>
+                                    <p class="text-muted">Phòng này chưa có hợp đồng hoặc chưa được cập nhật.</p>
                                 </div>
                             </c:if>
                         </div>

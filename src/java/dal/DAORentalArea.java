@@ -16,7 +16,7 @@ public class DAORentalArea {
     public DAORentalArea() {
         connect = new DBContext().connect;
     }
-
+   
     // Get rental area by manager ID
     public RentalArea getRentalAreaByManagerId(int managerId) {
         String sql = "SELECT * FROM rental_areas WHERE manager_id = ?";

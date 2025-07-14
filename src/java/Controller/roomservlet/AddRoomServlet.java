@@ -42,7 +42,7 @@ public class AddRoomServlet extends HttpServlet {
         String maxTenantsStr = request.getParameter("maxTenants");
         String statusStr = request.getParameter("status");
         String description = request.getParameter("description");
-
+        
         // Initialize error message
         String errorMessage = null;
 
@@ -53,7 +53,7 @@ public class AddRoomServlet extends HttpServlet {
             BigDecimal price = new BigDecimal(priceStr);
             int maxTenants = Integer.parseInt(maxTenantsStr);
             int status = Integer.parseInt(statusStr);
-
+                
             // Create room object
             Rooms room = new Rooms();
             room.setRentalAreaId(rentalAreaId);
@@ -66,7 +66,7 @@ public class AddRoomServlet extends HttpServlet {
 
             // Attempt to add the room
             boolean success = DAORooms.INSTANCE.addRoom(room);
-
+            
             if (success) {
                 // Redirect to success page or room listing
                 request.getSession().setAttribute("ms", "Thêm phòng thành công");
@@ -103,4 +103,3 @@ public class AddRoomServlet extends HttpServlet {
         request.getRequestDispatcher("Manager/addRoom.jsp").forward(request, response);
     }
 }
-

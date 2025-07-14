@@ -128,8 +128,8 @@
                                     <form action="ImageList" method="post" style="display:inline;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="imageId" value="${image.imageId}">
-                                        <input type="hidden" name="houseId" value="${houseID}">
-                                        <input type="hidden" name="roomId" value="${roomID}">
+                                        <input type="hidden" name="houseID" value="${houseID}">
+                                        <input type="hidden" name="roomID" value="${roomID}">
                                         <button type="submit" class="delete-btn" onclick="return confirm('Bạn có chắc muốn xóa ảnh này?')">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -154,9 +154,10 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="uploadImageForm" action="ImageList?action=add" method="post" enctype="multipart/form-data">
+                                <form id="uploadImageForm" action="ImageList" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="houseID" value="${houseID}">
                                     <input type="hidden" name="roomID" value="${roomID}">
+                                    <input type="hidden" name="action" value="add"/>
                                     <div class="mb-3">
                                         <label for="imageFile" class="form-label">Chọn ảnh (png, jpeg, jpg, webp)</label>
                                         <input type="file" class="form-control" id="imageFile" name="imageFile" accept=".png,.jpeg,.jpg,.webp" required>

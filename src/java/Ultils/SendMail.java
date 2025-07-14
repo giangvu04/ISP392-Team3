@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Ultils;
 
 import Controller.forgetPassword.*;
@@ -24,8 +21,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-public class SendMail {
 
+public class SendMail {
+    // Gửi mail HTML bất đồng bộ (đa luồng)
+    public static void sendHtmlMailAsync(String to, String subject, String htmlContent) {
+        Thread thread = new Thread(() -> {
+            try {
+                sendHtmlMail(to, subject, htmlContent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+    }
    
     public static boolean sendMailAsyncOTP(String email, String otp) {
         Thread thread = new Thread(() -> {
@@ -105,6 +113,33 @@ public class SendMail {
             e.printStackTrace();
             return false;
         }
+    }
+        /**
+     * Gửi mail mời tenant vào phòng với link xác nhận
+     * @param email email người nhận
+     * @param inviteLink link xác nhận (chứa token)
+     * @param roomInfo thông tin phòng
+     * @return true nếu gửi thành công
+     */
+    public static boolean sendInviteTenantMail(String email, String inviteLink, String roomInfo) {
+        Thread thread = new Thread(() -> {
+            try {
+                String subject = "Lời mời tham gia phòng trọ";
+                String content = "<html><body>"
+                        + "<h2>Lời mời tham gia phòng trọ</h2>"
+                        + "<p>Bạn nhận được lời mời tham gia phòng: <b>" + roomInfo + "</b></p>"
+                        + "<p>Vui lòng nhấn vào liên kết dưới đây để xác nhận tham gia phòng:</p>"
+                        + "<p><a href='" + inviteLink + "' style='color: #007bff; font-weight: bold;'>Xác nhận tham gia phòng</a></p>"
+                        + "<p style='color: #888;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>"
+                        + "<p style='color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>"
+                        + "</body></html>";
+                sendHtmlMail(email, subject, content);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+        return true;
     }
     private static String getCurrentDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // hoặc "yyyy-MM-dd HH:mm:ss"

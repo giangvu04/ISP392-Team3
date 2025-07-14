@@ -161,11 +161,35 @@
                                                             <a href="ImageList?roomId=${room.roomId}" class="btn btn-sm btn-outline-warning" title="Xem ảnh phòng">
                                                                 <i class="fas fa-image"></i>
                                                             </a>
-                                                            <c:if test="${room.status == 0}">
-                                                                <a href="assignroom?id=${room.roomId}" class="btn btn-sm btn-outline-success" title="Gán người thuê">
+                                                            <c:if test="${room.status == 1}">
+                                                                <button type="button" class="btn btn-sm btn-outline-success" title="Gán người thuê" data-bs-toggle="modal" data-bs-target="#assignTenantModal${room.roomId}">
                                                                     <i class="fas fa-user-plus"></i>
-                                                                </a>
+                                                                </button>
                                                             </c:if>
+                                                        </div>
+                                                        <!-- Modal: Assign Tenant for each room -->
+                                                        <div class="modal fade" id="assignTenantModal${room.roomId}" tabindex="-1" aria-labelledby="assignTenantModalLabel${room.roomId}" aria-hidden="true">
+                                                          <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                              <form class="assignTenantForm" data-roomid="${room.roomId}" autocomplete="off" onsubmit="return submitAssignTenantForm(event, ${room.roomId})">
+                                                                <div class="modal-header">
+                                                                  <h5 class="modal-title" id="assignTenantModalLabel${room.roomId}">Thêm người thuê mới vào phòng ${room.roomNumber}</h5>
+                                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                  <div class="mb-3 position-relative">
+                                                                    <label class="form-label">Nhập email người thuê</label>
+                                                                    <input type="text" class="form-control tenantEmailInput" placeholder="Nhập email..." autocomplete="off" oninput="searchUserEmailInput(this, ${room.roomId})" />
+                                                                    <div class="list-group position-absolute w-100 emailSuggestions" style="z-index: 1000;"></div>
+                                                                  </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                                  <button type="submit" class="btn btn-primary inviteTenantBtn" disabled>Mời vào phòng</button>
+                                                                </div>
+                                                              </form>
+                                                            </div>
+                                                          </div>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -215,6 +239,74 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <jsp:include page="../Message.jsp"/>
+        <script>
+        // AJAX search for email suggestions (oninput version, multi-modal)
+        let selectedUserMap = {};
+        let debounceTimerMap = {};
+        function searchUserEmailInput(input, roomId) {
+            const query = input.value.trim();
+            selectedUserMap[roomId] = null;
+            const form = input.closest('.assignTenantForm');
+            const inviteBtn = form.querySelector('.inviteTenantBtn');
+            const suggestionsBox = form.querySelector('.emailSuggestions');
+            inviteBtn.disabled = true;
+            suggestionsBox.innerHTML = '';
+            if (debounceTimerMap[roomId]) clearTimeout(debounceTimerMap[roomId]);
+            if (query.length < 3) return;
+            debounceTimerMap[roomId] = setTimeout(() => {
+                fetch('searchUserByEmail?email=' + encodeURIComponent(query))
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestionsBox.innerHTML = '';
+                        if (Array.isArray(data)) {
+                            data.forEach(user => {
+                                const item = document.createElement('button');
+                                item.type = 'button';
+                                item.className = 'list-group-item list-group-item-action';
+                                item.textContent = user.email + ' - ' + user.fullName;
+                                item.onclick = () => {
+                                    input.value = user.email;
+                                    selectedUserMap[roomId] = user;
+                                    suggestionsBox.innerHTML = '';
+                                    inviteBtn.disabled = false;
+                                };
+                                suggestionsBox.appendChild(item);
+                            });
+                        }
+                    });
+            }, 300);
+        }
+
+
+        // Submit assign tenant form for each room
+        function submitAssignTenantForm(e, roomId) {
+            e.preventDefault();
+            const form = e.target;
+            const user = selectedUserMap[roomId];
+            if (!user) return false;
+            fetch('inviteTenant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ email: user.email, userId: user.userId, roomId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('assignTenantModal' + roomId));
+                if (data.success) {
+                    form.reset();
+                    form.querySelector('.inviteTenantBtn').disabled = true;
+                    selectedUserMap[roomId] = null;
+                    if (modal) modal.hide();
+                    toastr.success('Đã gửi lời mời tới email: ' + user.email);
+                } else {
+                    if (modal) modal.hide();
+                    toastr.error(data.message || 'Gửi lời mời thất bại!');
+                }
+            });
+            return false;
+        }
+        </script>
         <script>
             // Add active class to current nav item
             document.addEventListener('DOMContentLoaded', function () {

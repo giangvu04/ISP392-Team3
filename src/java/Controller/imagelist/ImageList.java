@@ -58,8 +58,8 @@ public class ImageList extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        String houseId = request.getParameter("houseId");
-        String roomId = request.getParameter("roomId");
+        String houseId = request.getParameter("houseID");
+        String roomId = request.getParameter("roomID");
         String imageId = request.getParameter("imageId");
         HttpSession session = request.getSession();
 
@@ -152,15 +152,34 @@ public class ImageList extends HttpServlet {
     }
 
     private String saveImageToLocal(byte[] imageData, String fileName, String baseUrl) throws IOException {
-        String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-        File directory = new File(uploadPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-        File file = new File(directory, fileName);
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(imageData);
-        }
-        return baseUrl + "/" + UPLOAD_DIR + "/" + fileName;
+    // 1. Lưu vào thư mục build/web/Image (phục vụ trình duyệt)
+    String runtimePath = getServletContext().getRealPath("/" + UPLOAD_DIR);
+    File runtimeDir = new File(runtimePath);
+    if (!runtimeDir.exists()) {
+        runtimeDir.mkdirs();
     }
+    File fileRuntime = new File(runtimeDir, fileName);
+    try (FileOutputStream fos = new FileOutputStream(fileRuntime)) {
+        fos.write(imageData);
+    }
+
+    // 2. Lưu thêm vào thư mục source project: web/Image
+    // Lùi từ build/web/ => dự án => web/Image
+    File buildDir = new File(getServletContext().getRealPath("/"));
+    File projectRoot = buildDir.getParentFile().getParentFile(); // build/web => project
+    File sourceDir = new File(projectRoot, "web" + File.separator + UPLOAD_DIR);
+    if (!sourceDir.exists()) {
+        sourceDir.mkdirs();
+    }
+    File fileSource = new File(sourceDir, fileName);
+    try (FileOutputStream fos = new FileOutputStream(fileSource)) {
+        fos.write(imageData);
+    }
+
+    // Trả về URL để client hiển thị
+    return baseUrl + "/" + UPLOAD_DIR + "/" + URLEncoder.encode(fileName, "UTF-8");
+}
+
+
+
 }

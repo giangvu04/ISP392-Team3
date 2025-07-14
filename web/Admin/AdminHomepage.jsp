@@ -276,5 +276,6 @@
                 });
             }, 5000);
         </script>
+        <jsp:include page="../Message.jsp"/>
     </body>
 </html> zz

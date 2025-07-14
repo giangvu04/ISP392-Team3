@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
                 <div class="col-md-3 col-lg-2 px-0">
-                    <div class="sidebar p-3">
+                    <div  style="height: 100%" class="sidebar p-3">
                         <div class="text-center mb-4">
                             <h4 class="text-white mb-0">
                                 <i class="fas fa-building me-2"></i>
@@ -28,7 +28,7 @@
                                 <i class="fas fa-bed me-2"></i>
                                 Quản lý Phòng
                             </a>
-                            <a class="nav-link" href="listusers?role=3">
+                            <a class="nav-link" href="listUser">
                                 <i class="fas fa-users me-2"></i>
                                 Quản lý Người thuê
                             </a>
@@ -59,7 +59,7 @@
                                 Dịch vụ
                             </a>
                             <hr class="text-white-50">
-                            <a class="nav-link" href="profile">
+                            <a class="nav-link" href="profileManager">
                                 <i class="fas fa-user-cog me-2"></i>
                                 Hồ sơ cá nhân
                             </a>

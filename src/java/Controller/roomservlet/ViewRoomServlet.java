@@ -67,8 +67,9 @@ public class ViewRoomServlet extends HttpServlet {
             } else {
                 Rooms rooms = dao.getRoomById(roomIDnew);
                 List<Image> image = idao.getImagesByRoom(roomIDnew);
-                List<RentalHistory> rentalHistory = dao.getTop5RentalHistory(roomIDnew);
-                request.setAttribute("rentalHistory", rentalHistory);
+                // Lấy 5 hợp đồng gần nhất của phòng
+                List<model.Contracts> contracts = dal.DAOContract.INSTANCE.getTop5ContractsByRoom(roomIDnew);
+                request.setAttribute("contracts", contracts);
                 request.setAttribute("image", image);
                 request.setAttribute("rooms", rooms);
                 request.getRequestDispatcher("RoomsManager/ViewRoom.jsp").forward(request, response);
