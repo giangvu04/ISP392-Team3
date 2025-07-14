@@ -60,6 +60,14 @@
                             <c:if test="${not empty contract}">
                                 <div class="row">
                                     <div class="col-md-6">
+                                        <h6 class="text-muted">Số phòng</h6>
+                                        <p class="fw-bold">${contract.roomNumber}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-muted">Tên khu vực</h6>
+                                        <p class="fw-bold">${contract.areaName}</p>
+                                    </div>
+                                    <div class="col-md-6">
                                         <h6 class="text-muted">Mã hợp đồng</h6>
                                         <p class="fw-bold">${contract.contractId}</p>
                                     </div>
@@ -70,6 +78,14 @@
                                     <div class="col-md-6">
                                         <h6 class="text-muted">Mã người thuê</h6>
                                         <p>${contract.tenantId}</p>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h6 class="text-muted">Danh sách người thuê trong phòng</h6>
+                                        <ul>
+                                            <c:forEach var="tenant" items="${tenants}">
+                                                <li>${tenant.fullName} (${tenant.email})</li>
+                                            </c:forEach>
+                                        </ul>
                                     </div>
                                     <div class="col-md-6">
                                         <h6 class="text-muted">Ngày bắt đầu</h6>
