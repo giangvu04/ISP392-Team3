@@ -1,3 +1,4 @@
+    
 package dal;
 
 import model.Users;
@@ -30,24 +31,6 @@ public class DAOUser {
             return password.equals(user.getPasswordHash());
         }
         return false;
-    }
-    public boolean updatePassword(String email, String password) {
-        String sql = "UPDATE dbo.users SET password_hash = ? WHERE email = ?";
-        try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setString(1, password); // Giả định password đã được mã hóa ở tầng servlet
-            ps.setString(2, email);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("✅ Cập nhật mật khẩu thành công cho email: " + email);
-                return true;
-            }
-            System.out.println("⚠️ Không tìm thấy email để cập nhật: " + email);
-            return false;
-        } catch (SQLException e) {
-            System.err.println("❌ Lỗi cập nhật mật khẩu: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
     }
 
     public boolean Register(Users user) {
@@ -558,7 +541,57 @@ public class DAOUser {
         }
         return roles;
     }
-    
+    public boolean updatePassword(String email, String password) {
+        String sql = "UPDATE dbo.users SET password_hash = ? WHERE email = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setString(1, password); // Giả định password đã được mã hóa ở tầng servlet
+            ps.setString(2, email);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Cập nhật mật khẩu thành công cho email: " + email);
+                return true;
+            }
+            System.out.println("⚠️ Không tìm thấy email để cập nhật: " + email);
+            return false;
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi cập nhật mật khẩu: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    // Lấy danh sách người thuê trọ thuộc các khu trọ mà manager quản lý
+    public ArrayList<Users> getTenantsByManager(int managerId) {
+        ArrayList<Users> tenants = new ArrayList<>();
+        String sql = "SELECT DISTINCT u.user_id, u.full_name, u.phone_number, u.email, u.address, r.room_id, r.room_number, ra.rental_area_id, ra.name AS rental_area_name " +
+                     "FROM users u " +
+                     "JOIN contracts c ON u.user_id = c.tenant_id " +
+                     "JOIN rooms r ON c.room_id = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "WHERE ra.manager_id = ? AND u.is_active = 1";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Users user = new Users();
+                user.setUserId(rs.getInt("user_id"));
+                user.setFullName(rs.getString("full_name"));
+                user.setPhoneNumber(rs.getString("phone_number"));
+                user.setEmail(rs.getString("email"));
+                user.setAddress(rs.getString("address"));
+                // Lưu thêm thông tin phòng và khu trọ vào thuộc tính tạm thời (nếu cần)
+                user.setRoomId(rs.getInt("room_id"));
+                user.setRoomNumber(rs.getString("room_number"));
+                user.setRentalAreaId(rs.getInt("rental_area_id"));
+                user.setRentalAreaName(rs.getString("rental_area_name"));
+                tenants.add(user);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi lấy danh sách người thuê theo manager: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return tenants;
+    }
+
     public static void main(String[] args) throws Exception {
         DAOUser dao = new DAOUser();
         ArrayList<Users> users = dao.getUsers();

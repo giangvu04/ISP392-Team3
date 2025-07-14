@@ -23,8 +23,8 @@ public class ListBillsServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Users user = (Users) session.getAttribute("user");
         if (user == null) {
-            request.setAttribute("error", "Vui lòng đăng nhập để tiếp tục!");
-            request.getRequestDispatcher("Login/login.jsp").forward(request, response);
+            request.getSession().setAttribute("error", "Vui lòng đăng nhập để tiếp tục!");
+            response.sendRedirect("login");
             return;
         }
 
@@ -84,10 +84,10 @@ public class ListBillsServlet extends HttpServlet {
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalBills", dao.getTotalBills(user));
-//        if (user.getRoleId() == 1) {   // muốn admin coi thì mở 
+        
             request.setAttribute("totalRevenue", dao.getTotalRevenue(user));
             request.setAttribute("unpaidCount", dao.getUnpaidBills(user).size());
-//        }
+        
 
         // Forward to JSP
         request.getRequestDispatcher("Manager/Bill/list.jsp").forward(request, response);
@@ -98,8 +98,8 @@ public class ListBillsServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Users user = (Users) session.getAttribute("user");
         if (user == null) {
-            request.setAttribute("error", "Vui lòng đăng nhập để tiếp tục!");
-            request.getRequestDispatcher("Login/login.jsp").forward(request, response);
+            request.getSession().setAttribute("error", "Vui lòng đăng nhập để tiếp tục!");
+            response.sendRedirect("login");
             return;
         }
 
@@ -109,21 +109,21 @@ public class ListBillsServlet extends HttpServlet {
                 int id = Integer.parseInt(request.getParameter("id"));
                 String status = request.getParameter("status");
                 dao.updateBillStatus(id, status);
-                request.setAttribute("success", "Cập nhật trạng thái hóa đơn thành công!");
+                request.getSession().setAttribute("ms", "Cập nhật trạng thái hóa đơn thành công!");
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "ID hóa đơn không hợp lệ!");
+                request.getSession().setAttribute("error", "ID hóa đơn không hợp lệ!");
             }
         } else if ("delete".equals(action)) {
             try {
                 int id = Integer.parseInt(request.getParameter("id"));
                 dao.deleteBill(id);
-                request.setAttribute("success", "Xóa hóa đơn thành công!");
+                request.getSession().setAttribute("ms", "Xóa hóa đơn thành công!");
             } catch (NumberFormatException e) {
-                request.setAttribute("error", "ID hóa đơn không hợp lệ!");
+                request.getSession().setAttribute("error", "ID hóa đơn không hợp lệ!");
             }
-        } // Add handling for add/edit actions as needed
+        } // Add handling for add/edit actions as neeFded
 
-        doGet(request, response); // Refresh the list
+        response.sendRedirect("listbills"); // Refresh the list
     }
 
     // Helper method to calculate total pages for search results

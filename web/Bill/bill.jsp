@@ -49,7 +49,7 @@
 
   <div class="container mb-5">
 
-<!--     Form tạo hóa đơn 
+    <!-- Form tạo hóa đơn -->
     <div class="card form-section mb-4">
       <div class="card-body">
         <h5 class="card-title mb-4"><i class="fas fa-plus-circle text-primary"></i> Tạo hóa đơn mới</h5>
@@ -114,7 +114,7 @@
           </div>
         </form>
       </div>
-    </div>-->
+    </div>
 
     <!-- Tìm kiếm và lọc -->
     <div class="row align-items-center mb-3">

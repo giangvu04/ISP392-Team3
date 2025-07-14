@@ -1,15 +1,48 @@
 package dal;
 
-import java.util.ArrayList;
-import model.Bill;
-import model.Users;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import model.Bill;
+import model.Users;
 
 public class DAOBill {
+    /**
+     * Tính tổng doanh thu tháng hiện tại cho manager
+     * @param managerId user_id của manager
+     * @return tổng doanh thu tháng hiện tại (double)
+     */
+    public double getMonthlyRevenue(int managerId) {
+        String sql = "SELECT ISNULL(SUM(b.Total), 0) AS MonthlyRevenue " +
+                "FROM tbBills b " +
+                "JOIN rooms r ON b.RoomID = r.room_id " +
+                "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ? " +
+                "AND b.Status = 'Paid' " +
+                "AND MONTH(CONVERT(date, b.CreatedDate, 120)) = MONTH(GETDATE()) " +
+                "AND YEAR(CONVERT(date, b.CreatedDate, 120)) = YEAR(GETDATE())";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("MonthlyRevenue");
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi tính doanh thu tháng: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+    // --- Thống kê cho dashboard quản lý ---
+    /**
+     * Thống kê tổng số phòng, số phòng đã thuê, số phòng trống cho dashboard manager
+     * @param managerId id của manager (user_id)
+     * @return int[]{totalRooms, rentedRooms, vacantRooms}
+     */
+    
     
     public static final DAOBill INSTANCE = new DAOBill();
     protected Connection connect;
@@ -21,19 +54,24 @@ public class DAOBill {
     public static long millis = System.currentTimeMillis();
     public static Date today = new Date(millis);
 
-    // Thêm hóa đơn mới
-    public void addBill(Bill bill) {
-        String sql = "INSERT INTO tbBills (TenantName, RoomNumber, ElectricityCost, WaterCost, ServiceCost, Total, DueDate, Status, CreatedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Thêm hóa đơn mới (hợp lý với BillServlet và tbBills schema)
+    public void addBill(Bill bill, int tenantId, int roomId) {
+        String sql = "INSERT INTO tbBills (TenantID, RoomID, TenantName, RoomNumber, ElectricityCost, WaterCost, ServiceCost, Total, DueDate, Status, CreatedDate, EmailTelnant, PhoneTelnant) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setString(1, bill.getTenantName());
-            ps.setString(2, bill.getRoomNumber());
-            ps.setDouble(3, bill.getElectricityCost());
-            ps.setDouble(4, bill.getWaterCost());
-            ps.setDouble(5, bill.getServiceCost());
-            ps.setDouble(6, bill.getTotal());
-            ps.setString(7, bill.getDueDate());
-            ps.setString(8, bill.getStatus());
-            ps.setString(9, bill.getCreatedDate());
+            ps.setInt(1, tenantId);
+            ps.setInt(2, roomId);
+            ps.setString(3, bill.getTenantName());
+            ps.setString(4, bill.getRoomNumber());
+            ps.setDouble(5, bill.getElectricityCost());
+            ps.setDouble(6, bill.getWaterCost());
+            ps.setDouble(7, bill.getServiceCost());
+            ps.setDouble(8, bill.getTotal());
+            ps.setString(9, bill.getDueDate());
+            ps.setString(10, bill.getStatus());
+            ps.setString(11, bill.getCreatedDate());
+            ps.setString(12, bill.getEmailTelnant() != null ? bill.getEmailTelnant() : null);
+            ps.setString(13, null); // Bill model chưa có phoneTelnant, để null
             ps.executeUpdate();
             System.out.println("✅ Thêm hóa đơn thành công!");
         } catch (SQLException e) {
@@ -509,10 +547,7 @@ public class DAOBill {
 
     // Tính tổng doanh thu (chỉ dành cho quản lý)
     public double getTotalRevenue(Users user) {
-//        if (user == null || user.getRoleId() != 1) {
-//            System.err.println("❌ Chỉ quản lý (roleID = 1) được phép xem tổng doanh thu!");
-//            return 0.0;
-//        }
+        
 
         String sql = "SELECT SUM(Total) FROM tbBills WHERE Status = 'Paid'";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -582,7 +617,6 @@ public class DAOBill {
     // Test method
     public static void main(String[] args) {
         DAOBill dao = new DAOBill();
-        
         // Test thêm hóa đơn
         Bill testBill = new Bill();
         testBill.setTenantName("Nguyễn Văn A");
@@ -594,7 +628,9 @@ public class DAOBill {
         testBill.setDueDate("2024-01-15");
         testBill.setStatus("Unpaid");
         testBill.setCreatedDate("2024-01-01");
-        
-        dao.addBill(testBill);
+        // Giả lập tenantId, roomId
+        int tenantId = 1;
+        int roomId = 1;
+        dao.addBill(testBill, tenantId, roomId);
     }
 }

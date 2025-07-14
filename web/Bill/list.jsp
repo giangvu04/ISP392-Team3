@@ -55,7 +55,7 @@
                         <div class="col-md-4">
                             <div class="card bg-success text-white">
                                 <div class="card-body">
-                                    <h5 class="card-title"><i class="fas fa-money-bill-wave"></i> doanh thu </h5>
+                                    <h5 class="card-title"><i class="fas fa-money-bill-wave"></i> Doanh thu</h5>
                                     <h3><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫"/></h3>
                                 </div>
                             </div>
@@ -72,7 +72,7 @@
                 </div>
 
                 <!-- Tìm kiếm -->
-                 <div class="search-section">
+                <div class="search-section">
                     <form action="BillServlet" method="GET" class="row g-3">
                         <input type="hidden" name="action" value="search">
                         <div class="col-md-3">
@@ -94,13 +94,13 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Tìm kiếm
                                 </button>
-                                <a href="BillServlet?action=list" class="btn btn-secondary">
+                                <a href="listbills" class="btn btn-secondary">
                                     <i class="fas fa-refresh"></i> Làm mới
                                 </a>
                             </div>
                         </div>
                     </form>
-                </div> 
+                </div>
 
                 <!-- Nút thêm mới -->
                 <div class="mb-3">
