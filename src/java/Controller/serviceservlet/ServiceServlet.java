@@ -117,6 +117,7 @@ public class ServiceServlet extends HttpServlet {
     private void searchServices(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String keyword = request.getParameter("keyword");
+        System.out.println("KeyWord " + keyword);
         if (keyword == null || keyword.trim().isEmpty()) {
             response.sendRedirect("listservices?action=list");
             return;
