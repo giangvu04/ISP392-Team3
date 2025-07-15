@@ -158,7 +158,7 @@
                                 <small>Room ID: <%= contract.getRoomID() %> | Tenant ID: <%= contract.getTenantsID() %></small>
                             </div>
                             
-                            <form action="updatecontract" method="POST">
+                            <form action="listcontracts" method="POST">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="contractId" value="<%= contract.getContractId() %>">
                                 
@@ -176,10 +176,10 @@
                                     <div class="col-md-4">
                                         <label for="status" class="formLabel">Status *</label>
                                         <select class="form-select" id="status" name="status" required>
-                                            <option value="0" <%= contract.getStatus() == 0 ? "selected" : "" %>>Tạm dừng</option>
+                                            <option value="0" <%= contract.getStatus() == 0 ? "selected" : "" %>>Chờ ký</option>
                                             <option value="1" <%= contract.getStatus() == 1 ? "selected" : "" %>>Đang hoạt động</option>
-                                            <option value="2" <%= contract.getStatus() == 2 ? "selected" : "" %>>Chờ xử lý</option>
-                                            
+                                            <option value="2" <%= contract.getStatus() == 2 ? "selected" : "" %>>Tạm dừng</option>
+                                            <option value="3" <%= contract.getStatus() == 3 ? "selected" : "" %>>Đã kết thúc</option>
                                         </select>
                                     </div>
                                 </div>

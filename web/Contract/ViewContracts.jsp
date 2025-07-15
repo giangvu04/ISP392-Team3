@@ -28,7 +28,7 @@
                             <p class="text-muted mb-0">Thông tin chi tiết về hợp đồng</p>
                         </div>
                         <div>
-                            <a href="updatecontract?id=${contract.contractId}" class="btn btn-warning me-2">
+                            <a href="updateContract?id=${contract.contractId}" class="btn btn-warning me-2">
                                 <i class="fas fa-edit me-2"></i>
                                 Chỉnh sửa
                             </a>

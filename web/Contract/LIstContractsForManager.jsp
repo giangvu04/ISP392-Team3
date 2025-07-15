@@ -15,7 +15,6 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            
             <!-- Sidebar -->
             <jsp:include page="../Sidebar/SideBarManager.jsp"/>
             
@@ -33,20 +32,22 @@
                     </div>
 
                     <!-- Alert Messages -->
-                    <c:if test="${not empty message}">
+                    <c:if test="${not empty sessionScope.successMessage}">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="fas fa-check-circle me-2"></i>
-                            ${message}
+                            ${sessionScope.successMessage}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
+                        <c:remove var="successMessage" scope="session"/>
                     </c:if>
                     
-                    <c:if test="${not empty error}">
+                    <c:if test="${not empty sessionScope.errorMessage}">
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            ${error}
+                            ${sessionScope.errorMessage}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
+                        <c:remove var="errorMessage" scope="session"/>
                     </c:if>
 
                     <!-- Statistics Card -->
@@ -58,7 +59,7 @@
                                         <div class="col-md-4">
                                             <h3 class="mb-1">
                                                 <c:choose>
-                                                    <c:when test="${not empty searchTerm}">
+                                                    <c:when test="${searchMode}">
                                                         ${contracts.size()}
                                                     </c:when>
                                                     <c:otherwise>
@@ -71,7 +72,7 @@
                                         <div class="col-md-4">
                                             <h3 class="mb-1">
                                                 <c:choose>
-                                                    <c:when test="${not empty searchTerm}">
+                                                    <c:when test="${searchMode}">
                                                         1
                                                     </c:when>
                                                     <c:otherwise>
@@ -84,7 +85,7 @@
                                         <div class="col-md-4">
                                             <h3 class="mb-1">
                                                 <c:choose>
-                                                    <c:when test="${not empty searchTerm}">
+                                                    <c:when test="${searchMode}">
                                                         <i class="fas fa-search"></i>
                                                     </c:when>
                                                     <c:otherwise>
@@ -94,7 +95,7 @@
                                             </h3>
                                             <p class="mb-0">
                                                 <c:choose>
-                                                    <c:when test="${not empty searchTerm}">Chế độ tìm kiếm</c:when>
+                                                    <c:when test="${searchMode}">Chế độ tìm kiếm</c:when>
                                                     <c:otherwise>Trang hiện tại</c:otherwise>
                                                 </c:choose>
                                             </p>
@@ -109,15 +110,17 @@
                     <div class="card mb-4">
                         <div class="card-body">
                             <form method="GET" action="${pageContext.request.contextPath}/listcontracts" class="mb-0">
+                                <input type="hidden" name="action" value="search">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
                                         <div class="search-box">
                                             <i class="fas fa-search text-muted me-2"></i>
                                             <input type="text" 
                                                    class="form-control border-0" 
-                                                   name="searchTerm" 
+                                                   name="keyword" 
                                                    placeholder="Nhập từ khóa tìm kiếm hợp đồng..."
-                                                   value="${searchTerm}">
+                                                   value="${keyword}"
+                                                   required>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -125,7 +128,7 @@
                                             <button type="submit" class="btn btn-primary me-2">
                                                 <i class="fas fa-search me-2"></i>Tìm kiếm
                                             </button>
-                                            <c:if test="${not empty searchTerm}">
+                                            <c:if test="${searchMode}">
                                                 <a href="${pageContext.request.contextPath}/listcontracts" 
                                                    class="btn btn-outline-secondary">
                                                     <i class="fas fa-times me-2"></i>Hủy
@@ -139,10 +142,10 @@
                     </div>
 
                     <!-- Search Results Info -->
-                    <c:if test="${not empty searchTerm}">
+                    <c:if test="${searchMode}">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
-                            Tìm thấy <strong>${contracts.size()}</strong> hợp đồng với từ khóa: "<strong>${searchTerm}</strong>"
+                            Tìm thấy <strong>${contracts.size()}</strong> hợp đồng với từ khóa: "<strong>${keyword}</strong>"
                         </div>
                     </c:if>
 
@@ -154,7 +157,7 @@
                                     <h5 class="mb-0">
                                         <i class="fas fa-list me-2"></i>
                                         <c:choose>
-                                            <c:when test="${not empty searchTerm}">
+                                            <c:when test="${searchMode}">
                                                 Kết quả tìm kiếm
                                             </c:when>
                                             <c:otherwise>
@@ -167,7 +170,7 @@
                                     </h5>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="${pageContext.request.contextPath}/addcontract" 
+                                    <a href="${pageContext.request.contextPath}/listcontracts?action=add" 
                                        class="btn btn-light">
                                         <i class="fas fa-plus me-2"></i>Thêm mới
                                     </a>
@@ -182,16 +185,16 @@
                                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                         <h5 class="text-muted">
                                             <c:choose>
-                                                <c:when test="${not empty searchTerm}">
-                                                    Không tìm thấy hợp đồng nào với từ khóa "${searchTerm}"
+                                                <c:when test="${searchMode}">
+                                                    Không tìm thấy hợp đồng nào với từ khóa "${keyword}"
                                                 </c:when>
                                                 <c:otherwise>
                                                     Chưa có hợp đồng nào trong hệ thống
                                                 </c:otherwise>
                                             </c:choose>
                                         </h5>
-                                        <c:if test="${empty searchTerm}">
-                                            <a href="${pageContext.request.contextPath}/addcontract" 
+                                        <c:if test="${not searchMode}">
+                                            <a href="${pageContext.request.contextPath}/listcontracts?action=add" 
                                                class="btn btn-primary mt-3">
                                                 <i class="fas fa-plus me-2"></i>Tạo hợp đồng đầu tiên
                                             </a>
@@ -233,7 +236,7 @@
                                                         <td class="text-center align-middle">
                                                             <span class="badge bg-primary rounded-pill">
                                                                 <c:choose>
-                                                                    <c:when test="${not empty searchTerm}">
+                                                                    <c:when test="${searchMode}">
                                                                         ${status.index + 1}
                                                                     </c:when>
                                                                     <c:otherwise>
@@ -277,12 +280,8 @@
                                                                     <span class="badge status-badge status-active">Đang hoạt động</span>
                                                                 </c:when>
                                                                 <c:when test="${contract.status == 0}">
-                                                                    <span class="badge status-badge status-pending">Tạm dừng</span>
+                                                                    <span class="badge status-badge status-pending">Không hoạt động</span>
                                                                 </c:when>
-                                                                <c:when test="${contract.status == 2}">
-                                                                    <span class="badge status-badge bg-warning">chờ xử lý</span>
-                                                                </c:when>
-                                                                
                                                                 <c:otherwise>
                                                                     <span class="badge status-badge bg-secondary">Không xác định</span>
                                                                 </c:otherwise>
@@ -290,12 +289,12 @@
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             <div class="action-buttons">
-                                                                <a href="${pageContext.request.contextPath}/contractdetail?id=${contract.contractId}" 
+                                                                <a href="${pageContext.request.contextPath}/listcontracts?action=view&id=${contract.contractId}" 
                                                                    class="btn btn-sm btn-outline-info" 
                                                                    title="Xem chi tiết">
                                                                     <i class="fas fa-eye"></i>
                                                                 </a>
-                                                                <a href="${pageContext.request.contextPath}/updatecontract?id=${contract.contractId}" 
+                                                                <a href="${pageContext.request.contextPath}/listcontracts?action=edit&id=${contract.contractId}" 
                                                                    class="btn btn-sm btn-outline-warning" 
                                                                    title="Chỉnh sửa">
                                                                     <i class="fas fa-edit"></i>
@@ -319,7 +318,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    <c:if test="${empty searchTerm and totalPages > 1}">
+                    <c:if test="${not searchMode and totalPages > 1}">
                         <nav aria-label="Phân trang hợp đồng" class="mt-4">
                             <ul class="pagination justify-content-center">
                                 <!-- Previous Button -->
@@ -362,7 +361,7 @@
                     </c:if>
 
                     <!-- Page Info -->
-                    <c:if test="${empty searchTerm and not empty contracts}">
+                    <c:if test="${not searchMode and not empty contracts}">
                         <div class="text-center mt-3">
                             <small class="text-muted">
                                 Hiển thị ${(currentPage - 1) * contractsPerPage + 1} - 
@@ -380,53 +379,79 @@
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title" id="deleteModalLabel">
-                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                        Xác nhận xóa hợp đồng
+                        <i class="fas fa-exclamation-triangle me-2"></i>Xác nhận xóa
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa hợp đồng này không?</p>
-                    <p><strong>Khách hàng:</strong> <span id="customerName"></span></p>
-                    <p><strong>ID Hợp đồng:</strong> <span id="contractId"></span></p>
+                    <p>Bạn có chắc chắn muốn xóa <strong id="contractNameToDelete"></strong> không?</p>
                     <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Thao tác này sẽ xóa hợp đồng và không thể hoàn tác.
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Hủy
+                        <i class="fas fa-times me-2"></i>Hủy
                     </button>
                     <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
-                        <i class="fas fa-trash me-1"></i>Xóa hợp đồng
+                        <i class="fas fa-trash me-2"></i>Xóa hợp đồng
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        function confirmDelete(contractId, customerName) {
-            document.getElementById('contractId').textContent = contractId;
-            document.getElementById('customerName').textContent = customerName;
-            document.getElementById('confirmDeleteBtn').href = 'deletecontract?deleteid=' + contractId;
+        // Confirm delete function
+        function confirmDelete(contractId, contractName) {
+            document.getElementById('contractNameToDelete').textContent = contractName;
+            document.getElementById('confirmDeleteBtn').href = 
+                '${pageContext.request.contextPath}/listcontracts?action=delete&id=' + contractId;
             
-            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();
         }
 
         // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert');
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-dismissible');
             alerts.forEach(function(alert) {
-                var bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
             });
-        }, 5000);
+        });
+
+        // Search form enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="keyword"]');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        this.form.submit();
+                    }
+                });
+            }
+        });
+
+        // Add active class to current nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') && currentPath.includes(link.getAttribute('href'))) {
+                    link.classList.add('active');
+                }
+            });
+        });
     </script>
     
 </body>
