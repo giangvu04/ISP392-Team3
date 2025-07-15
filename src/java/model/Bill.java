@@ -6,15 +6,13 @@
 package model;
 
 import java.lang.*;
-import java.util.*;
-import java.io.*;
 /**
  *
  * @author Vu Thi Huong Giang
  */
 
 public class Bill {
-private int id;
+    private int id;
     private String tenantName;
     private String roomNumber;
     private double electricityCost;
@@ -25,7 +23,7 @@ private int id;
     private String status;
     private String createdDate;
     private String emailTelnant;
-    
+    private String note; // Ghi chú hóa đơn
 
     // Constructor mặc định
     public Bill() {}
@@ -33,7 +31,7 @@ private int id;
     // Constructor đầy đủ
     public Bill(int id, String tenantName, String roomNumber, double electricityCost, 
                 double waterCost, double serviceCost, double total, String dueDate, 
-                String status, String createdDate) {
+                String status, String createdDate, String note) {
         this.id = id;
         this.tenantName = tenantName;
         this.roomNumber = roomNumber;
@@ -44,6 +42,14 @@ private int id;
         this.dueDate = dueDate;
         this.status = status;
         this.createdDate = createdDate;
+        this.note = note;
+    }
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public String getEmailTelnant() {
@@ -77,4 +83,3 @@ private int id;
     public void setCreatedDate(String createdDate) { this.createdDate = createdDate; }
 
 }
-

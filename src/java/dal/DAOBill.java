@@ -11,6 +11,38 @@ import model.Users;
 
 public class DAOBill {
     /**
+     * Lấy danh sách hóa đơn chưa thanh toán của tenant
+     * @param tenantId user_id của tenant
+     * @return ArrayList<Bill> hóa đơn chưa thanh toán
+     */
+    public ArrayList<Bill> getUnpaidBillsByTenantId(int tenantId) {
+        ArrayList<Bill> bills = new ArrayList<>();
+        String sql = "SELECT * FROM tbBills WHERE TenantID = ? AND Status = 'Unpaid'";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Bill bill = new Bill();
+                bill.setId(rs.getInt("ID"));
+                bill.setTenantName(rs.getString("TenantName"));
+                bill.setRoomNumber(rs.getString("RoomNumber"));
+                bill.setElectricityCost(rs.getDouble("ElectricityCost"));
+                bill.setWaterCost(rs.getDouble("WaterCost"));
+                bill.setServiceCost(rs.getDouble("ServiceCost"));
+                bill.setTotal(rs.getDouble("Total"));
+                bill.setDueDate(rs.getString("DueDate"));
+                bill.setStatus(rs.getString("Status"));
+                bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                // bill.setPhoneTelnant(rs.getString("PhoneTelnant")); // Nếu Bill có field này
+                bills.add(bill);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy hóa đơn chưa thanh toán: " + e.getMessage());
+        }
+        return bills;
+    }
+    /**
      * Tính tổng doanh thu tháng hiện tại cho manager
      * @param managerId user_id của manager
      * @return tổng doanh thu tháng hiện tại (double)
@@ -56,8 +88,8 @@ public class DAOBill {
 
     // Thêm hóa đơn mới (hợp lý với BillServlet và tbBills schema)
     public void addBill(Bill bill, int tenantId, int roomId) {
-        String sql = "INSERT INTO tbBills (TenantID, RoomID, TenantName, RoomNumber, ElectricityCost, WaterCost, ServiceCost, Total, DueDate, Status, CreatedDate, EmailTelnant, PhoneTelnant) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tbBills (TenantID, RoomID, TenantName, RoomNumber, ElectricityCost, WaterCost, ServiceCost, Total, DueDate, Status, CreatedDate, EmailTelnant, PhoneTelnant, Note ) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, tenantId);
             ps.setInt(2, roomId);
@@ -72,6 +104,7 @@ public class DAOBill {
             ps.setString(11, bill.getCreatedDate());
             ps.setString(12, bill.getEmailTelnant() != null ? bill.getEmailTelnant() : null);
             ps.setString(13, null); // Bill model chưa có phoneTelnant, để null
+            ps.setString(14, bill.getNote());
             ps.executeUpdate();
             System.out.println("✅ Thêm hóa đơn thành công!");
         } catch (SQLException e) {
@@ -230,6 +263,7 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -304,6 +338,7 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -410,6 +445,7 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -527,6 +563,7 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
