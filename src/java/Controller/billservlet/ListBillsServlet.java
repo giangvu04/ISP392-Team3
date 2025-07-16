@@ -84,8 +84,8 @@ public class ListBillsServlet extends HttpServlet {
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("totalBills", dao.getTotalBills(user));
-        
-            request.setAttribute("totalRevenue", dao.getTotalRevenue(user));
+            
+            request.setAttribute("totalRevenue", user.getRoleId()==2 ? dao.getTotalRevenue(user):0);
             request.setAttribute("unpaidCount", dao.getUnpaidBills(user).size());
         
 

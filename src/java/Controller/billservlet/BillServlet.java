@@ -113,25 +113,82 @@ public class BillServlet extends HttpServlet {
     }
 
     private void addBill(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        if (request.getMethod().equals("POST")) {
-            try {
-                // Lấy dữ liệu từ form
-                String tenantRoom = request.getParameter("tenantRoom");
-                String[] parts = tenantRoom != null ? tenantRoom.split(",") : new String[0];
-                int tenantId = parts.length > 0 ? Integer.parseInt(parts[0]) : 0;
-                int roomId = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+        throws ServletException, IOException {
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        try {
+            String billType = request.getParameter("billType");
+            String electricityStr = request.getParameter("electricityCost");
+            String waterStr = request.getParameter("waterCost");
+            String serviceStr = request.getParameter("serviceCost");
+            String dueDate = request.getParameter("dueDate");
+            String status = request.getParameter("status");
+            String note = request.getParameter("note");
 
-                double electricityCost = Double.parseDouble(request.getParameter("electricityCost"));
-                double waterCost = Double.parseDouble(request.getParameter("waterCost"));
-                double serviceCost = Double.parseDouble(request.getParameter("serviceCost"));
-                String dueDate = request.getParameter("dueDate");
-                String status = request.getParameter("status");
-                double total = electricityCost + waterCost + serviceCost;
 
-                // Lấy thông tin người thuê và phòng
-                String tenantName = "";
-                String roomNumber = "";
+            double electricityCost = electricityStr != null && !electricityStr.isEmpty() ? Double.parseDouble(electricityStr) : 0.0;
+            double waterCost = waterStr != null && !waterStr.isEmpty() ? Double.parseDouble(waterStr) : 0.0;
+            double serviceCost = serviceStr != null && !serviceStr.isEmpty() ? Double.parseDouble(serviceStr) : 0.0;
+
+            // Nếu là chi, chỉ lấy phí dịch vụ và chuyển thành số âm
+            double total;
+            if ("Chi".equalsIgnoreCase(billType)) {
+                serviceCost = -Math.abs(serviceCost);
+                electricityCost = 0.0;
+                waterCost = 0.0;
+                total = serviceCost;
+            } else {
+                total = electricityCost + waterCost + serviceCost;
+            }
+
+            Bill bill = new Bill();
+            bill.setElectricityCost(electricityCost);
+            bill.setWaterCost(waterCost);
+            bill.setServiceCost(serviceCost);
+            bill.setTotal(total);
+            bill.setDueDate(dueDate);
+            bill.setStatus(status);
+            bill.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            bill.setNote(note);
+
+
+            int tenantId = 0;
+            int roomId = 0;
+            String tenantName = "";
+            String roomNumber = "";
+
+            // Luôn lấy roomId từ select (tenantRoom)
+            String tenantRoom = request.getParameter("tenantRoom");
+            String[] parts = tenantRoom != null ? tenantRoom.split(",") : new String[0];
+            if (parts.length >= 2) {
+                roomId = Integer.parseInt(parts[1]);
+            }
+            if (parts.length >= 4) {
+                bill.setEmailTelnant(parts[3]);
+            }
+
+            if ("Chi".equalsIgnoreCase(billType)) {
+                // tenantId là user hiện tại (manager), roomId lấy từ select
+                Users userSession = (Users) request.getSession().getAttribute("user");
+                if (userSession != null) {
+                    tenantId = userSession.getUserId();
+                    tenantName = userSession.getFullName();
+                }
+                // Lấy roomNumber từ danh sách tenants nếu có
+                ArrayList<Users> tenants = (ArrayList<Users>) request.getSession().getAttribute("tenants");
+                if (tenants != null) {
+                    for (Users u : tenants) {
+                        if (u.getRoomId() == roomId) {
+                            roomNumber = u.getRoomNumber();
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // Nếu là thu, lấy tenantId và roomId từ select như cũ
+                if (parts.length >= 2) {
+                    tenantId = Integer.parseInt(parts[0]);
+                }
+                // Gán tenantName và roomNumber từ session nếu có
                 ArrayList<Users> tenants = (ArrayList<Users>) request.getSession().getAttribute("tenants");
                 if (tenants != null) {
                     for (Users u : tenants) {
@@ -142,40 +199,34 @@ public class BillServlet extends HttpServlet {
                         }
                     }
                 }
-
-                Bill bill = new Bill();
-                bill.setTenantName(tenantName);
-                bill.setRoomNumber(roomNumber);
-                bill.setElectricityCost(electricityCost);
-                bill.setWaterCost(waterCost);
-                bill.setServiceCost(serviceCost);
-                bill.setTotal(total);
-                bill.setDueDate(dueDate);
-                bill.setStatus(status);
-                bill.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-
-                // Thêm vào database (cần sửa DAOBill.addBill để nhận đủ tenantId, roomId)
-                daoBill.addBill(bill, tenantId, roomId);
-
-                request.setAttribute("success", "Thêm hóa đơn thành công!");
-                response.sendRedirect("listbills");
-            } catch (Exception e) {
-                e.printStackTrace();
-                request.setAttribute("error", "Lỗi khi thêm hóa đơn: " + e.getMessage());
-                request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
             }
-        } else {
-            // Lấy user hiện tại (manager)
-            Users user = (Users) request.getSession().getAttribute("user");
-            ArrayList<Users> tenants = new ArrayList<>();
-            if (user != null && user.getRoleId() == 2) { // 2 = manager
-                tenants = dal.DAOUser.INSTANCE.getTenantsByManager(user.getUserId());
-            }
-            request.setAttribute("tenants", tenants);
-            request.getSession().setAttribute("tenants", tenants);
+
+            bill.setTenantName(tenantName);
+            bill.setRoomNumber(roomNumber);
+
+            // Thêm vào database
+            daoBill.addBill(bill, tenantId, roomId);
+
+            // Đặt message vào session để sau redirect vẫn hiển thị
+            request.getSession().setAttribute("success", "Thêm hóa đơn thành công!");
+            response.sendRedirect("listbills");
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi thêm hóa đơn: " + e.getMessage());
             request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
         }
+    } else {
+        // GET: hiển thị form
+        Users user = (Users) request.getSession().getAttribute("user");
+        ArrayList<Users> tenants = new ArrayList<>();
+        if (user != null && user.getRoleId() == 2) {
+            tenants = dal.DAOUser.INSTANCE.getTenantsByManager(user.getUserId());
+        }
+        request.setAttribute("tenants", tenants);
+        request.getSession().setAttribute("tenants", tenants);
+        request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
     }
+}
 
     private void editBill(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

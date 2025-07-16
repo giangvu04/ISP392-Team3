@@ -92,6 +92,8 @@
                                         <label for="dueDate" class="form-label">Hạn thanh toán <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="dueDate" name="dueDate" value="${bill.dueDate}" required>
                                     </div>
+                                    
+                                    
                                     <div class="mb-3">
                                         <label for="status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
                                         <select class="form-select" id="status" name="status" required>

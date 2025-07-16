@@ -14,7 +14,7 @@ import java.io.*;
  */
 
 public class Bill {
-private int id;
+    private int id;
     private String tenantName;
     private String roomNumber;
     private double electricityCost;
@@ -25,6 +25,7 @@ private int id;
     private String status;
     private String createdDate;
     private String emailTelnant;
+    private String note; // Ghi chú hóa đơn
     
 
     // Constructor mặc định
@@ -44,6 +45,14 @@ private int id;
         this.dueDate = dueDate;
         this.status = status;
         this.createdDate = createdDate;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public String getEmailTelnant() {

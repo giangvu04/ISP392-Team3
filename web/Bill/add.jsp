@@ -20,8 +20,6 @@
             margin-bottom: 2rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
-        
         .form-card {
             background: white;
             border-radius: 20px;
@@ -84,11 +82,19 @@
                                 <div class="form-card">
                                     <h5 class="mb-3"><i class="fas fa-user"></i> Thông tin người thuê</h5>
                                     <div class="mb-3">
+                                        <label for="billType" class="form-label">Loại hóa đơn <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="billType" name="billType" required>
+                                            <option value="">Chọn loại</option>
+                                            <option value="Thu">Thu</option>
+                                            <option value="Chi">Chi</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="tenantRoom" class="form-label">Chọn người thuê - phòng - khu trọ <span class="text-danger">*</span></label>
                                         <select class="form-select" id="tenantRoom" name="tenantRoom" required>
                                             <option value="">Chọn người thuê/phòng/khu trọ</option>
                                             <c:forEach var="tenant" items="${tenants}">
-                                                <option value="${tenant.userId},${tenant.roomId},${tenant.rentalAreaId}">
+                                                <option value="${tenant.userId},${tenant.roomId},${tenant.rentalAreaId},${tenant.email}">
                                                     ${tenant.fullName} - Phòng: ${tenant.roomNumber} - Khu: ${tenant.rentalAreaName}
                                                 </option>
                                             </c:forEach>
@@ -106,6 +112,10 @@
                                             <option value="Paid">Đã thanh toán</option>
                                             <option value="Pending">Đang xử lý</option>
                                         </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="note" class="form-label">Ghi chú</label>
+                                        <textarea class="form-control" id="note" name="note" rows="2" placeholder="Nhập ghi chú (nếu có)"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -161,30 +171,31 @@
             document.getElementById('totalAmount').textContent = total.toLocaleString('vi-VN') + ' ₫';
         }
 
-        // Set ngày hôm nay làm hạn thanh toán mặc định
+        // Khóa/mở các ô chi phí theo loại hóa đơn
+        function toggleCostInputs() {
+            const billType = document.getElementById('billType').value;
+            const disable = billType === 'Chi';
+            document.getElementById('electricityCost').disabled = disable;
+            document.getElementById('waterCost').disabled = disable;
+            // Phí dịch vụ luôn mở
+            if (disable) {
+                document.getElementById('electricityCost').value = 0;
+                document.getElementById('waterCost').value = 0;
+                calculateTotal();
+            } else {
+                document.getElementById('status').disabled = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date();
             const dueDate = new Date(today.getTime() + (15 * 24 * 60 * 60 * 1000)); // 15 ngày sau
             document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
             calculateTotal();
-        });
-
-        // Validate form
-        document.getElementById('billForm').addEventListener('submit', function(e) {
-            const tenantName = document.getElementById('tenantName').value.trim();
-            const roomNumber = document.getElementById('roomNumber').value.trim();
-            if (!tenantName) {
-                e.preventDefault();
-                alert('Vui lòng nhập tên người thuê!');
-                document.getElementById('tenantName').focus();
-                return false;
-            }
-            if (!roomNumber) {
-                e.preventDefault();
-                alert('Vui lòng nhập số phòng!');
-                document.getElementById('roomNumber').focus();
-                return false;
-            }
+            // Gắn sự kiện cho billType
+            document.getElementById('billType').addEventListener('change', toggleCostInputs);
+            // Gọi lần đầu để set đúng trạng thái
+            toggleCostInputs();
         });
     </script>
 </body>

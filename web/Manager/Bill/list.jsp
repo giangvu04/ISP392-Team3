@@ -132,7 +132,14 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <jsp:include page="../../Sidebar/SideBarManager.jsp"/>
+                <c:choose>
+                    <c:when test="${user.roleId == 3}">
+                        <jsp:include page="../../Sidebar/SideBarTelnant.jsp"/>
+                    </c:when>
+                    <c:otherwise>
+                        <jsp:include page="../../Sidebar/SideBarManager.jsp"/>
+                    </c:otherwise>
+                </c:choose>
 
                 <!-- Main Content -->
                 <div class="col-md-9 col-lg-10">
@@ -143,9 +150,11 @@
                                 <h2 class="mb-1"><i class="fas fa-receipt"></i> Quản lý Hóa đơn</h2>
                                 <p class="text-muted mb-0">Quản lý và theo dõi hóa đơn của người thuê</p>
                             </div>
-                            <a href="BillServlet?action=add" class="btn btn-primary btn-action">
-                                <i class="fas fa-plus me-2"></i>Thêm hóa đơn
-                            </a>
+                            <c:if test="${user.roleId == 2}">
+                                <a href="BillServlet?action=add" class="btn btn-primary btn-action">
+                                    <i class="fas fa-plus me-2"></i>Thêm hóa đơn
+                                </a>
+                            </c:if>
                         </div>
 
                         <!-- Alert Messages -->
@@ -164,51 +173,87 @@
 
                         <!-- Stats Cards -->
                         <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="card stats-card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <h6 class="card-title">Tổng hóa đơn</h6>
-                                                <h3 class="mb-0">${totalBills}</h3>
-                                            </div>
-                                            <div class="align-self-center">
-                                                <i class="fas fa-file-invoice fa-2x"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card stats-card-2">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <h6 class="card-title">Doanh thu</h6>
-                                                <h3 class="mb-0"><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫"/></h3>
-                                            </div>
-                                            <div class="align-self-center">
-                                                <i class="fas fa-money-bill-wave fa-2x"></i>
+                            <c:choose>
+                                <c:when test="${user.roleId == 2}">
+                                    <div class="col-md-4">
+                                        <div class="card stats-card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="card-title">Tổng hóa đơn</h6>
+                                                        <h3 class="mb-0">${totalBills}</h3>
+                                                    </div>
+                                                    <div class="align-self-center">
+                                                        <i class="fas fa-file-invoice fa-2x"></i>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card stats-card-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <h6 class="card-title">Chưa thanh toán</h6>
-                                                <h3 class="mb-0">${unpaidCount}</h3>
-                                            </div>
-                                            <div class="align-self-center">
-                                                <i class="fas fa-clock fa-2x"></i>
+                                    <div class="col-md-4">
+                                        <div class="card stats-card-2">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="card-title">Doanh thu</h6>
+                                                        <h3 class="mb-0"><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫"/></h3>
+                                                    </div>
+                                                    <div class="align-self-center">
+                                                        <i class="fas fa-money-bill-wave fa-2x"></i>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                    <div class="col-md-4">
+                                        <div class="card stats-card-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="card-title">Chưa thanh toán</h6>
+                                                        <h3 class="mb-0">${unpaidCount}</h3>
+                                                    </div>
+                                                    <div class="align-self-center">
+                                                        <i class="fas fa-clock fa-2x"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="col-md-6">
+                                        <div class="card stats-card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="card-title">Tổng hóa đơn</h6>
+                                                        <h3 class="mb-0">${totalBills}</h3>
+                                                    </div>
+                                                    <div class="align-self-center">
+                                                        <i class="fas fa-file-invoice fa-2x"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card stats-card-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="card-title">Chưa thanh toán</h6>
+                                                        <h3 class="mb-0">${unpaidCount}</h3>
+                                                    </div>
+                                                    <div class="align-self-center">
+                                                        <i class="fas fa-clock fa-2x"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <!-- Search and Filter -->
@@ -219,8 +264,9 @@
                                     <div class="col-md-3">
                                         <label for="searchType" class="form-label">Tìm kiếm theo:</label>
                                         <select class="form-select" id="searchType" name="searchType">
+                                            <c:if test="${user.roleId ==2}">
                                             <option value="tenantName" ${searchType == 'tenantName' ? 'selected' : ''}>Tên người thuê</option>
-                                            <option value="roomNumber" ${searchType == 'roomNumber' ? 'selected' : ''}>Số phòng</option>
+                                            <option value="roomNumber" ${searchType == 'roomNumber' ? 'selected' : ''}>Số phòng</option></c:if>
                                             <option value="status" ${searchType == 'status' ? 'selected' : ''}>Trạng thái</option>
                                         </select>
                                     </div>
@@ -306,14 +352,16 @@
                                                                title="Sửa">
                                                                 <i class="fas fa-edit"></i>
                                                             </a>
-                                                            <c:if test="${user.roleId ==3}">
+                                                            <c:if test="${user.roleId == 3}">
                                                                 <button type="button" class="btn btn-sm btn-outline-primary btn-action" title="Đánh giá" onclick="openFeedbackModal('${bill.id}', '${bill.tenantName}')">
                                                                     <i class="fas fa-star"></i>
                                                                 </button>
                                                             </c:if>
-                                                            <button type="button" class="btn btn-sm btn-outline-success btn-action" title="Gửi tin nhắn" onclick="openMessageModal('${bill.id}', '${bill.tenantName}', '${bill.emailTelnant}')">
-                                                                <i class="fas fa-paper-plane"></i>
-                                                            </button>
+                                                            <c:if test="${user.roleId == 2}">
+                                                                <button type="button" class="btn btn-sm btn-outline-success btn-action" title="Gửi tin nhắn" onclick="openMessageModal('${bill.id}', '${bill.tenantName}', '${bill.emailTelnant}')">
+                                                                    <i class="fas fa-paper-plane"></i>
+                                                                </button>
+                                                            </c:if>
                                                             <c:if test="${bill.status == 'Unpaid'}">
                                                                 <button type="button" 
                                                                         class="btn btn-sm btn-outline-success btn-action" 
@@ -373,7 +421,6 @@
             </div>
         </div>
 
-
         <!-- Feedback Modal -->
         <div class="modal fade" id="feedbackModal" tabindex="-1">
             <div class="modal-dialog">
@@ -406,7 +453,6 @@
                             <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
                         </div>
                     </form>
-                    
                 </div>
             </div>
         </div>
@@ -415,14 +461,14 @@
         <div class="modal fade" id="messageModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Gửi tin nhắn cho <span id="messageTenantName"></span></h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form id="messageForm">
+                    <form id="messageForm" action="sendMessage" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Gửi tin nhắn cho <span id="messageTenantName"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
                         <div class="modal-body">
                             <input type="hidden" id="messageBillId" name="billId" />
-                            <input type="hidden" id="messageTenantEmail" name="tenantEmail" />
+                            <input type="hidden" id="messageTenantEmail" name="tenantEmail"/>
                             <div class="mb-3">
                                 <label for="messageContent" class="form-label">Nội dung tin nhắn</label>
                                 <textarea class="form-control" id="messageContent" name="content" rows="3" required></textarea>
@@ -441,49 +487,38 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
+            // Mở modal đánh giá
+            function openFeedbackModal(billId, tenantName) {
+                document.getElementById('feedbackRoomId').value = billId;
+                document.getElementById('feedbackTenantName').innerText = tenantName;
+                document.getElementById('feedbackContent').value = '';
+                document.getElementById('feedbackRating').value = '';
+                new bootstrap.Modal(document.getElementById('feedbackModal')).show();
+            }
 
-                                                                            // Mở modal đánh giá
-                                                                            function openFeedbackModal(billId, tenantName) {
-                                                                                document.getElementById('feedbackRoomId').value = billId;
-                                                                                document.getElementById('feedbackTenantName').innerText = tenantName;
-                                                                                document.getElementById('feedbackContent').value = '';
-                                                                                document.getElementById('feedbackRating').value = '';
-                                                                                new bootstrap.Modal(document.getElementById('feedbackModal')).show();
-                                                                            }
+            // Mở modal gửi tin nhắn
+            function openMessageModal(billId, tenantName, tenantEmail) {
+                document.getElementById('messageBillId').value = billId;
+                document.getElementById('messageTenantName').innerText = tenantName;
+                document.getElementById('messageTenantEmail').value = tenantEmail;
+                document.getElementById('messageContent').value = '';
+                new bootstrap.Modal(document.getElementById('messageModal')).show();
+            }
 
-                                                                            // Mở modal gửi tin nhắn
-                                                                            function openMessageModal(billId, tenantName, tenantEmail) {
-                                                                                document.getElementById('messageBillId').value = billId;
-                                                                                document.getElementById('messageTenantName').innerText = tenantName;
-                                                                                document.getElementById('messageTenantEmail').value = tenantEmail;
-                                                                                document.getElementById('messageContent').value = '';
-                                                                                new bootstrap.Modal(document.getElementById('messageModal')).show();
-                                                                            }
+            function updateStatus(id, status) {
+                if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái hóa đơn này?')) {
+                    window.location.href = 'BillServlet?action=updateStatus&id=' + id + '&status=' + status;
+                }
+            }
 
-                                                                            function updateStatus(id, status) {
-                                                                                if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái hóa đơn này?')) {
-                                                                                    window.location.href = 'BillServlet?action=updateStatus&id=' + id + '&status=' + status;
-                                                                                }
-                                                                            }
-
-                                                                            // Auto-hide alerts after 5 seconds
-                                                                            setTimeout(function () {
-                                                                                const alerts = document.querySelectorAll('.alert');
-                                                                                alerts.forEach(function (alert) {
-                                                                                    const bsAlert = new bootstrap.Alert(alert);
-                                                                                    bsAlert.close();
-                                                                                });
-                                                                            }, 5000);
-
-                                                                            // Xử lý submit feedback (demo, cần backend xử lý thực tế)
-                                                                            // Không cần JS submit, form sẽ submit về /feedback
-
-                                                                            // Xử lý submit gửi tin nhắn (demo, cần backend gửi email thực tế)
-                                                                            document.getElementById('messageForm').onsubmit = function (e) {
-                                                                                e.preventDefault();
-                                                                                alert('Tin nhắn đã được gửi tới email khách! (Cần xử lý backend gửi email)');
-                                                                                bootstrap.Modal.getInstance(document.getElementById('messageModal')).hide();
-                                                                            };
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function () {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
         </script>
     </body>
 </html>

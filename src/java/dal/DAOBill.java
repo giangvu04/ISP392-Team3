@@ -10,6 +10,49 @@ import model.Bill;
 import model.Users;
 
 public class DAOBill {
+
+    
+    public static final DAOBill INSTANCE = new DAOBill();
+    protected Connection connect;
+
+    public DAOBill() {
+        connect = new DBContext().connect;
+    }
+
+    public static long millis = System.currentTimeMillis();
+    public static Date today = new Date(millis);
+        /**
+     * Tính tổng doanh thu tháng hiện tại cho manager
+     * @param managerId user_id của manager
+     * @return tổng doanh thu tháng hiện tại (double)
+     */
+        public ArrayList<Bill> getUnpaidBillsByTenantId(int tenantId) {
+        ArrayList<Bill> bills = new ArrayList<>();
+        String sql = "SELECT * FROM tbBills WHERE TenantID = ? AND Status = 'Unpaid'";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Bill bill = new Bill();
+                bill.setId(rs.getInt("ID"));
+                bill.setTenantName(rs.getString("TenantName"));
+                bill.setRoomNumber(rs.getString("RoomNumber"));
+                bill.setElectricityCost(rs.getDouble("ElectricityCost"));
+                bill.setWaterCost(rs.getDouble("WaterCost"));
+                bill.setServiceCost(rs.getDouble("ServiceCost"));
+                bill.setTotal(rs.getDouble("Total"));
+                bill.setDueDate(rs.getString("DueDate"));
+                bill.setStatus(rs.getString("Status"));
+                bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                // bill.setPhoneTelnant(rs.getString("PhoneTelnant")); // Nếu Bill có field này
+                bills.add(bill);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy hóa đơn chưa thanh toán: " + e.getMessage());
+        }
+        return bills;
+    }
     /**
      * Tính tổng doanh thu tháng hiện tại cho manager
      * @param managerId user_id của manager
@@ -42,18 +85,6 @@ public class DAOBill {
      * @param managerId id của manager (user_id)
      * @return int[]{totalRooms, rentedRooms, vacantRooms}
      */
-    
-    
-    public static final DAOBill INSTANCE = new DAOBill();
-    protected Connection connect;
-
-    public DAOBill() {
-        connect = new DBContext().connect;
-    }
-
-    public static long millis = System.currentTimeMillis();
-    public static Date today = new Date(millis);
-
     // Thêm hóa đơn mới (hợp lý với BillServlet và tbBills schema)
     public void addBill(Bill bill, int tenantId, int roomId) {
         String sql = "INSERT INTO tbBills (TenantID, RoomID, TenantName, RoomNumber, ElectricityCost, WaterCost, ServiceCost, Total, DueDate, Status, CreatedDate, EmailTelnant, PhoneTelnant) " +
@@ -378,6 +409,12 @@ public class DAOBill {
         if (user == null) {
             System.err.println("❌ Không tìm thấy thông tin người dùng!");
             return bills;
+        }
+        if(status.equals("Đã thanh toán")){
+            status = "Paid";
+        }
+        else{
+            status = "Unpaid";
         }
 
         int roleID = user.getRoleId();
