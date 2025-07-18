@@ -106,7 +106,7 @@
   <div class="modal-content">
     <button class="btn-close" onclick="closeModal('modalEditInfo')">&times;</button>
     <div class="modal-header"><h5>Chỉnh sửa thông tin</h5></div>
-    <form action="user/editInfo" method="post">
+    <form action="editInfo" method="post">
       <div class="mb-3"><label>Họ tên</label><input class="form-control" name="fullName"   value="${user.fullName}"   required></div>
       <div class="mb-3"><label>Email</label><input class="form-control" name="email"      value="${user.email}"      required></div>
       <div class="mb-3"><label>Số điện thoại</label><input class="form-control" name="phoneNumber" value="${user.phoneNumber}" required></div>
@@ -125,7 +125,7 @@
   <div class="modal-content">
     <button class="btn-close" onclick="closeModal('modalChangePassword')">&times;</button>
     <div class="modal-header"><h5>Đổi mật khẩu</h5></div>
-    <form action="user/changePassword" method="post">
+    <form action="changePassword" method="post">
       <c:if test="${not empty error}">
         <div class="alert alert-danger mb-2">${error}</div>
       </c:if>
