@@ -6,6 +6,34 @@ import java.util.List;
 import model.Contracts;
 
 public class DAOContract {
+    // Lấy hợp đồng theo status và tenantId
+    public ArrayList<Contracts> getContractsByStatusAndTenant(int status, int tenantId) {
+        ArrayList<Contracts> contracts = new ArrayList<>();
+        String sql = "SELECT [contract_id], [room_id], [tenant_id], [start_date], [end_date], "
+                + "[rent_price], [deposit_amount], [status], [note] FROM [dbo].[contracts] "
+                + "WHERE [status] = ? AND [tenant_id] = ? ORDER BY [contract_id] DESC";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ps.setInt(2, tenantId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Contracts c = new Contracts();
+                c.setContractId(rs.getInt("contract_id"));
+                c.setRoomID(rs.getInt("room_id"));
+                c.setTenantsID(rs.getInt("tenant_id"));
+                c.setStartDate(rs.getDate("start_date"));
+                c.setEndDate(rs.getDate("end_date"));
+                c.setRentPrice(rs.getBigDecimal("rent_price"));
+                c.setDepositAmount(rs.getBigDecimal("deposit_amount"));
+                c.setStatus(rs.getInt("status"));
+                c.setNote(rs.getString("note"));
+                contracts.add(c);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy hợp đồng theo status và tenant: " + e.getMessage());
+        }
+        return contracts;
+    }
 
     /**
      * Lấy hợp đồng active mới nhất của một phòng (roomId), status = 1
@@ -206,21 +234,22 @@ public class DAOContract {
     }
 
     // Delete contract
-     public boolean deleteContract(int contractId) {
-    if (contractId <= 0) {
-        throw new IllegalArgumentException("Invalid contract ID");
-    }
+    public void deleteContract(int contractId) {
+        if (contractId <= 0) {
+            throw new IllegalArgumentException("Invalid contract ID");
+        }
 
-    String sql = "DELETE FROM [dbo].[contracts] WHERE [contract_id]=?";
-    try (PreparedStatement ps = connect.prepareStatement(sql)) {
-        ps.setInt(1, contractId);
-        int rowsAffected = ps.executeUpdate();
-        return rowsAffected > 0; // Trả về true nếu có ít nhất 1 dòng bị xóa
-    } catch (SQLException e) {
-        throw new RuntimeException("Error deleting contract: " + e.getMessage(), e);
+        String sql = "DELETE FROM [dbo].[contracts] WHERE [contract_id]=?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, contractId);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No contract found with ID: " + contractId);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting contract: " + e.getMessage(), e);
+        }
     }
-}
-
 
     // Get contract by ID
     public Contracts getContractById(int id) {
