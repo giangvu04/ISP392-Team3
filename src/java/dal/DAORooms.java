@@ -568,6 +568,106 @@ public class DAORooms {
         }
     }
 
+    /**
+     * Lấy danh sách phòng theo khu trọ
+     * @param rentalAreaId ID của khu trọ
+     * @return List<Rooms> danh sách phòng trong khu trọ
+     */
+    public List<Rooms> getRoomsByArea(int rentalAreaId) {
+        List<Rooms> rooms = new ArrayList<>();
+        String sql = "SELECT r.*, ra.name as rental_area_name FROM rooms r " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "WHERE r.rental_area_id = ? ORDER BY r.room_number";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, rentalAreaId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Rooms room = new Rooms();
+                room.setRoomId(rs.getInt("room_id"));
+                room.setRentalAreaId(rs.getInt("rental_area_id"));
+                room.setRoomNumber(rs.getString("room_number"));
+                room.setArea(rs.getBigDecimal("area"));
+                room.setPrice(rs.getBigDecimal("price"));
+                room.setMaxTenants(rs.getInt("max_tenants"));
+                room.setStatus(rs.getInt("status"));
+                room.setDescription(rs.getString("description"));
+                room.setImageUrl(rs.getString("imageUrl"));
+                room.setRentalAreaName(rs.getString("rental_area_name"));
+                rooms.add(room);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy danh sách phòng theo khu trọ: " + e.getMessage());
+        }
+        return rooms;
+    }
+
+    /**
+     * Lấy danh sách phòng với tên người thuê theo khu trọ của manager
+     * @param managerId ID của manager
+     * @return List<Rooms> danh sách phòng với thông tin người thuê
+     */
+    public List<Rooms> getRoomsWithTenantsByManager(int managerId) {
+        List<Rooms> rooms = new ArrayList<>();
+        String sql = "SELECT r.room_id, r.room_number, ra.rental_area_id, ra.name as rental_area_name, " +
+                     "u.user_id as tenant_id, u.full_name as tenant_name, u.email as tenant_email " +
+                     "FROM rooms r " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "LEFT JOIN contracts c ON r.room_id = c.room_id AND c.status = 1 " +
+                     "LEFT JOIN users u ON c.tenant_id = u.user_id " +
+                     "WHERE ra.manager_id = ? " +
+                     "ORDER BY ra.name, r.room_number";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Rooms room = new Rooms();
+                room.setRoomId(rs.getInt("room_id"));
+                room.setRoomNumber(rs.getString("room_number"));
+                room.setRentalAreaId(rs.getInt("rental_area_id"));
+                room.setRentalAreaName(rs.getString("rental_area_name"));
+                room.setCurrentTenant(rs.getString("tenant_name"));
+                room.setTenantId(rs.getObject("tenant_id") != null ? rs.getInt("tenant_id") : null);
+                room.setTenantName(rs.getString("tenant_name"));
+                room.setTenantEmail(rs.getString("tenant_email"));
+                rooms.add(room);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy danh sách phòng với tenant theo manager: " + e.getMessage());
+        }
+        return rooms;
+    }
+
+    public List<Rooms> getRoomsWithTenantsByArea(int areaId) {
+        List<Rooms> rooms = new ArrayList<>();
+        String sql = "SELECT r.room_id, r.room_number, ra.rental_area_id, ra.name as rental_area_name, " +
+                     "u.user_id as tenant_id, u.full_name as tenant_name, u.email as tenant_email " +
+                     "FROM rooms r " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "LEFT JOIN contracts c ON r.room_id = c.room_id AND c.status = 1 " +
+                     "LEFT JOIN users u ON c.tenant_id = u.user_id " +
+                     "WHERE r.rental_area_id = ? " +
+                     "ORDER BY r.room_number";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, areaId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Rooms room = new Rooms();
+                room.setRoomId(rs.getInt("room_id"));
+                room.setRoomNumber(rs.getString("room_number"));
+                room.setRentalAreaId(rs.getInt("rental_area_id"));
+                room.setRentalAreaName(rs.getString("rental_area_name"));
+                room.setCurrentTenant(rs.getString("tenant_name"));
+                room.setTenantId(rs.getObject("tenant_id") != null ? rs.getInt("tenant_id") : null);
+                room.setTenantName(rs.getString("tenant_name"));
+                room.setTenantEmail(rs.getString("tenant_email"));
+                rooms.add(room);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy danh sách phòng với tenant theo khu: " + e.getMessage());
+        }
+        return rooms;
+    }
+
     public static void main(String[] args) {
         // Test main method (empty)
     }

@@ -16,6 +16,55 @@ public class DAORentalArea {
     public DAORentalArea() {
         connect = new DBContext().connect;
     }
+    public List<RentalArea> getAllRentalAreas() {
+        List<RentalArea> areas = new ArrayList<>();
+        String sql = "SELECT * FROM rental_areas";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RentalArea area = new RentalArea();
+                area.setRentalAreaId(rs.getInt("rental_area_id"));
+                area.setManagerId(rs.getInt("manager_id"));
+                area.setName(rs.getString("name"));
+                area.setAddress(rs.getString("address"));
+                area.setCreatedAt(rs.getTimestamp("created_at"));
+                areas.add(area);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return areas;
+    }
+
+    public List<RentalArea> getRentalAreasByManagerId(int managerId) {
+        List<RentalArea> areas = new ArrayList<>();
+        String sql = "SELECT * FROM rental_areas WHERE manager_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RentalArea area = new RentalArea();
+                area.setRentalAreaId(rs.getInt("rental_area_id"));
+                area.setManagerId(rs.getInt("manager_id"));
+                area.setName(rs.getString("name"));
+                area.setAddress(rs.getString("address"));
+                area.setCreatedAt(rs.getTimestamp("created_at"));
+                areas.add(area);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return areas;
+    }
+
+    /**
+     * Lấy danh sách khu trọ theo manager ID (alias cho getRentalAreasByManagerId)
+     * @param managerId ID của manager
+     * @return List<RentalArea> danh sách khu trọ
+     */
+    public List<RentalArea> getRentalAreasByManager(int managerId) {
+        return getRentalAreasByManagerId(managerId);
+    }
    
     // Get rental area by manager ID
     public RentalArea getRentalAreaByManagerId(int managerId) {
