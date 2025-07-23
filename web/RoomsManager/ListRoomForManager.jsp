@@ -195,5 +195,6 @@
                 }
             };
         </script>
+        <jsp:include page="../Message.jsp"/>
     </body>
 </html>

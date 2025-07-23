@@ -305,13 +305,13 @@
                                                         <td class="align-middle">
                                                             <div class="d-flex align-items-center">                                                                                                                                                      
                                                                 <div>
-                                                                    <h6 class="mb-0">Phòng ${contract.roomID}</h6>
-                                                                    <small class="text-muted">ID: ${contract.contractId}</small>
+                                                                    <h6 class="mb-0">Phòng ${contract.roomNumber}</h6>
+                                                                    <small class="text-muted">Khu vực: ${contract.areaName}</small>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td class="align-middle">
-                                                            <h6 class="mb-0">ID: ${contract.tenantsID}</h6>
+                                                            <h6 class="mb-0">${contract.nameTelnant}</h6>
                                                         </td>
                                                         <td class="align-middle">
                                                             <fmt:formatDate value="${contract.startDate}" pattern="dd/MM/yyyy"/>

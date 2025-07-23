@@ -34,76 +34,7 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 px-0">
-                    <div class="sidebar p-3">
-                        <div class="text-center mb-4">
-                            <h4 class="text-white mb-0">
-                                <i class="fas fa-building me-2"></i>
-                                Manager Panel
-                            </h4>
-                        </div>
-
-                        <!-- User Info -->
-                        <div class="user-info">
-                            <div class="text-center">
-                                <i class="fas fa-user-circle fa-3x text-white mb-2"></i>
-                                <h6 class="text-white mb-1">${user.fullName}</h6>
-                                <small class="text-white-50">Manager</small>
-                            </div>
-                        </div>
-
-                        <!-- Navigation -->
-                        <nav class="nav flex-column">
-                            <a class="nav-link active" href="ManagerHomepage">
-                                <i class="fas fa-tachometer-alt me-2"></i>
-                                Dashboard
-                            </a>
-                            <a class="nav-link" href="listrooms">
-                                <i class="fas fa-bed me-2"></i>
-                                Quản lý Phòng
-                            </a>
-                            <a class="nav-link" href="listusers?role=3">
-                                <i class="fas fa-users me-2"></i>
-                                Quản lý Người thuê
-                            </a>
-                            <a class="nav-link" href="listcontracts">
-                                <i class="fas fa-file-contract me-2"></i>
-                                Hợp đồng
-                            </a>
-                            <a class="nav-link" href="listbills">
-                                <i class="fas fa-receipt me-2"></i>
-                                Hóa đơn
-                            </a>
-                            <div class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="equipmentDropdown" role="button" data-bs-toggle="collapse" data-bs-target="#equipmentSubmenu" aria-expanded="false" aria-controls="equipmentSubmenu">
-                                    <i class="fas fa-tools me-2"></i>
-                                    Thiết bị
-                                </a>
-                                <div class="collapse submenu" id="equipmentSubmenu">
-                                    <a class="nav-link" href="listdevices">                                  
-                                        Danh sách thiết bị
-                                    </a>
-                                    <a class="nav-link" href="deviceinroom">                                   
-                                        Thiết bị trong phòng
-                                    </a>
-                                </div>
-                            </div>
-                            <a class="nav-link" href="listservices">
-                                <i class="fas fa-concierge-bell me-2"></i>
-                                Dịch vụ
-                            </a>
-                            <hr class="text-white-50">
-                            <a class="nav-link" href="profile">
-                                <i class="fas fa-user-cog me-2"></i>
-                                Hồ sơ cá nhân
-                            </a>
-                            <a class="nav-link" href="logout">
-                                <i class="fas fa-sign-out-alt me-2"></i>
-                                Đăng xuất
-                            </a>
-                        </nav>
-                    </div>
-                </div>
+                <jsp:include page="../Sidebar/SideBarManager.jsp"/>
 
                 <!-- Main Content -->
                 <div class="col-md-9 col-lg-10">
@@ -142,7 +73,7 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <h6 class="card-title">Phòng đã thuê</h6>
-                                                <h3 class="mb-0">${occupiedRooms}</h3>
+                                                <h3 class="mb-0">${rentedRooms}</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="fas fa-user-check fa-2x"></i>
@@ -157,7 +88,7 @@
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <h6 class="card-title">Phòng trống</h6>
-                                                <h3 class="mb-0">${availableRooms}</h3>
+                                                <h3 class="mb-0">${vacantRooms}</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="fas fa-door-open fa-2x"></i>
@@ -171,8 +102,8 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h6 class="card-title">Hợp đồng hiện tại</h6>
-                                                <h3 class="mb-0">3</h3>
+                                                <h6 class="card-title">Hợp đồng mới</h6>
+                                                <h3 class="mb-0">${newContract}</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="fas fa-file-signature fa-2x"></i>
@@ -236,16 +167,16 @@
                                         <div class="mb-3">
                                             <div class="d-flex justify-content-between">
                                                 <span>Tỷ lệ lấp đầy</span>
-                                                <span class="fw-bold">${totalRooms > 0 ? (occupiedRooms * 100 / totalRooms) : 0}%</span>
+                                                <span class="fw-bold">${fillPercent}%</span>
                                             </div>
                                             <div class="progress mt-1">
-                                                <div class="progress-bar bg-success" style="width: ${totalRooms > 0 ? (occupiedRooms * 100 / totalRooms) : 0}%"></div>
+                                                <div class="progress-bar bg-success" style="width: ${fillPercent}%"></div>
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <div class="d-flex justify-content-between">
                                                 <span>Doanh thu tháng</span>
-                                                <span class="fw-bold">45.2M VNĐ</span>
+                                                <span class="fw-bold">${profit} VND</span>
                                             </div>
                                             <div class="progress mt-1">
                                                 <div class="progress-bar bg-info" style="width: 85%"></div>
@@ -254,7 +185,7 @@
                                         <div class="mb-3">
                                             <div class="d-flex justify-content-between">
                                                 <span>Hợp đồng sắp hết hạn</span>
-                                                <span class="fw-bold">5</span>
+                                                <span class="fw-bold">${expiringContracts}</span>
                                             </div>
                                             <div class="progress mt-1">
                                                 <div class="progress-bar bg-warning" style="width: 20%"></div>
@@ -270,6 +201,7 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <jsp:include page="../Message.jsp"/>
         <script>
             // Set current date
             document.getElementById('current-date').textContent = new Date().toLocaleDateString('vi-VN');

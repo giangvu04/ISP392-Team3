@@ -4,16 +4,45 @@
  */
 package dal;
 
-import model.Services;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.Services;
 
 public class DAOServices {
+    /**
+     * Lấy danh sách dịch vụ đang sử dụng của tenant (qua hóa đơn chưa thanh toán)
+     * @param tenantId user_id của tenant
+     * @return List<Services> dịch vụ đang sử dụng
+     */
+    public List<Services> getCurrentServicesByTenant(int tenantId) {
+        List<Services> services = new ArrayList<>();
+        String sql = "SELECT s.* FROM tbBills b " +
+                "JOIN bill_details bd ON b.ID = bd.bill_id " +
+                "JOIN services s ON bd.service_id = s.service_id " +
+                "WHERE b.TenantID = ? AND b.Status = 'Unpaid'";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Services s = new Services(
+                        rs.getInt("service_id"),
+                        rs.getInt("rental_area_id"),
+                        rs.getString("service_name"),
+                        rs.getDouble("unit_price"),
+                        rs.getString("unit_name"),
+                        rs.getInt("calculation_method")
+                );
+                services.add(s);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy dịch vụ đang sử dụng: " + e.getMessage());
+        }
+        return services;
+    }
 
     public static final DAOServices INSTANCE = new DAOServices();
     protected Connection connect;

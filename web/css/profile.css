@@ -1,0 +1,44 @@
+/* Profile page custom styles */
+.stat-card, .stat-card-2, .stat-card-3, .stat-card-4 {
+    min-height: 120px;
+    height: 120px;
+    display: flex;
+    align-items: stretch;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 16px;
+}
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.stat-card-2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+.stat-card-3 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+.stat-card-4 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+.card .card-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+.card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+.card i {
+    opacity: 0.8;
+}
+.main-content {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
