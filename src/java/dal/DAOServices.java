@@ -14,6 +14,43 @@ import model.Services;
 
 public class DAOServices {
     /**
+     * Lấy tất cả dịch vụ mà tenant đã từng sử dụng (không trùng lặp, theo bill_details)
+     * @param tenantId user_id của tenant
+     * @return List<Services> dịch vụ đã sử dụng
+     */
+    public List<Services> getServicesByTenantId(int tenantId) {
+        List<Services> services = new ArrayList<>();
+        String sql = "SELECT s.*, ra.name AS rental_area_name " +
+                "FROM contracts c " +
+                "JOIN rooms r ON c.room_id = r.room_id " +
+                "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                "JOIN services s ON ra.rental_area_id = s.rental_area_id " +
+                "WHERE c.tenant_id = ? AND (c.status = 1 OR (c.end_date IS NULL OR c.end_date >= GETDATE()))";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, tenantId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Services s = new Services(
+                        rs.getInt("service_id"),
+                        rs.getInt("rental_area_id"),
+                        rs.getString("service_name"),
+                        rs.getDouble("unit_price"),
+                        rs.getString("unit_name"),
+                        rs.getInt("calculation_method")
+                );
+                // Nếu model Services có setRentalAreaName thì set luôn
+                try {
+                    java.lang.reflect.Method m = s.getClass().getMethod("setRentalAreaName", String.class);
+                    m.invoke(s, rs.getString("rental_area_name"));
+                } catch (Exception ignore) {}
+                services.add(s);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy dịch vụ theo khu trọ phòng đang thuê: " + e.getMessage());
+        }
+        return services;
+    }
+    /**
      * Lấy danh sách dịch vụ đang sử dụng của tenant (qua hóa đơn chưa thanh toán)
      * @param tenantId user_id của tenant
      * @return List<Services> dịch vụ đang sử dụng

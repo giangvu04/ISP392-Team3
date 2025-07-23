@@ -171,8 +171,8 @@
 
                         <!-- Quick Actions -->
                         <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
+                            <div class="col-md-6 mb-4 d-flex align-items-stretch">
+                                <div class="card flex-fill">
                                     <div class="card-header bg-primary text-white">
                                         <h5 class="mb-0">
                                             <i class="fas fa-bolt me-2"></i>
@@ -205,9 +205,36 @@
                                                     Dịch vụ
                                                 </a>
                                             </div>
+                                            <div class="col-6 mb-3">
+                                                <a href="feedbacklist" class="btn btn-outline-secondary w-100">
+                                                    <i class="fas fa-history me-2"></i>
+                                                    Lịch sử feedback
+                                                </a>
+                                            </div>
+                                            <!-- Nút gửi phản hồi/báo lỗi/hóa đơn riêng -->
+                                            <div class="col-6 mb-3">
+                                                <c:choose>
+                                                    <c:when test="${currentRoom != null}">
+                                                        <button type="button" class="btn btn-outline-danger w-100" 
+                                                                data-bs-toggle="modal" data-bs-target="#feedbackModal"
+                                                                onclick="prepareFeedbackModal('${currentRoom.roomId}', '${currentRoom.roomNumber}')">
+                                                            <i class="fas fa-comment-dots me-2"></i>
+                                                            Gửi phản hồi
+                                                        </button>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <button type="button" class="btn btn-outline-danger w-100" disabled 
+                                                                title="Bạn chưa có phòng để gửi feedback">
+                                                            <i class="fas fa-comment-dots me-2"></i>
+                                                            Gửi phản hồi
+                                                        </button>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                
                             </div>
 
                             <div class="col-md-6 mb-4">
@@ -307,6 +334,94 @@
                     }
                 });
             });
+        </script>
+                <!-- Feedback Modal -->
+        <div class="modal fade" id="feedbackModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="feedbackForm" action="feedback" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Gửi feedback cho phòng <span id="feedbackRoomNumber"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="feedbackRoomId" name="roomId" />
+                            
+                            <div class="mb-3">
+                                <label for="feedbackContent" class="form-label">Nội dung phản hồi</label>
+                                <textarea class="form-control" id="feedbackContent" name="content" 
+                                          rows="4" placeholder="Chia sẻ trải nghiệm của bạn về phòng..." required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Đánh giá</label>
+                                <div class="rating-input mb-2">
+                                    <input type="radio" name="rating" value="5" id="star5" />
+                                    <label for="star5" class="star">★</label>
+                                    <input type="radio" name="rating" value="4" id="star4" />
+                                    <label for="star4" class="star">★</label>
+                                    <input type="radio" name="rating" value="3" id="star3" />
+                                    <label for="star3" class="star">★</label>
+                                    <input type="radio" name="rating" value="2" id="star2" />
+                                    <label for="star2" class="star">★</label>
+                                    <input type="radio" name="rating" value="1" id="star1" />
+                                    <label for="star1" class="star">★</label>
+                                </div>
+                                <small class="text-muted">Chọn số sao để đánh giá (tùy chọn)</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Gửi feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CSS for star rating -->
+        <style>
+            .rating-input {
+                display: flex;
+                flex-direction: row-reverse;
+                justify-content: flex-end;
+            }
+            
+            .rating-input input[type="radio"] {
+                display: none;
+            }
+            
+            .rating-input .star {
+                font-size: 2rem;
+                color: #ddd;
+                cursor: pointer;
+                transition: color 0.2s;
+                margin-right: 5px;
+            }
+            
+            .rating-input input[type="radio"]:checked ~ .star,
+            .rating-input .star:hover,
+            .rating-input .star:hover ~ .star {
+                color: #ffc107;
+            }
+        </style>
+        
+        <!-- JavaScript for modal -->
+        <script>
+            function prepareFeedbackModal(roomId, roomNumber) {
+                document.getElementById('feedbackRoomId').value = roomId;
+                document.getElementById('feedbackRoomNumber').textContent = roomNumber;
+                
+                // Reset form
+                document.getElementById('feedbackForm').reset();
+                
+                // Clear star selection
+                document.querySelectorAll('input[name="rating"]').forEach(radio => {
+                    radio.checked = false;
+                });
+            }
         </script>
     </body>
 </html> 

@@ -139,6 +139,12 @@
                                                 </a>
                                             </div>
                                             <div class="col-6 mb-3">
+                                                <a href="manageViewingRequests" class="btn btn-outline-danger w-100">
+                                                    <i class="fas fa-eye me-2"></i>
+                                                    Yêu cầu xem phòng
+                                                </a>
+                                            </div>
+                                            <div class="col-6 mb-3">
                                                 <a href="listcontracts" class="btn btn-outline-info w-100">
                                                     <i class="fas fa-file-contract me-2"></i>
                                                     Hợp đồng
@@ -148,6 +154,12 @@
                                                 <a href="listbills" class="btn btn-outline-warning w-100">
                                                     <i class="fas fa-receipt me-2"></i>
                                                     Hóa đơn
+                                                </a>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <a href="feedbacklist" class="btn btn-outline-warning w-100">
+                                                    <i class="fas fa-clock me-2"></i>
+                                                    Phản hồi
                                                 </a>
                                             </div>
                                         </div>
