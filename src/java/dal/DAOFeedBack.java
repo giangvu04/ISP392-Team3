@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import model.FeedBack;
-import model.Users;
 
 public class DAOFeedBack {
     public static final DAOFeedBack INSTANCE = new DAOFeedBack();
@@ -143,5 +142,29 @@ public class DAOFeedBack {
             e.printStackTrace();
         }
         return list;
+    }
+
+    // Cập nhật feedback
+    public void updateFeedBack(FeedBack fb) {
+        String sql = "UPDATE feedback SET content = ?, rating = ? WHERE feedback_id = ? AND user_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setString(1, fb.getContent());
+            if (fb.getRating() != null) {
+                ps.setInt(2, fb.getRating());
+            } else {
+                ps.setNull(2, java.sql.Types.INTEGER);
+            }
+            ps.setInt(3, fb.getFeedbackId());
+            ps.setInt(4, fb.getUserId());
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Cập nhật feedback thành công!");
+            } else {
+                System.out.println("❌ Không tìm thấy feedback để cập nhật!");
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi cập nhật feedback: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
