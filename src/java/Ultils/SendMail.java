@@ -1,9 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Ultils;
 
+import Controller.ForgotPassword.*;
 import APIKey.Gmail;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -23,8 +21,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-public class SendMail {
 
+public class SendMail {
+    // Gửi mail HTML bất đồng bộ (đa luồng)
+    public static void sendHtmlMailAsync(String to, String subject, String htmlContent) {
+        Thread thread = new Thread(() -> {
+            try {
+                sendHtmlMail(to, subject, htmlContent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+    }
    
     public static boolean sendMailAsyncOTP(String email, String otp) {
         Thread thread = new Thread(() -> {
@@ -104,6 +113,33 @@ public class SendMail {
             e.printStackTrace();
             return false;
         }
+    }
+        /**
+     * Gửi mail mời tenant vào phòng với link xác nhận
+     * @param email email người nhận
+     * @param inviteLink link xác nhận (chứa token)
+     * @param roomInfo thông tin phòng
+     * @return true nếu gửi thành công
+     */
+    public static boolean sendInviteTenantMail(String email, String inviteLink, String roomInfo) {
+        Thread thread = new Thread(() -> {
+            try {
+                String subject = "Lời mời tham gia phòng trọ";
+                String content = "<html><body>"
+                        + "<h2>Lời mời tham gia phòng trọ</h2>"
+                        + "<p>Bạn nhận được lời mời tham gia phòng: <b>" + roomInfo + "</b></p>"
+                        + "<p>Vui lòng nhấn vào liên kết dưới đây để xác nhận tham gia phòng:</p>"
+                        + "<p><a href='" + inviteLink + "' style='color: #007bff; font-weight: bold;'>Xác nhận tham gia phòng</a></p>"
+                        + "<p style='color: #888;'>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>"
+                        + "<p style='color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>"
+                        + "</body></html>";
+                sendHtmlMail(email, subject, content);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+        return true;
     }
     private static String getCurrentDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // hoặc "yyyy-MM-dd HH:mm:ss"
@@ -208,6 +244,142 @@ public class SendMail {
         });
         thread.start();
         return true;
+    }
+
+    /**
+     * Gửi mail thông báo phê duyệt hồ sơ Manager
+     */
+    public static boolean sendManagerApprovalEmailAsync(String email, String managerName, String businessName) {
+        Thread thread = new Thread(() -> {
+            try {
+                String subject = "🎉 Hồ sơ Manager đã được phê duyệt - House Sharing";
+                String content = buildManagerApprovalEmailContent(managerName, businessName);
+                sendHtmlMail(email, subject, content);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+        return true;
+    }
+
+    /**
+     * Gửi mail thông báo từ chối hồ sơ Manager
+     */
+    public static boolean sendManagerRejectionEmailAsync(String email, String managerName, String businessName, String reason) {
+        Thread thread = new Thread(() -> {
+            try {
+                String subject = "📋 Kết quả xét duyệt hồ sơ Manager - House Sharing";
+                String content = buildManagerRejectionEmailContent(managerName, businessName, reason);
+                sendHtmlMail(email, subject, content);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+        return true;
+    }
+
+    /**
+     * Tạo nội dung email phê duyệt Manager
+     */
+    private static String buildManagerApprovalEmailContent(String managerName, String businessName) {
+        return "<html><body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>"
+                + "<div style='max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background: #fff;'>"
+                
+                + "<div style='text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px; border-radius: 8px;'>"
+                + "<h1 style='margin: 0 0 10px 0; font-size: 28px;'>🎉 Chúc mừng!</h1>"
+                + "<h2 style='margin: 0; font-size: 18px; font-weight: normal;'>Hồ sơ đăng ký Manager đã được phê duyệt</h2>"
+                + "</div>"
+                
+                + "<div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;'>"
+                + "<p style='margin: 0 0 10px 0;'><strong>Kính gửi:</strong> " + managerName + "</p>"
+                + "<p style='margin: 0;'><strong>Doanh nghiệp:</strong> " + businessName + "</p>"
+                + "</div>"
+                
+                + "<div style='margin-bottom: 25px;'>"
+                + "<h3 style='color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 8px; margin-top: 0;'>✅ Thông báo phê duyệt</h3>"
+                + "<p>Chúng tôi rất vui mừng thông báo rằng hồ sơ đăng ký Manager của bạn đã được <strong style='color: #28a745;'>PHÊ DUYỆT</strong>.</p>"
+                + "<p>Tài khoản của bạn đã được <strong>kích hoạt</strong> và bạn có thể đăng nhập vào hệ thống để bắt đầu sử dụng dịch vụ.</p>"
+                + "</div>"
+                
+                + "<div style='background: #e7f3ff; padding: 20px; border-left: 4px solid #007bff; border-radius: 5px; margin-bottom: 25px;'>"
+                + "<h4 style='color: #007bff; margin-top: 0;'>📋 Các bước tiếp theo:</h4>"
+                + "<ol style='margin-bottom: 0; padding-left: 20px;'>"
+                + "<li style='margin-bottom: 8px;'>Đăng nhập vào hệ thống quản lý</li>"
+                + "<li style='margin-bottom: 8px;'>Cập nhật thông tin hồ sơ cá nhân</li>"
+                + "<li style='margin-bottom: 8px;'>Bắt đầu đăng tin cho thuê phòng trọ</li>"
+                + "<li style='margin-bottom: 0;'>Quản lý hợp đồng và hóa đơn</li>"
+                + "</ol>"
+                + "</div>"
+                
+                + "<div style='text-align: center; margin: 30px 0;'>"
+                + "<div style='display: inline-block; background: #28a745; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; font-size: 16px;'>"
+                + "🚀 Bạn đã sẵn sàng bắt đầu!"
+                + "</div>"
+                + "</div>"
+                
+                + "<div style='border-top: 1px solid #ddd; padding-top: 20px; text-align: center; color: #6c757d; font-size: 14px;'>"
+                + "<p style='margin-bottom: 10px;'>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ:</p>"
+                + "<p style='margin-bottom: 15px;'>📧 Email: support@housesharing.com | 📞 Hotline: 1900-xxxx</p>"
+                + "<p style='margin: 0; font-weight: bold;'>House Sharing Team</p>"
+                + "</div>"
+                
+                + "</div></body></html>";
+    }
+
+    /**
+     * Tạo nội dung email từ chối Manager
+     */
+    private static String buildManagerRejectionEmailContent(String managerName, String businessName, String reason) {
+        return "<html><body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>"
+                + "<div style='max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background: #fff;'>"
+                
+                + "<div style='text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 20px; border-radius: 8px;'>"
+                + "<h1 style='margin: 0 0 10px 0; font-size: 28px;'>📋 Thông báo</h1>"
+                + "<h2 style='margin: 0; font-size: 18px; font-weight: normal;'>Kết quả xét duyệt hồ sơ Manager</h2>"
+                + "</div>"
+                
+                + "<div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545;'>"
+                + "<p style='margin: 0 0 10px 0;'><strong>Kính gửi:</strong> " + managerName + "</p>"
+                + "<p style='margin: 0;'><strong>Doanh nghiệp:</strong> " + businessName + "</p>"
+                + "</div>"
+                
+                + "<div style='margin-bottom: 25px;'>"
+                + "<h3 style='color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 8px; margin-top: 0;'>❌ Kết quả xét duyệt</h3>"
+                + "<p>Chúng tôi rất tiếc phải thông báo rằng hồ sơ đăng ký Manager của bạn <strong style='color: #dc3545;'>CHƯA ĐƯỢC DUYỆT</strong> tại thời điểm này.</p>"
+                + "</div>"
+                
+                + "<div style='background: #fff3cd; padding: 20px; border-left: 4px solid #ffc107; border-radius: 5px; margin-bottom: 25px;'>"
+                + "<h4 style='color: #856404; margin-top: 0;'>⚠️ Lý do:</h4>"
+                + "<p style='margin-bottom: 0; color: #856404; font-style: italic;'>" 
+                + (reason != null && !reason.trim().isEmpty() ? reason : "Vui lòng liên hệ admin để biết chi tiết.") 
+                + "</p>"
+                + "</div>"
+                
+                + "<div style='background: #e7f3ff; padding: 20px; border-left: 4px solid #007bff; border-radius: 5px; margin-bottom: 25px;'>"
+                + "<h4 style='color: #007bff; margin-top: 0;'>💡 Hướng dẫn khắc phục:</h4>"
+                + "<ol style='margin-bottom: 0; padding-left: 20px;'>"
+                + "<li style='margin-bottom: 8px;'>Kiểm tra và bổ sung đầy đủ thông tin theo yêu cầu</li>"
+                + "<li style='margin-bottom: 8px;'>Đảm bảo giấy tờ rõ ràng, đúng quy định</li>"
+                + "<li style='margin-bottom: 8px;'>Liên hệ support để được hỗ trợ chi tiết</li>"
+                + "<li style='margin-bottom: 0;'>Gửi lại hồ sơ sau khi đã khắc phục</li>"
+                + "</ol>"
+                + "</div>"
+                
+                + "<div style='text-align: center; margin: 30px 0;'>"
+                + "<div style='display: inline-block; background: #007bff; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; font-size: 16px;'>"
+                + "🔄 Hãy thử lại sau khi khắc phục"
+                + "</div>"
+                + "</div>"
+                
+                + "<div style='border-top: 1px solid #ddd; padding-top: 20px; text-align: center; color: #6c757d; font-size: 14px;'>"
+                + "<p style='margin-bottom: 10px;'>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ:</p>"
+                + "<p style='margin-bottom: 15px;'>📧 Email: support@housesharing.com | 📞 Hotline: 1900-xxxx</p>"
+                + "<p style='margin: 0; font-weight: bold;'>House Sharing Team</p>"
+                + "</div>"
+                
+                + "</div></body></html>";
     }
 
     // Hàm gửi mail HTML chung

@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import model.Contracts;
+import model.Users;
 
 /**
  * Servlet for managing contracts
@@ -107,10 +108,10 @@ public class ListContractsServlet extends HttpServlet {
                     page = 1;
                 }
             }
-            
+            Users user = (Users) request.getSession().getAttribute("user");
             // Lấy danh sách hợp đồng theo trang
-            ArrayList<Contracts> contracts = contractDAO.getContractsByPage(page, CONTRACTS_PER_PAGE);
-            int totalContracts = contractDAO.getTotalContracts();
+            ArrayList<Contracts> contracts = contractDAO.getContractsByPage(page, CONTRACTS_PER_PAGE, user.getUserId());
+            int totalContracts = contractDAO.getTotalContracts(user.getUserId());
             int totalPages = (int) Math.ceil((double) totalContracts / CONTRACTS_PER_PAGE);
             
             // Set attributes
@@ -124,6 +125,7 @@ public class ListContractsServlet extends HttpServlet {
             request.getRequestDispatcher("/Contract/LIstContractsForManager.jsp").forward(request, response);
             
         } catch (Exception e) {
+            e.printStackTrace();
             handleError(request, response, "Lỗi khi tải danh sách hợp đồng: " + e.getMessage());
         }
     }
@@ -289,23 +291,28 @@ public class ListContractsServlet extends HttpServlet {
                 response.sendRedirect("listcontracts?action=list");
                 return;
             }
-            
+
             int contractId = Integer.parseInt(contractIdStr);
             Contracts contract = contractDAO.getContractById(contractId);
-            
+
             if (contract == null) {
                 setErrorMessage(request, "Không tìm thấy hợp đồng với ID: " + contractId);
                 response.sendRedirect("listcontracts?action=list");
                 return;
             }
-            
+
+            // Lấy danh sách người thuê của phòng này
+            dal.DAOUser daoUser = new dal.DAOUser();
+            ArrayList<model.Users> tenants = daoUser.getTenantsByRoomId(contract.getRoomID());
+            request.setAttribute("tenants", tenants);
             request.setAttribute("contract", contract);
-            request.getRequestDispatcher("/views/contract/view.jsp").forward(request, response);
-            
+            request.getRequestDispatcher("/Contract/ViewContracts.jsp").forward(request, response);
+
         } catch (NumberFormatException e) {
             setErrorMessage(request, "ID hợp đồng không hợp lệ");
             response.sendRedirect("listcontracts?action=list");
         } catch (Exception e) {
+            e.printStackTrace();
             handleError(request, response, "Lỗi khi tải thông tin hợp đồng: " + e.getMessage());
         }
     }
