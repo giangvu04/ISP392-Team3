@@ -21,7 +21,6 @@
             margin-bottom: 2rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
         .form-card {
             background: white;
             border-radius: 20px;
@@ -113,6 +112,17 @@
                         <div class="cost-item">
                             <div class="row">
                                 <div class="col-md-8">
+                                    <h6><i class="fas fa-home"></i> Tiền phòng</h6>
+                                    <small class="text-muted">Chi phí thuê phòng trong tháng</small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <h5><fmt:formatNumber value="${bill.roomCost}" type="currency" currencySymbol="₫"/></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <div class="row">
+                                <div class="col-md-8">
                                     <h6><i class="fas fa-bolt"></i> Tiền điện</h6>
                                     <small class="text-muted">Chi phí sử dụng điện trong tháng</small>
                                 </div>
@@ -143,6 +153,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="cost-item">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6><i class="fas fa-cogs"></i> Dịch vụ khác</h6>
+                                    <small class="text-muted">Chi phí dịch vụ khác</small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <h5><fmt:formatNumber value="${bill.otherServiceCost}" type="currency" currencySymbol="₫"/></h5>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Tổng tiền -->
@@ -166,9 +187,11 @@
                                 <i class="fas fa-check"></i> Đánh dấu đã thanh toán
                             </button>
                         </c:if>
+                        <c:if test="${user.roleId == 2}">
                         <a href="BillServlet?action=edit&id=${bill.id}" class="btn btn-warning btn-action btn-lg me-2">
                             <i class="fas fa-edit"></i> Chỉnh sửa
                         </a>
+                        </c:if>
                         <button type="button" class="btn btn-info btn-action btn-lg me-2" onclick="printBill()">
                             <i class="fas fa-print"></i> In hóa đơn
                         </button>

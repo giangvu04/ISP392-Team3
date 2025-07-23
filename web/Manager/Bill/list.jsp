@@ -264,9 +264,10 @@
                                     <div class="col-md-3">
                                         <label for="searchType" class="form-label">Tìm kiếm theo:</label>
                                         <select class="form-select" id="searchType" name="searchType">
-                                            <c:if test="${user.roleId ==2}">
+                                            <c:if test="${user.roleId == 2}">
                                             <option value="tenantName" ${searchType == 'tenantName' ? 'selected' : ''}>Tên người thuê</option>
-                                            <option value="roomNumber" ${searchType == 'roomNumber' ? 'selected' : ''}>Số phòng</option></c:if>
+                                            <option value="roomNumber" ${searchType == 'roomNumber' ? 'selected' : ''}>Số phòng</option>
+                                            </c:if>
                                             <option value="status" ${searchType == 'status' ? 'selected' : ''}>Trạng thái</option>
                                         </select>
                                     </div>
@@ -301,8 +302,8 @@
                                         <thead class="table-light">
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Tên người thuê</th>
                                                 <th>Số phòng</th>
+                                                <th>Tiền phòng</th>
                                                 <th>Tiền điện</th>
                                                 <th>Tiền nước</th>
                                                 <th>Phí dịch vụ</th>
@@ -317,10 +318,8 @@
                                             <c:forEach var="bill" items="${bills}">
                                                 <tr>
                                                     <td>${bill.id}</td>
-                                                    <td>
-                                                        <div class="fw-bold">${bill.tenantName}</div>
-                                                    </td>
                                                     <td><span class="badge bg-info">${bill.roomNumber}</span></td>
+                                                    <td><fmt:formatNumber value="${bill.roomCost}" type="currency" currencySymbol="₫"/></td>
                                                     <td><fmt:formatNumber value="${bill.electricityCost}" type="currency" currencySymbol="₫"/></td>
                                                     <td><fmt:formatNumber value="${bill.waterCost}" type="currency" currencySymbol="₫"/></td>
                                                     <td><fmt:formatNumber value="${bill.serviceCost}" type="currency" currencySymbol="₫"/></td>
@@ -341,35 +340,39 @@
                                                     </td>
                                                     <td>${bill.createdDate}</td>
                                                     <td>
-                                                        <div class="btn-group" role="group">
-                                                            <a href="BillServlet?action=view&id=${bill.id}" 
-                                                               class="btn btn-sm btn-outline-info btn-action" 
-                                                               title="Xem chi tiết">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                            <a href="BillServlet?action=edit&id=${bill.id}" 
-                                                               class="btn btn-sm btn-outline-warning btn-action" 
-                                                               title="Sửa">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <c:if test="${user.roleId == 3}">
-                                                                <button type="button" class="btn btn-sm btn-outline-primary btn-action" title="Đánh giá" onclick="openFeedbackModal('${bill.id}', '${bill.tenantName}')">
-                                                                    <i class="fas fa-star"></i>
-                                                                </button>
-                                                            </c:if>
-                                                            <c:if test="${user.roleId == 2}">
-                                                                <button type="button" class="btn btn-sm btn-outline-success btn-action" title="Gửi tin nhắn" onclick="openMessageModal('${bill.id}', '${bill.tenantName}', '${bill.emailTelnant}')">
-                                                                    <i class="fas fa-paper-plane"></i>
-                                                                </button>
-                                                            </c:if>
-                                                            <c:if test="${bill.status == 'Unpaid'}">
-                                                                <button type="button" 
-                                                                        class="btn btn-sm btn-outline-success btn-action" 
-                                                                        onclick="updateStatus('${bill.id}', 'Paid')"
-                                                                        title="Đánh dấu đã thanh toán">
-                                                                    <i class="fas fa-check"></i>
-                                                                </button>
-                                                            </c:if>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-outline-secondary btn-action dropdown-toggle" type="button" id="dropdownMenuButton${bill.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="fas fa-bars"></i> 
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${bill.id}">
+                                                                <li>
+                                                                    <a class="dropdown-item" href="BillServlet?action=view&id=${bill.id}">
+                                                                        <i class="fas fa-eye text-info"></i> Xem chi tiết
+                                                                    </a>
+                                                                </li>
+                                                                <c:if test="${bill.status == 'Unpaid' && user.roleId == 2}">
+                                                                    <li>
+                                                                        <button type="button" class="dropdown-item" onclick="openMessageModal('${bill.id}', '${bill.tenantName}', '${bill.emailTelnant}')">
+                                                                            <i class="fas fa-paper-plane text-primary"></i> Gửi tin nhắn
+                                                                        </button>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" href="BillServlet?action=edit&id=${bill.id}">
+                                                                            <i class="fas fa-edit text-warning"></i> Sửa
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <button type="button" class="dropdown-item" onclick="updateStatus('${bill.id}', 'Paid')">
+                                                                            <i class="fas fa-check text-success"></i> Đánh dấu đã thanh toán
+                                                                        </button>
+                                                                    </li>
+                                                                    <li>
+                                                                        <button type="button" class="dropdown-item" onclick="if(confirm('Bạn có chắc chắn muốn xóa hóa đơn này?')) window.location.href='listbills?action=delete&id=${bill.id}';">
+                                                                            <i class="fas fa-trash text-danger"></i> Xóa
+                                                                        </button>
+                                                                    </li>
+                                                                </c:if>
+                                                            </ul>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -421,43 +424,7 @@
             </div>
         </div>
 
-        <!-- Feedback Modal -->
-        <div class="modal fade" id="feedbackModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form id="feedbackForm" action="feedback" method="post">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Đánh giá hóa đơn cho <span id="feedbackTenantName"></span></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" id="feedbackRoomId" name="roomId" />
-                            <div class="mb-3">
-                                <label for="feedbackContent" class="form-label">Nội dung đánh giá</label>
-                                <textarea class="form-control" id="feedbackContent" name="content" rows="3" required></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="feedbackRating" class="form-label">Số sao</label>
-                                <select class="form-select" id="feedbackRating" name="rating" required>
-                                    <option value="">Chọn số sao</option>
-                                    <option value="5">5 - Tuyệt vời</option>
-                                    <option value="4">4 - Tốt</option>
-                                    <option value="3">3 - Bình thường</option>
-                                    <option value="2">2 - Kém</option>
-                                    <option value="1">1 - Rất tệ</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Message Modal -->
+        <!-- Message Modal (cho cả 2 role) -->
         <div class="modal fade" id="messageModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">

@@ -16,6 +16,7 @@ public class Room {
     private int maxTenants;
     private int status; // 0: Trống, 1: Đã có người thuê, 2: Đang sửa chữa
     private String description;
+     private String imageUrl;
 
     public Room() {
     }
@@ -30,6 +31,14 @@ public class Room {
         this.maxTenants = maxTenants;
         this.status = status;
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public int getRoomId() {
@@ -117,4 +126,4 @@ public class Room {
     public boolean isUnderMaintenance() {
         return status == 2;
     }
-} 
+}

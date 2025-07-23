@@ -8,10 +8,10 @@ import dal.DAO;
 import dal.DAOUser;
 import model.Users;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,20 +22,27 @@ import java.io.StringWriter;
  *
  * @author ADMIN
  */
-@WebServlet(name="LoginServlet", urlPatterns={"/login"})
+@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-
+        
         if (session.getAttribute("user") != null) {
             Users user = (Users) session.getAttribute("user");
             // Redirect based on role to appropriate homepage
             redirectToHomepage(user, response);
         } else {
-            request.setAttribute("message", "");
+            // Kiểm tra có returnUrl parameter không
+            String returnUrl = request.getParameter("returnUrl");
+            if (returnUrl != null && !returnUrl.trim().isEmpty()) {
+                // Lưu returnUrl vào session
+                session.setAttribute("returnUrl", returnUrl);
+            }
+            
+            request.setAttribute("ms", "");
             request.setAttribute("name", "");
             request.setAttribute("password", "");
             RequestDispatcher dispatcher = request.getRequestDispatcher("Login/login.jsp");
@@ -64,26 +71,36 @@ public class LoginServlet extends HttpServlet {
                 if (user != null && userDAO.authenticateUser(name, password) && user.isActive()) {
                     request.getSession().setAttribute("user", user);
                     session.setAttribute("user", user);
-                    redirectToHomepage(user, response);
+                    request.getSession().setAttribute("ms", "Đăng nhập thành công");
+                    
+                    // Kiểm tra có returnUrl không (từ các trang cần login)
+                    String returnUrl = (String) session.getAttribute("returnUrl");
+                    System.out.println("hehehe" +returnUrl);
+                    if (returnUrl != null) {
+                        // Xóa returnUrl khỏi session và redirect về trang đó
+                        session.removeAttribute("returnUrl");
+                        response.sendRedirect(returnUrl);
+                    } else {
+                        // Redirect về homepage theo role như bình thường
+                        redirectToHomepage(user, response);
+                    }
                 } else {
-                    request.setAttribute("message", "Hãy xem lại tài khoản và mật khẩu hoặc tài khoản đã bị vô hiệu hóa!");
+                    request.getSession().setAttribute("error", "Hãy xem lại tài khoản và mật khẩu hoặc tài khoản đã bị vô hiệu hóa!");
                     request.setAttribute("name", name);
                     request.setAttribute("password", password);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("login");
-                    dispatcher.forward(request, response);
+                    response.sendRedirect("login");
                 }
             } else {
-                request.setAttribute("message", "Vui lòng nhập tài khoản và mật khẩu!");
-                RequestDispatcher dispatcher = request.getRequestDispatcher("login");
-                dispatcher.forward(request, response);
+                request.getSession().setAttribute("error", "Vui lòng nhập tài khoản và mật khẩu!");
+                response.sendRedirect("login");
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("name", name);
             request.setAttribute("password", password);
-            request.setAttribute("message", "Có lỗi xảy ra. Vui lòng thử lại!");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("Login/Login.jsp");
-            dispatcher.forward(request, response);
+            request.getSession().setAttribute("message", "Có lỗi xảy ra. Vui lòng thử lại!");
+            request.getSession().setAttribute("error", "Vui lòng nhập tài khoản và mật khẩu!");
+            response.sendRedirect("login");
         }
     }
 

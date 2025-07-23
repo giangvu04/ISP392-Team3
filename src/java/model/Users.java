@@ -37,6 +37,14 @@ public class Users {
     public Users() {
     }
 
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
     public Users(int userId, int roleId, String fullName, String phoneNumber, String email, 
                  String passwordHash, String citizenId, String address, boolean isActive, 
                  Timestamp createdAt, Timestamp updatedAt) {

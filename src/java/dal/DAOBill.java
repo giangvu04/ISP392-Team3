@@ -11,22 +11,13 @@ import model.Users;
 
 public class DAOBill {
 
-    
-    public static final DAOBill INSTANCE = new DAOBill();
-    protected Connection connect;
-
-    public DAOBill() {
-        connect = new DBContext().connect;
-    }
-
-    public static long millis = System.currentTimeMillis();
-    public static Date today = new Date(millis);
-        /**
-     * Tính tổng doanh thu tháng hiện tại cho manager
-     * @param managerId user_id của manager
-     * @return tổng doanh thu tháng hiện tại (double)
+    /**
+     * Lấy danh sách hóa đơn chưa thanh toán của tenant
+     *
+     * @param tenantId user_id của tenant
+     * @return ArrayList<Bill> hóa đơn chưa thanh toán
      */
-        public ArrayList<Bill> getUnpaidBillsByTenantId(int tenantId) {
+    public ArrayList<Bill> getUnpaidBillsByTenantId(int tenantId) {
         ArrayList<Bill> bills = new ArrayList<>();
         String sql = "SELECT * FROM tbBills WHERE TenantID = ? AND Status = 'Unpaid'";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -53,20 +44,22 @@ public class DAOBill {
         }
         return bills;
     }
+
     /**
      * Tính tổng doanh thu tháng hiện tại cho manager
+     *
      * @param managerId user_id của manager
      * @return tổng doanh thu tháng hiện tại (double)
      */
     public double getMonthlyRevenue(int managerId) {
-        String sql = "SELECT ISNULL(SUM(b.Total), 0) AS MonthlyRevenue " +
-                "FROM tbBills b " +
-                "JOIN rooms r ON b.RoomID = r.room_id " +
-                "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                "WHERE ra.manager_id = ? " +
-                "AND b.Status = 'Paid' " +
-                "AND MONTH(CONVERT(date, b.CreatedDate, 120)) = MONTH(GETDATE()) " +
-                "AND YEAR(CONVERT(date, b.CreatedDate, 120)) = YEAR(GETDATE())";
+        String sql = "SELECT ISNULL(SUM(b.Total), 0) AS MonthlyRevenue "
+                + "FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "WHERE ra.manager_id = ? "
+                + "AND b.Status = 'Paid' "
+                + "AND MONTH(CONVERT(date, b.CreatedDate, 120)) = MONTH(GETDATE()) "
+                + "AND YEAR(CONVERT(date, b.CreatedDate, 120)) = YEAR(GETDATE())";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, managerId);
             ResultSet rs = ps.executeQuery();
@@ -81,28 +74,44 @@ public class DAOBill {
     }
     // --- Thống kê cho dashboard quản lý ---
     /**
-     * Thống kê tổng số phòng, số phòng đã thuê, số phòng trống cho dashboard manager
+     * Thống kê tổng số phòng, số phòng đã thuê, số phòng trống cho dashboard
+     * manager
+     *
      * @param managerId id của manager (user_id)
      * @return int[]{totalRooms, rentedRooms, vacantRooms}
      */
+
+    public static final DAOBill INSTANCE = new DAOBill();
+    protected Connection connect;
+
+    public DAOBill() {
+        connect = new DBContext().connect;
+    }
+
+    public static long millis = System.currentTimeMillis();
+    public static Date today = new Date(millis);
+
     // Thêm hóa đơn mới (hợp lý với BillServlet và tbBills schema)
     public void addBill(Bill bill, int tenantId, int roomId) {
-        String sql = "INSERT INTO tbBills (TenantID, RoomID, TenantName, RoomNumber, ElectricityCost, WaterCost, ServiceCost, Total, DueDate, Status, CreatedDate, EmailTelnant, PhoneTelnant) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tbBills (TenantID, RoomID, TenantName, RoomNumber, RoomCost, ElectricityCost, WaterCost, ServiceCost, OtherServiceCost, Total, DueDate, Status, CreatedDate, EmailTelnant, PhoneTelnant, Note ) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, tenantId);
             ps.setInt(2, roomId);
             ps.setString(3, bill.getTenantName());
             ps.setString(4, bill.getRoomNumber());
-            ps.setDouble(5, bill.getElectricityCost());
-            ps.setDouble(6, bill.getWaterCost());
-            ps.setDouble(7, bill.getServiceCost());
-            ps.setDouble(8, bill.getTotal());
-            ps.setString(9, bill.getDueDate());
-            ps.setString(10, bill.getStatus());
-            ps.setString(11, bill.getCreatedDate());
-            ps.setString(12, bill.getEmailTelnant() != null ? bill.getEmailTelnant() : null);
-            ps.setString(13, null); // Bill model chưa có phoneTelnant, để null
+            ps.setDouble(5, bill.getRoomCost());
+            ps.setDouble(6, bill.getElectricityCost());
+            ps.setDouble(7, bill.getWaterCost());
+            ps.setDouble(8, bill.getServiceCost());
+            ps.setDouble(9, bill.getOtherServiceCost());
+            ps.setDouble(10, bill.getTotal());
+            ps.setString(11, bill.getDueDate());
+            ps.setString(12, bill.getStatus());
+            ps.setString(13, bill.getCreatedDate());
+            ps.setString(14, bill.getEmailTelnant() != null ? bill.getEmailTelnant() : null);
+            ps.setString(15, null); // Bill model chưa có phoneTelnant, để null
+            ps.setString(16, bill.getNote());
             ps.executeUpdate();
             System.out.println("✅ Thêm hóa đơn thành công!");
         } catch (SQLException e) {
@@ -120,14 +129,36 @@ public class DAOBill {
         }
 
         int roleID = user.getRoleId();
-        String tenantName = user.getFullName();
-        String sql = (roleID != 3)
-            ? "SELECT * FROM tbBills ORDER BY CreatedDate DESC"
-            : "SELECT * FROM tbBills WHERE TenantName = ? ORDER BY CreatedDate DESC";
+        int tenantId = user.getUserId();
+        int managerId = user.getUserId();
+        String sql;
+        if (roleID == 2) {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE ra.manager_id = ? " +
+                  "ORDER BY b.CreatedDate DESC";
+        } else if (roleID == 3) {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.TenantID = ? " +
+                  "ORDER BY b.CreatedDate DESC";
+        } else {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "ORDER BY b.CreatedDate DESC";
+        }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            if (roleID == 3) {
-                ps.setString(1, tenantName);
+            if (roleID == 2) {
+                ps.setInt(1, managerId);
+            } else if (roleID == 3) {
+                ps.setInt(1, tenantId);
             }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -142,6 +173,8 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -151,9 +184,13 @@ public class DAOBill {
         return bills;
     }
 
-    // Lấy hóa đơn theo ID
+        // Lấy hóa đơn theo ID
     public Bill getBillById(int id) {
-        String sql = "SELECT * FROM tbBills WHERE ID = ?";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.ID = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -162,13 +199,17 @@ public class DAOBill {
                 bill.setId(rs.getInt("ID"));
                 bill.setTenantName(rs.getString("TenantName"));
                 bill.setRoomNumber(rs.getString("RoomNumber"));
+                bill.setRoomCost(rs.getDouble("RoomCost") != 0 ? rs.getDouble("RoomCost") : 0);
                 bill.setElectricityCost(rs.getDouble("ElectricityCost"));
                 bill.setWaterCost(rs.getDouble("WaterCost"));
                 bill.setServiceCost(rs.getDouble("ServiceCost"));
+                bill.setOtherServiceCost(rs.getDouble("OtherServiceCost") != 0 ? rs.getDouble("OtherServiceCost") : 0);
                 bill.setTotal(rs.getDouble("Total"));
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 return bill;
             }
         } catch (SQLException e) {
@@ -180,17 +221,19 @@ public class DAOBill {
 
     // Cập nhật hóa đơn
     public void updateBill(Bill bill) {
-        String sql = "UPDATE tbBills SET TenantName = ?, RoomNumber = ?, ElectricityCost = ?, WaterCost = ?, ServiceCost = ?, Total = ?, DueDate = ?, Status = ? WHERE ID = ?";
+        String sql = "UPDATE tbBills SET TenantName = ?, RoomNumber = ?, RoomCost = ?, ElectricityCost = ?, WaterCost = ?, ServiceCost = ?, OtherServiceCost = ?, Total = ?, DueDate = ?, Status = ? WHERE ID = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, bill.getTenantName());
             ps.setString(2, bill.getRoomNumber());
-            ps.setDouble(3, bill.getElectricityCost());
-            ps.setDouble(4, bill.getWaterCost());
-            ps.setDouble(5, bill.getServiceCost());
-            ps.setDouble(6, bill.getTotal());
-            ps.setString(7, bill.getDueDate());
-            ps.setString(8, bill.getStatus());
-            ps.setInt(9, bill.getId());
+            ps.setDouble(3, bill.getRoomCost());
+            ps.setDouble(4, bill.getElectricityCost());
+            ps.setDouble(5, bill.getWaterCost());
+            ps.setDouble(6, bill.getServiceCost());
+            ps.setDouble(7, bill.getOtherServiceCost());
+            ps.setDouble(8, bill.getTotal());
+            ps.setString(9, bill.getDueDate());
+            ps.setString(10, bill.getStatus());
+            ps.setInt(11, bill.getId());
             ps.executeUpdate();
             System.out.println("✅ Cập nhật hóa đơn thành công!");
         } catch (SQLException e) {
@@ -215,7 +258,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo tên người thuê (không phân trang)
     public ArrayList<Bill> searchBillsByTenantName(String tenantName) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT * FROM tbBills WHERE TenantName LIKE ? ORDER BY CreatedDate DESC";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.TenantName LIKE ? ORDER BY b.CreatedDate DESC";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + tenantName + "%");
             ResultSet rs = ps.executeQuery();
@@ -231,6 +278,8 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -243,7 +292,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo tên người thuê (có phân trang)
     public ArrayList<Bill> searchBillsByTenantName(String tenantName, int page, int billsPerPage) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT * FROM tbBills WHERE TenantName LIKE ? ORDER BY CreatedDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.TenantName LIKE ? ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + tenantName + "%");
             ps.setInt(2, (page - 1) * billsPerPage);
@@ -261,6 +314,8 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -272,7 +327,11 @@ public class DAOBill {
 
     // Đếm số hóa đơn theo tên người thuê
     public int countBillsByTenantName(String tenantName) {
-        String sql = "SELECT COUNT(*) FROM tbBills WHERE TenantName LIKE ?";
+        String sql = "SELECT COUNT(*) FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.TenantName LIKE ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + tenantName + "%");
             ResultSet rs = ps.executeQuery();
@@ -289,7 +348,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo số phòng (không phân trang)
     public ArrayList<Bill> searchBillsByRoomNumber(String roomNumber) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT * FROM tbBills WHERE RoomNumber LIKE ? ORDER BY CreatedDate DESC";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.RoomNumber LIKE ? ORDER BY b.CreatedDate DESC";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + roomNumber + "%");
             ResultSet rs = ps.executeQuery();
@@ -305,6 +368,8 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -317,7 +382,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo số phòng (có phân trang)
     public ArrayList<Bill> searchBillsByRoomNumber(String roomNumber, int page, int billsPerPage) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT * FROM tbBills WHERE RoomNumber LIKE ? ORDER BY CreatedDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.RoomNumber LIKE ? ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + roomNumber + "%");
             ps.setInt(2, (page - 1) * billsPerPage);
@@ -335,6 +404,8 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -346,7 +417,11 @@ public class DAOBill {
 
     // Đếm số hóa đơn theo số phòng
     public int countBillsByRoomNumber(String roomNumber) {
-        String sql = "SELECT COUNT(*) FROM tbBills WHERE RoomNumber LIKE ?";
+        String sql = "SELECT COUNT(*) FROM tbBills b " +
+                     "JOIN rooms r ON b.RoomID = r.room_id " +
+                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                     "JOIN users u ON ra.manager_id = u.user_id " +
+                     "WHERE b.RoomNumber LIKE ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + roomNumber + "%");
             ResultSet rs = ps.executeQuery();
@@ -369,17 +444,41 @@ public class DAOBill {
         }
 
         int roleID = user.getRoleId();
-        String tenantName = user.getFullName();
-        String sql = (roleID != 3) ? 
-            "SELECT * FROM tbBills WHERE Status = ? ORDER BY CreatedDate DESC" : 
-            "SELECT * FROM tbBills WHERE Status = ? AND TenantName = ? ORDER BY CreatedDate DESC";
+        int tenantId = user.getUserId();
+        int managerId = user.getUserId();
+        String sql;
+        if (roleID == 2) {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE ra.manager_id = ? AND b.Status = ? " +
+                  "ORDER BY b.CreatedDate DESC";
+        } else if (roleID == 3) {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.TenantID = ? AND b.Status = ? " +
+                  "ORDER BY b.CreatedDate DESC";
+        } else {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.Status = ? " +
+                  "ORDER BY b.CreatedDate DESC";
+        }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            if (roleID != 3) {
-                ps.setString(1, status);
+            if (roleID == 2) {
+                ps.setInt(1, managerId);
+                ps.setString(2, status);
+            } else if (roleID == 3) {
+                ps.setInt(1, tenantId);
+                ps.setString(2, status);
             } else {
                 ps.setString(1, status);
-                ps.setString(2, tenantName);
             }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -388,12 +487,14 @@ public class DAOBill {
                 bill.setTenantName(rs.getString("TenantName"));
                 bill.setRoomNumber(rs.getString("RoomNumber"));
                 bill.setElectricityCost(rs.getDouble("ElectricityCost"));
-                bill.setWaterCost(rs.getDouble("WaterCost")); // Đã thêm
-                bill.setServiceCost(rs.getDouble("ServiceCost")); // Đã thêm
+                bill.setWaterCost(rs.getDouble("WaterCost"));
+                bill.setServiceCost(rs.getDouble("ServiceCost"));
                 bill.setTotal(rs.getDouble("Total"));
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -410,29 +511,49 @@ public class DAOBill {
             System.err.println("❌ Không tìm thấy thông tin người dùng!");
             return bills;
         }
-        if(status.equals("Đã thanh toán")){
-            status = "Paid";
-        }
-        else{
-            status = "Unpaid";
-        }
 
         int roleID = user.getRoleId();
-        String tenantName = user.getFullName();
-        String sql = (roleID != 3) ? 
-            "SELECT * FROM tbBills WHERE Status = ? ORDER BY CreatedDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY" : 
-            "SELECT * FROM tbBills WHERE Status = ? AND TenantName = ? ORDER BY CreatedDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        int tenantId = user.getUserId();
+        int managerId = user.getUserId();
+        String sql;
+        if (roleID == 2) {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE ra.manager_id = ? AND b.Status = ? " +
+                  "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else if (roleID == 3) {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.TenantID = ? AND b.Status = ? " +
+                  "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else {
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.Status = ? " +
+                  "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            if (roleID != 3) {
+            if (roleID == 2) {
+                ps.setInt(1, managerId);
+                ps.setString(2, status);
+                ps.setInt(3, (page - 1) * billsPerPage);
+                ps.setInt(4, billsPerPage);
+            } else if (roleID == 3) {
+                ps.setInt(1, tenantId);
+                ps.setString(2, status);
+                ps.setInt(3, (page - 1) * billsPerPage);
+                ps.setInt(4, billsPerPage);
+            } else {
                 ps.setString(1, status);
                 ps.setInt(2, (page - 1) * billsPerPage);
                 ps.setInt(3, billsPerPage);
-            } else {
-                ps.setString(1, status);
-                ps.setString(2, tenantName);
-                ps.setInt(3, (page - 1) * billsPerPage);
-                ps.setInt(4, billsPerPage);
             }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -447,6 +568,8 @@ public class DAOBill {
                 bill.setDueDate(rs.getString("DueDate"));
                 bill.setStatus(rs.getString("Status"));
                 bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setManagerName(rs.getString("managerName"));
                 bills.add(bill);
             }
         } catch (SQLException e) {
@@ -464,17 +587,38 @@ public class DAOBill {
         }
 
         int roleID = user.getRoleId();
-        String tenantName = user.getFullName();
-        String sql = (roleID != 3) ? 
-            "SELECT COUNT(*) FROM tbBills WHERE Status = ?" : 
-            "SELECT COUNT(*) FROM tbBills WHERE Status = ? AND TenantName = ?";
+        int tenantId = user.getUserId();
+        int managerId = user.getUserId();
+        String sql;
+        if (roleID == 2) {
+            sql = "SELECT COUNT(*) FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE ra.manager_id = ? AND b.Status = ?";
+        } else if (roleID == 3) {
+            sql = "SELECT COUNT(*) FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.TenantID = ? AND b.Status = ?";
+        } else {
+            sql = "SELECT COUNT(*) FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.Status = ?";
+        }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            if (roleID != 3) {
-                ps.setString(1, status);
+            if (roleID == 2) {
+                ps.setInt(1, managerId);
+                ps.setString(2, status);
+            } else if (roleID == 3) {
+                ps.setInt(1, tenantId);
+                ps.setString(2, status);
             } else {
                 ps.setString(1, status);
-                ps.setString(2, tenantName);
             }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -508,14 +652,33 @@ public class DAOBill {
             return 0;
         }
         int roleID = user.getRoleId();
-        String tenantName = user.getFullName();
-        String sql = (roleID != 3) ? 
-            "SELECT COUNT(*) FROM tbBills" : 
-            "SELECT COUNT(*) FROM tbBills WHERE TenantName = ?";
-       
+        int tenantId = user.getUserId();
+        int managerId = user.getUserId();
+        String sql;
+        if (roleID == 2) {
+            sql = "SELECT COUNT(*) FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE ra.manager_id = ?";
+        } else if (roleID == 3) {
+            sql = "SELECT COUNT(*) FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id " +
+                  "WHERE b.TenantID = ?";
+        } else {
+            sql = "SELECT COUNT(*) FROM tbBills b " +
+                  "JOIN rooms r ON b.RoomID = r.room_id " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "JOIN users u ON ra.manager_id = u.user_id";
+        }
+
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            if (roleID == 3) { // Sửa điều kiện từ != 1 thành == 3
-                ps.setString(1, tenantName);
+            if (roleID == 2) {
+                ps.setInt(1, managerId);
+            } else if (roleID == 3) {
+                ps.setInt(1, tenantId);
             }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -530,49 +693,77 @@ public class DAOBill {
 
     // Phân trang hóa đơn
     public ArrayList<Bill> getBillsByPage(Users user, int page, int billsPerPage) {
-        ArrayList<Bill> bills = new ArrayList<>();
-        if (user == null) {
-            System.err.println("❌ Không tìm thấy thông tin người dùng!");
-            return bills;
-        }
-
-        int roleID = user.getRoleId();
-        String tenantName = user.getFullName();
-        String sql = (roleID != 3) ? 
-            "SELECT * FROM tbBills ORDER BY CreatedDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY" : 
-            "SELECT * FROM tbBills WHERE TenantName = ? ORDER BY CreatedDate DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
-        try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            if (roleID != 3) {
-                ps.setInt(1, (page - 1) * billsPerPage);
-                ps.setInt(2, billsPerPage);
-            } else {
-                ps.setString(1, tenantName);
-                ps.setInt(2, (page - 1) * billsPerPage);
-                ps.setInt(3, billsPerPage);
-            }
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Bill bill = new Bill();
-                bill.setId(rs.getInt("ID"));
-                bill.setTenantName(rs.getString("TenantName"));
-                bill.setRoomNumber(rs.getString("RoomNumber"));
-                bill.setElectricityCost(rs.getDouble("ElectricityCost"));
-                bill.setWaterCost(rs.getDouble("WaterCost"));
-                bill.setServiceCost(rs.getDouble("ServiceCost"));
-                bill.setTotal(rs.getDouble("Total"));
-                bill.setDueDate(rs.getString("DueDate"));
-                bill.setStatus(rs.getString("Status"));
-                bill.setCreatedDate(rs.getString("CreatedDate"));
-                bills.add(bill);
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Lỗi phân trang hóa đơn: " + e.getMessage());
-            e.printStackTrace();
-        }
+    ArrayList<Bill> bills = new ArrayList<>();
+    if (user == null) {
+        System.err.println("❌ Không tìm thấy thông tin người dùng!");
         return bills;
     }
 
+    int roleID = user.getRoleId();
+    int tenantId = user.getUserId();
+    int managerId = user.getUserId();
+    String sql;
+    if (roleID == 2) {
+        sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b " +
+              "JOIN rooms r ON b.RoomID = r.room_id " +
+              "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+              "JOIN users u ON ra.manager_id = u.user_id " +
+              "WHERE ra.manager_id = ? " +
+              "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    } else if (roleID == 3) {
+        sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b " +
+              "JOIN rooms r ON b.RoomID = r.room_id " +
+              "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+              "JOIN users u ON ra.manager_id = u.user_id " +
+              "WHERE b.TenantID = ? " +
+              "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    } else {
+        sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b " +
+              "JOIN rooms r ON b.RoomID = r.room_id " +
+              "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+              "JOIN users u ON ra.manager_id = u.user_id " +
+              "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    }
+
+    try (PreparedStatement ps = connect.prepareStatement(sql)) {
+        if (roleID == 2) {
+            ps.setInt(1, managerId);
+            ps.setInt(2, (page - 1) * billsPerPage);
+            ps.setInt(3, billsPerPage);
+        } else if (roleID == 3) {
+            ps.setInt(1, tenantId);
+            ps.setInt(2, (page - 1) * billsPerPage);
+            ps.setInt(3, billsPerPage);
+        } else {
+            ps.setInt(1, (page - 1) * billsPerPage);
+            ps.setInt(2, billsPerPage);
+        }
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Bill bill = new Bill();
+            bill.setId(rs.getInt("ID"));
+            bill.setTenantName(rs.getString("TenantName"));
+            bill.setRoomNumber(rs.getString("RoomNumber"));
+            bill.setRoomCost(rs.getDouble("RoomCost") != 0 ? rs.getDouble("RoomCost") : 0);
+            bill.setElectricityCost(rs.getDouble("ElectricityCost"));
+            bill.setWaterCost(rs.getDouble("WaterCost"));
+            bill.setServiceCost(rs.getDouble("ServiceCost"));
+            bill.setOtherServiceCost(rs.getDouble("OtherServiceCost") != 0 ? rs.getDouble("OtherServiceCost") : 0);
+            bill.setTotal(rs.getDouble("Total"));
+            bill.setDueDate(rs.getString("DueDate"));
+            bill.setStatus(rs.getString("Status"));
+            bill.setCreatedDate(rs.getString("CreatedDate"));
+            bill.setEmailTelnant(rs.getString("EmailTelnant"));
+            bill.setEmailManager(rs.getString("email"));
+            bill.setManagerName(rs.getString("managerName")); // Thêm dòng này, cần có setManagerName trong Bill
+            bills.add(bill);
+        }
+    } catch (SQLException e) {
+        System.err.println("❌ Lỗi phân trang hóa đơn: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return bills;
+}
     // Tính tổng số trang
     public int getTotalPages(Users user, int billsPerPage) {
         if (billsPerPage < 1) {
@@ -584,7 +775,6 @@ public class DAOBill {
 
     // Tính tổng doanh thu (chỉ dành cho quản lý)
     public double getTotalRevenue(Users user) {
-        
 
         String sql = "SELECT SUM(Total) FROM tbBills WHERE Status = 'Paid'";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -618,8 +808,7 @@ public class DAOBill {
         }
 
         String sql = "SELECT DISTINCT TenantName FROM tbBills ORDER BY TenantName";
-        try (PreparedStatement ps = connect.prepareStatement(sql); 
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connect.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 tenants.add(rs.getString("TenantName"));
             }
@@ -639,8 +828,7 @@ public class DAOBill {
         }
 
         String sql = "SELECT DISTINCT RoomNumber FROM tbBills ORDER BY RoomNumber";
-        try (PreparedStatement ps = connect.prepareStatement(sql); 
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connect.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 rooms.add(rs.getString("RoomNumber"));
             }

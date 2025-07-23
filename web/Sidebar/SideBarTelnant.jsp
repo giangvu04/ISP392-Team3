@@ -39,14 +39,26 @@
                 <i class="fas fa-concierge-bell me-2"></i>
                 Dịch vụ đã đăng ký
             </a>
-            <a class="nav-link" href="maintenance">
+            <a class="nav-link" href="maintenanceList">
                 <i class="fas fa-tools me-2"></i>
                 Báo sửa chữa
             </a>
+            <a class="nav-link" href="reportIssue">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Báo cáo sự cố
+            </a>
+            <a class="nav-link" href="myViewingRequests">
+                <i class="fas fa-user-cog me-2"></i>
+                Danh sách yêu cầu
+            </a>
             <hr class="text-white-50">
-            <a class="nav-link" href="profile">
+            <a class="nav-link" href="profileTelnant">
                 <i class="fas fa-user-cog me-2"></i>
                 Hồ sơ cá nhân
+            </a>
+            <a class="nav-link" href="trangchu">
+                <i class="fas fa-user-cog me-2"></i>
+                Trang chủ
             </a>
             <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt me-2"></i>
