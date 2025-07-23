@@ -94,7 +94,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Tìm kiếm
                                 </button>
-                                <a href="BillServlet?action=list" class="btn btn-secondary">
+                                <a href="listbills" class="btn btn-secondary">
                                     <i class="fas fa-refresh"></i> Làm mới
                                 </a>
                             </div>
@@ -117,9 +117,11 @@
                                 <th>ID</th>
                                 <th>Tên người thuê</th>
                                 <th>Số phòng</th>
+                                <th>Tiền phòng</th>
                                 <th>Tiền điện</th>
                                 <th>Tiền nước</th>
                                 <th>Phí dịch vụ</th>
+                                <th>Dịch vụ khác</th>
                                 <th>Tổng tiền</th>
                                 <th>Hạn thanh toán</th>
                                 <th>Trạng thái</th>
@@ -133,9 +135,11 @@
                                     <td>${bill.id}</td>
                                     <td>${bill.tenantName}</td>
                                     <td><span class="badge bg-info">${bill.roomNumber}</span></td>
+                                    <td><fmt:formatNumber value="${bill.roomCost}" type="currency" currencySymbol="₫"/></td>
                                     <td><fmt:formatNumber value="${bill.electricityCost}" type="currency" currencySymbol="₫"/></td>
                                     <td><fmt:formatNumber value="${bill.waterCost}" type="currency" currencySymbol="₫"/></td>
                                     <td><fmt:formatNumber value="${bill.serviceCost}" type="currency" currencySymbol="₫"/></td>
+                                    <td><fmt:formatNumber value="${bill.otherServiceCost}" type="currency" currencySymbol="₫"/></td>
                                     <td><strong><fmt:formatNumber value="${bill.total}" type="currency" currencySymbol="₫"/></strong></td>
                                     <td>${bill.dueDate}</td>
                                     <td>

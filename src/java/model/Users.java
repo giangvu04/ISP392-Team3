@@ -1,3 +1,4 @@
+
 package model;
 
 import java.sql.Date;
@@ -19,8 +20,29 @@ public class Users {
     private boolean isActive;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private int roomId;
+    private String roomNumber;
+    private int rentalAreaId;
+    private String rentalAreaName;
+
+    public int getRoomId() { return roomId; }
+    public void setRoomId(int roomId) { this.roomId = roomId; }
+    public String getRoomNumber() { return roomNumber; }
+    public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
+    public int getRentalAreaId() { return rentalAreaId; }
+    public void setRentalAreaId(int rentalAreaId) { this.rentalAreaId = rentalAreaId; }
+    public String getRentalAreaName() { return rentalAreaName; }
+    public void setRentalAreaName(String rentalAreaName) { this.rentalAreaName = rentalAreaName; }
 
     public Users() {
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public Users(int userId, int roleId, String fullName, String phoneNumber, String email, 

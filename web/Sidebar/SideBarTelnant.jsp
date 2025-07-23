@@ -27,26 +27,38 @@
                 <i class="fas fa-bed me-2"></i>
                 Xem phòng
             </a>
-<!--            <a class="nav-link" href="listcontracts">
+            <a class="nav-link" href="mycontract">
                 <i class="fas fa-file-contract me-2"></i>
                 Hợp đồng của tôi
-            </a>-->
+            </a>
             <a class="nav-link" href="listbills">
                 <i class="fas fa-receipt me-2"></i>
                 Hóa đơn của tôi
             </a>
-<!--            <a class="nav-link" href="myservices">
+            <a class="nav-link" href="myservices">
                 <i class="fas fa-concierge-bell me-2"></i>
                 Dịch vụ đã đăng ký
-            </a>-->
-<!--            <a class="nav-link" href="maintenance">
+            </a>
+            <a class="nav-link" href="maintenanceList">
                 <i class="fas fa-tools me-2"></i>
                 Báo sửa chữa
-            </a>-->
+            </a>
+            <a class="nav-link" href="reportIssue">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Báo cáo sự cố
+            </a>
+            <a class="nav-link" href="myViewingRequests">
+                <i class="fas fa-user-cog me-2"></i>
+                Danh sách yêu cầu
+            </a>
             <hr class="text-white-50">
             <a class="nav-link" href="profileTelnant">
                 <i class="fas fa-user-cog me-2"></i>
                 Hồ sơ cá nhân
+            </a>
+            <a class="nav-link" href="trangchu">
+                <i class="fas fa-user-cog me-2"></i>
+                Trang chủ
             </a>
             <a class="nav-link" href="logout">
                 <i class="fas fa-sign-out-alt me-2"></i>
