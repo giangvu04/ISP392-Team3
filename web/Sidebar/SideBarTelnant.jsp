@@ -67,3 +67,4 @@
         </nav>
     </div>
 </div>
+                <jsp:include page="../Sidebar/Chatbot.jsp"/>
