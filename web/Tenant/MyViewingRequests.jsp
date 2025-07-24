@@ -176,7 +176,7 @@
                                             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                             <h5 class="text-muted">Chưa có yêu cầu xem phòng nào</h5>
                                             <p class="text-muted">Bắt đầu tìm kiếm và gửi yêu cầu xem các phòng trọ bạn quan tâm.</p>
-                                            <a href="../searchRooms" class="btn btn-primary">
+                                            <a href="listrooms" class="btn btn-primary">
                                                 <i class="fas fa-search mr-2"></i>
                                                 Tìm phòng trọ
                                             </a>

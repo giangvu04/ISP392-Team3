@@ -58,7 +58,17 @@
         <div class="body">
             <div class="body-container">
                 <!-- Menu Sidebar - Manager Version -->
-                <jsp:include page="../Sidebar/SideBarManager.jsp"/>
+                <div class="mainmenu">
+                    <ul class="mainmenu-list row no-gutters">
+                        <li class="mainmenu__list-item"><a href="listrooms"><i class="fa-solid fa-door-closed list-item-icon"></i>Phòng</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-users list-item-icon"></i>Người thuê</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-file-signature list-item-icon"></i>Hợp đồng</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-receipt list-item-icon"></i>Hóa đơn</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-bell-concierge list-item-icon"></i>Dịch vụ</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-screwdriver-wrench list-item-icon"></i>Bảo trì</a></li>
+                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-chart-pie list-item-icon"></i>Báo cáo</a></li>
+                    </ul>
+                </div>
 
                 <!-- Main Content -->
                 <div class="homepage-body">
@@ -171,6 +181,7 @@
                 <p>&copy; 2025 Công ty TNHH G3. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
+        <jsp:include page="../Message.jsp"/>
 
         <!-- Toast Message Script -->
         <script>
