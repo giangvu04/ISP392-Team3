@@ -4,33 +4,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Add New Room</title>
+        <base href="${pageContext.request.contextPath}/">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="css/rooms.css" rel="stylesheet">
         <style>
-            :root {
-                --primary-gradient: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
-                --sidebar-bg: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
-                --card-shadow: 0 6px 10px rgba(0,0,0,0.08);
-            }
-
-            .sidebar {
-                min-height: 100vh;
-                background: var(--sidebar-bg);
-            }
-
-            .sidebar .navLink {
-                color: rgba(255,255,255,0.85);
-                padding: 12px 20px;
-                margin: 4px 0;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-            }
-
-            .sidebar .navLink:hover,
-            .sidebar .navLink.active {
-                background-color: rgba(255,255,255,0.15);
-                color: white;
-                transform: translateX(5px);
-            }
 
             .mainContent {
                 background-color: #f5f7ff;
@@ -77,27 +55,7 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <div class="col-md-3 col-lg-2 d-md-block sidebar collapse" style="background: var(--sidebar-bg);">
-                    <div class="position-sticky pt-3">
-                        <ul class="nav flex-column">
-                            <li class="navItem">
-                                <a class="navLink" href="ManagerHomepage">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="navItem">
-                                <a class="navLink active" href="listrooms">
-                                    <i class="fas fa-door-open me-2"></i>Quản lý Phòng
-                                </a>
-                            </li>
-                            <li class="navItem">
-                                <a class="navLink" href="#">
-                                    <i class="fas fa-users me-2"></i>Quản lý Người thuê
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                <jsp:include page="../Sidebar/SideBarManager.jsp"/>
 
                 <!-- Main content -->
                 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mainContent">
