@@ -45,6 +45,9 @@ public class ListContractsServlet extends HttpServlet {
                 case "add":
                     showAddForm(request, response);
                     break;
+                case "edit_status":
+                    editStatus(request, response);
+                    break;
                 case "edit":
                     showEditForm(request, response);
                     break;
@@ -65,6 +68,7 @@ public class ListContractsServlet extends HttpServlet {
                     break;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             handleError(request, response, "Lỗi xử lý yêu cầu: " + e.getMessage());
         }
     }
@@ -497,7 +501,8 @@ public class ListContractsServlet extends HttpServlet {
             String depositAmountStr = request.getParameter("depositAmount");
             String statusStr = request.getParameter("status");
             String note = request.getParameter("note");
-            
+            String newEndDateStr = request.getParameter("newEndDate"); // lấy ngày kết thúc mới từ form gia hạn
+
             if (contractIdStr == null || contractIdStr.isEmpty()) {
                 setErrorMessage(request, "ID hợp đồng không hợp lệ");
                 response.sendRedirect("listcontracts?action=list");
@@ -505,29 +510,36 @@ public class ListContractsServlet extends HttpServlet {
             }
             
             int contractId = Integer.parseInt(contractIdStr);
-            
+
             // Validation
             if (roomIdStr == null || roomIdStr.trim().isEmpty()) {
                 setErrorMessage(request, "ID phòng không được để trống");
                 response.sendRedirect("listcontracts?action=edit&id=" + contractId);
                 return;
             }
-            
+
             if (tenantIdStr == null || tenantIdStr.trim().isEmpty()) {
                 setErrorMessage(request, "ID người thuê không được để trống");
                 response.sendRedirect("listcontracts?action=edit&id=" + contractId);
                 return;
             }
-            
+
             int roomId = Integer.parseInt(roomIdStr);
             int tenantId = Integer.parseInt(tenantIdStr);
             Date startDate = Date.valueOf(startDateStr);
-            Date endDate = endDateStr != null && !endDateStr.trim().isEmpty() ? Date.valueOf(endDateStr) : null;
             BigDecimal rentPrice = new BigDecimal(rentPriceStr);
             BigDecimal depositAmount = depositAmountStr != null && !depositAmountStr.trim().isEmpty() ? 
                                      new BigDecimal(depositAmountStr) : BigDecimal.ZERO;
             int status = statusStr != null && !statusStr.trim().isEmpty() ? Integer.parseInt(statusStr) : 1;
-            
+
+            // Xử lý ngày kết thúc mới (ưu tiên newEndDate nếu có)
+            Date endDate = null;
+            if (newEndDateStr != null && !newEndDateStr.trim().isEmpty()) {
+                endDate = Date.valueOf(newEndDateStr);
+            } else if (endDateStr != null && !endDateStr.trim().isEmpty()) {
+                endDate = Date.valueOf(endDateStr);
+            }
+
             // Cập nhật hợp đồng
             Contracts contract = new Contracts();
             contract.setContractId(contractId);
@@ -543,24 +555,29 @@ public class ListContractsServlet extends HttpServlet {
             if (note != null && !note.trim().isEmpty()) {
                 contract.setNote(note.trim());
             } else {
-            contract.setNote(null); // Trả về null thay vì chuỗi rỗng
+                contract.setNote(null); // Trả về null thay vì chuỗi rỗng
             }
 
             contractDAO.updateContract(contract);
 
             setSuccessMessage(request, "Cập nhật hợp đồng thành công!");
             response.sendRedirect("listcontracts?action=list");
-            
+            return;
         } catch (NumberFormatException e) {
             setErrorMessage(request, "Dữ liệu nhập không hợp lệ");
             String contractIdStr = request.getParameter("contractId");
             response.sendRedirect("listcontracts?action=edit&id=" + contractIdStr);
+            return;
         } catch (IllegalArgumentException e) {
             setErrorMessage(request, e.getMessage());
             String contractIdStr = request.getParameter("contractId");
             response.sendRedirect("listcontracts?action=edit&id=" + contractIdStr);
+            return;
         } catch (Exception e) {
-            handleError(request, response, "Lỗi khi cập nhật hợp đồng: " + e.getMessage());
+            setErrorMessage(request, "Lỗi khi cập nhật hợp đồng: " + e.getMessage());
+            String contractIdStr = request.getParameter("contractId");
+            response.sendRedirect("listcontracts?action=edit&id=" + contractIdStr);
+            return;
         }
     }
     
@@ -621,6 +638,26 @@ public class ListContractsServlet extends HttpServlet {
     private void handleError(HttpServletRequest request, HttpServletResponse response, String errorMessage)
             throws ServletException, IOException {
         request.setAttribute("errorMessage", errorMessage);
+        
         request.getRequestDispatcher("/error.jsp").forward(request, response);
+    }
+
+    private void editStatus(HttpServletRequest request, HttpServletResponse response) {
+        String rId = request.getParameter("id");
+        try {
+            int contractID = Integer.parseInt(rId);
+            boolean isSuccessed = DAOContract.INSTANCE.updateStatusContract(0, contractID);
+            if(isSuccessed){
+                request.setAttribute("ms", "Cập nhật trạng thái hợp đồng thành công");
+                response.sendRedirect("listcontracts");
+            }
+            else{
+                request.setAttribute("error", "Cập nhật trạng thái hợp đồng không thành công");
+                response.sendRedirect("listcontracts");
+            }
+        } catch (Exception e) {
+        }
+    
+    
     }
 }

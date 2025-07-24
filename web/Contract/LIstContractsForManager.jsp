@@ -16,64 +16,7 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 px-0">
-                <div class="sidebar p-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white mb-0">
-                            <i class="fas fa-building me-2"></i>
-                            Manager Panel
-                        </h4>
-                    </div>
-                    
-                    <!-- User Info -->
-                    <div class="text-center mb-4">
-                        <i class="fas fa-user-circle fa-3x text-white mb-2"></i>
-                        <h6 class="text-white mb-1">${currentUser.fullName}</h6>
-                        <small class="text-white-50">Manager</small>
-                    </div>
-                    
-                    <!-- Navigation -->
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="ManagerHomepage">
-                            <i class="fas fa-tachometer-alt me-2"></i>
-                            Dashboard
-                        </a>
-                        <a class="nav-link" href="listrooms">
-                            <i class="fas fa-bed me-2"></i>
-                            Quản lý Phòng
-                        </a>
-                        <a class="nav-link" href="listusers?role=3">
-                            <i class="fas fa-users me-2"></i>
-                            Quản lý Người thuê
-                        </a>
-                        <a class="nav-link active" href="listcontracts">
-                            <i class="fas fa-file-contract me-2"></i>
-                            Hợp đồng
-                        </a>
-                        <a class="nav-link" href="listbills">
-                            <i class="fas fa-receipt me-2"></i>
-                            Hóa đơn
-                        </a>
-                        <a class="nav-link" href="listdevices">
-                            <i class="fas fa-tools me-2"></i>
-                            Thiết bị
-                        </a>
-                        <a class="nav-link" href="listservices">
-                            <i class="fas fa-concierge-bell me-2"></i>
-                            Dịch vụ
-                        </a>
-                        <hr class="text-white-50">
-                        <a class="nav-link" href="profile">
-                            <i class="fas fa-user-cog me-2"></i>
-                            Hồ sơ cá nhân
-                        </a>
-                        <a class="nav-link" href="logout">
-                            <i class="fas fa-sign-out-alt me-2"></i>
-                            Đăng xuất
-                        </a>
-                    </nav>
-                </div>
-            </div>
+            <jsp:include page="../Sidebar/SideBarManager.jsp"/>
             
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10">
@@ -360,7 +303,7 @@
                                                                         class="btn btn-sm btn-outline-danger" 
                                                                         title="Xóa hợp đồng"
                                                                         onclick="confirmDelete(${contract.contractId}, 'Hợp đồng phòng ${contract.roomID}')">
-                                                                    <i class="fas fa-trash"></i>
+                                                                    <i class="fas fa-toggle-off"></i>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -438,15 +381,15 @@
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title" id="deleteModalLabel">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Xác nhận xóa
+                        <i class="fas fa-exclamation-triangle me-2"></i>Xác nhận hủy
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa <strong id="contractNameToDelete"></strong> không?</p>
+                    <p>Bạn có chắc chắn muốn dừng <strong id="contractNameToDelete"></strong> không?</p>
                     <div class="alert alert-warning">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Lưu ý:</strong> Thao tác này sẽ xóa hợp đồng và không thể hoàn tác.
+                        <strong>Lưu ý:</strong> Thao tác này sẽ trì hoãn hợp đồng và không thể hoàn tác.
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -454,7 +397,7 @@
                         <i class="fas fa-times me-2"></i>Hủy
                     </button>
                     <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
-                        <i class="fas fa-trash me-2"></i>Xóa hợp đồng
+                        <i class="fas fa-trash me-2"></i>Hủy hợp đồng
                     </a>
                 </div>
             </div>
@@ -469,7 +412,7 @@
         function confirmDelete(contractId, contractName) {
             document.getElementById('contractNameToDelete').textContent = contractName;
             document.getElementById('confirmDeleteBtn').href = 
-                '${pageContext.request.contextPath}/listcontracts?action=delete&id=' + contractId;
+                '${pageContext.request.contextPath}/listcontracts?action=edit_status&id=' + contractId;
             
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();

@@ -34,6 +34,20 @@ public class DAOContract {
         }
         return contracts;
     }
+    public boolean updateStatusContract(int status, int contractID) {
+        String sql = "UPDATE dbo.contracts SET status = ? WHERE contract_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, status);
+            ps.setInt(2, contractID);
+            int row = ps.executeUpdate();
+            if(row>0){
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy hợp đồng theo status và tenant: " + e.getMessage());
+        }
+        return false;
+    }
 
     /**
      * Lấy hợp đồng active mới nhất của một phòng (roomId), status = 1
