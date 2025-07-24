@@ -259,25 +259,36 @@ public class DAORooms {
         }
     }
 
-    // Get rooms by page (for pagination) - support multiple rentalAreaIds
-    public ArrayList<Rooms> getRoomsByPage(int page, int roomsPerPage, List<Integer> rentalAreaIds) {
+    // Get rooms by page (for pagination) - support role-based access
+    public ArrayList<Rooms> getRoomsByPage(int page, int roomsPerPage, int userId, int roleId) {
         ArrayList<Rooms> rooms = new ArrayList<>();
-        if (rentalAreaIds == null || rentalAreaIds.isEmpty()) return rooms;
-        StringBuilder sql = new StringBuilder("SELECT r.*, ra.name as rental_area_name "
-                + "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
-                + "WHERE r.rental_area_id IN (");
-        for (int i = 0; i < rentalAreaIds.size(); i++) {
-            sql.append("?");
-            if (i < rentalAreaIds.size() - 1) sql.append(",");
+        String sql;
+        
+        if (roleId == 1) {
+            // Admin: load tất cả phòng
+            sql = "SELECT r.*, ra.name as rental_area_name " +
+                  "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else {
+            // Manager: chỉ load phòng thuộc khu trọ của manager
+            sql = "SELECT r.*, ra.name as rental_area_name " +
+                  "FROM rooms r JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "WHERE ra.manager_id = ? " +
+                  "ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         }
-        sql.append(") ORDER BY r.room_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-        try (PreparedStatement ps = connect.prepareStatement(sql.toString())) {
-            int idx = 1;
-            for (Integer id : rentalAreaIds) {
-                ps.setInt(idx++, id);
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (roleId == 1) {
+                // Admin: chỉ cần set pagination parameters
+                ps.setInt(1, (page - 1) * roomsPerPage);
+                ps.setInt(2, roomsPerPage);
+            } else {
+                // Manager: set manager_id và pagination parameters
+                ps.setInt(1, userId);
+                ps.setInt(2, (page - 1) * roomsPerPage);
+                ps.setInt(3, roomsPerPage);
             }
-            ps.setInt(idx++, (page - 1) * roomsPerPage);
-            ps.setInt(idx, roomsPerPage);
+            
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Rooms room = new Rooms();
@@ -290,6 +301,7 @@ public class DAORooms {
                 room.setStatus(rs.getInt("status"));
                 room.setDescription(rs.getString("description"));
                 room.setRentalAreaName(rs.getString("rental_area_name"));
+                room.setImageUrl(rs.getString("imageUrl"));
                 rooms.add(room);
             }
         } catch (SQLException e) {
@@ -298,20 +310,26 @@ public class DAORooms {
         return rooms;
     }
 
-    // Get total count of rooms (for pagination) - support multiple rentalAreaIds
-    public int getTotalRooms(List<Integer> rentalAreaIds) {
-        if (rentalAreaIds == null || rentalAreaIds.isEmpty()) return 0;
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM rooms WHERE rental_area_id IN (");
-        for (int i = 0; i < rentalAreaIds.size(); i++) {
-            sql.append("?");
-            if (i < rentalAreaIds.size() - 1) sql.append(",");
+    // Get total count of rooms (for pagination) - support role-based access
+    public int getTotalRooms(int userId, int roleId) {
+        String sql;
+        
+        if (roleId == 1) {
+            // Admin: đếm tất cả phòng
+            sql = "SELECT COUNT(*) FROM rooms";
+        } else {
+            // Manager: chỉ đếm phòng thuộc khu trọ của manager
+            sql = "SELECT COUNT(*) FROM rooms r " +
+                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
+                  "WHERE ra.manager_id = ?";
         }
-        sql.append(")");
-        try (PreparedStatement ps = connect.prepareStatement(sql.toString())) {
-            int idx = 1;
-            for (Integer id : rentalAreaIds) {
-                ps.setInt(idx++, id);
+        
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (roleId != 1) {
+                // Manager: set manager_id
+                ps.setInt(1, userId);
             }
+            
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
