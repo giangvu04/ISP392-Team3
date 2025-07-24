@@ -425,6 +425,11 @@
                         <button type="button" class="btn-seller" onclick="redirectToSellerRegister()">
                             Đăng ký làm người bán
                         </button>
+                        <button style="margin-top: 20px; width: 300px; height: 50px;
+                                border-radius: 10px; background-color: white
+                                ; border: none; font-size: 18px" type="button" class="btn-homepage" onclick="redirectToHomePage()">
+                            Quay lại trang chủ
+                        </button>
                     </div>
                     
                     <div class="support-info">
@@ -447,7 +452,10 @@
                 }
                 
                 function redirectToSellerRegister() {
-                    window.location.href = "register-seller";
+                    window.location.href = "registerManager";
+                }
+                function redirectToHomePage() {
+                    window.location.href = "trangchu";
                 }
                 
                 // Add some interactive effects
