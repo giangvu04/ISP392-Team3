@@ -13,6 +13,9 @@ public class Contracts {
     private BigDecimal depositAmount;
     private int status;
     private String note;
+    private String roomNumber; 
+    private String areaName;
+    private String nameTelnant;
 
     // Constructors
     public Contracts() {
@@ -29,6 +32,30 @@ public class Contracts {
         this.depositAmount = depositAmount;
         this.status = status;
         this.note = note;
+    }
+
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
+    }
+
+    public String getNameTelnant() {
+        return nameTelnant;
+    }
+
+    public void setNameTelnant(String nameTelnant) {
+        this.nameTelnant = nameTelnant;
     }
 
     // Getters and Setters

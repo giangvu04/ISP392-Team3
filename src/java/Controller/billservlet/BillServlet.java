@@ -16,6 +16,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Users;
+import dal.DAOUser;
 
 /**
  *
@@ -43,7 +46,14 @@ public class BillServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+        HttpSession session = request.getSession(false);
+        Users user = (session != null) ? (Users) session.getAttribute("user") : null;
+
+        if (user == null) {
+            // Người dùng chưa đăng nhập → điều hướng về trang login
+            response.sendRedirect("login.jsp");
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -75,6 +85,9 @@ public class BillServlet extends HttpServlet {
                 case "updateStatus":
                     updateBillStatus(request, response);
                     break;
+                case "getRoomsByArea":
+                    getRoomsByArea(request, response);
+                    break;
                 default:
                     listBills(request, response);
                     break;
@@ -89,11 +102,12 @@ public class BillServlet extends HttpServlet {
     private void listBills(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            ArrayList<Bill> bills = daoBill.getAllBills();
+            Users user = (Users) request.getSession().getAttribute("user");
+            ArrayList<Bill> bills = daoBill.getAllBills(user);
             request.setAttribute("bills", bills);
-            request.setAttribute("totalBills", daoBill.getTotalBills());
-            request.setAttribute("totalRevenue", daoBill.getTotalRevenue());
-            request.getRequestDispatcher("/bill/list.jsp").forward(request, response);
+            request.setAttribute("totalBills", daoBill.getTotalBills(user));
+            request.setAttribute("totalRevenue", daoBill.getTotalRevenue(user));
+            request.getRequestDispatcher("/Bill/list.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi lấy danh sách hóa đơn: " + e.getMessage());
@@ -103,47 +117,194 @@ public class BillServlet extends HttpServlet {
 
     private void addBill(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (request.getMethod().equals("POST")) {
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
             try {
-                // Lấy dữ liệu từ form
-                String tenantName = request.getParameter("tenantName");
-                String roomNumber = request.getParameter("roomNumber");
-                double electricityCost = Double.parseDouble(request.getParameter("electricityCost"));
-                double waterCost = Double.parseDouble(request.getParameter("waterCost"));
-                double serviceCost = Double.parseDouble(request.getParameter("serviceCost"));
+                String billType = request.getParameter("billType");
+                String roomCostStr = request.getParameter("roomCost");
+                String electricityStr = request.getParameter("electricityCost");
+                String waterStr = request.getParameter("waterCost");
+                String serviceStr = request.getParameter("serviceCost");
+                String otherServiceStr = request.getParameter("otherServiceCost");
                 String dueDate = request.getParameter("dueDate");
                 String status = request.getParameter("status");
+                String note = request.getParameter("note");
 
-                // Tính tổng
-                double total = electricityCost + waterCost + serviceCost;
+                double roomCost = roomCostStr != null && !roomCostStr.isEmpty() ? Double.parseDouble(roomCostStr) : 0.0;
+                double electricityCost = electricityStr != null && !electricityStr.isEmpty() ? Double.parseDouble(electricityStr) : 0.0;
+                double waterCost = waterStr != null && !waterStr.isEmpty() ? Double.parseDouble(waterStr) : 0.0;
+                double serviceCost = serviceStr != null && !serviceStr.isEmpty() ? Double.parseDouble(serviceStr) : 0.0;
+                double otherServiceCost = otherServiceStr != null && !otherServiceStr.isEmpty() ? Double.parseDouble(otherServiceStr) : 0.0;
 
-                // Tạo đối tượng Bill
+                // Nếu là chi, chỉ lấy phí dịch vụ khác và chuyển thành số âm
+                double total;
+                if ("Chi".equalsIgnoreCase(billType)) {
+                    otherServiceCost = -Math.abs(otherServiceCost);
+                    roomCost = 0.0;
+                    electricityCost = 0.0;
+                    waterCost = 0.0;
+                    serviceCost = 0.0;
+                    total = otherServiceCost;
+                } else {
+                    total = roomCost + electricityCost + waterCost + serviceCost + otherServiceCost;
+                }
+
                 Bill bill = new Bill();
-                bill.setTenantName(tenantName);
-                bill.setRoomNumber(roomNumber);
+                bill.setRoomCost(roomCost);
                 bill.setElectricityCost(electricityCost);
                 bill.setWaterCost(waterCost);
                 bill.setServiceCost(serviceCost);
+                bill.setOtherServiceCost(otherServiceCost);
                 bill.setTotal(total);
                 bill.setDueDate(dueDate);
                 bill.setStatus(status);
+                bill.setCreatedDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+                bill.setNote(note);
 
-                // Tạo ngày hiện tại
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                bill.setCreatedDate(sdf.format(new Date()));
+                int tenantId = 0;
+                int roomId = 0;
+                String tenantName = "";
+                String roomNumber = "";
+
+                // Lấy roomId và tenantId từ select (format: "roomId,tenantId,tenantEmail")
+                String roomSelection = request.getParameter("roomSelection");
+
+                String[] parts = roomSelection != null ? roomSelection.split("\\|") : new String[0];
+
+                System.out.println("roomSelection: " + roomSelection);
+                System.out.println("parts length: " + parts.length);
+                for (int i = 0; i < parts.length; i++) {
+                    System.out.println("parts[" + i + "]: " + parts[i]);
+                }
+                if (parts.length >= 1) {
+                    roomId = Integer.parseInt(parts[0]);
+                }
+                if (parts.length >= 2 && !parts[1].isEmpty() && !"null".equals(parts[1])) {
+                    tenantId = Integer.parseInt(parts[1]);
+                }
+                if (parts.length >= 3) {
+                    bill.setEmailTelnant(parts[2]);
+                }
+
+                // Lấy thông tin phòng và tenant từ roomSelection
+                dal.DAORooms roomDao = new dal.DAORooms();
+                model.Rooms room = roomDao.getRoomById(roomId);
+                if (room != null) {
+                    roomNumber = room.getRoomNumber();
+                }
+
+                if (tenantId > 0) {
+                    dal.DAOUser userDao = new dal.DAOUser();
+                    model.Users tenant = userDao.getUserByID(tenantId);
+                    if (tenant != null) {
+                        tenantName = tenant.getFullName();
+                    }
+                } else {
+                    // Nếu không có tenant, dùng thông tin manager cho hóa đơn chi
+                    Users userSession = (Users) request.getSession().getAttribute("user");
+                    if (userSession != null && "Chi".equalsIgnoreCase(billType)) {
+                        tenantId = userSession.getUserId();
+                        tenantName = userSession.getFullName();
+                    }
+                }
+
+                bill.setTenantName(tenantName);
+                bill.setRoomNumber(roomNumber);
 
                 // Thêm vào database
-                daoBill.addBill(bill);
+                daoBill.addBill(bill, tenantId, roomId);
 
-                request.setAttribute("success", "Thêm hóa đơn thành công!");
-                response.sendRedirect("BillServlet?action=list");
+                // Đặt message vào session để sau redirect vẫn hiển thị
+                request.getSession().setAttribute("success", "Thêm hóa đơn thành công!");
+                response.sendRedirect("listbills");
             } catch (Exception e) {
                 e.printStackTrace();
                 request.setAttribute("error", "Lỗi khi thêm hóa đơn: " + e.getMessage());
-                request.getRequestDispatcher("/bill/add.jsp").forward(request, response);
+                loadBillFormData(request);
+                request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
             }
         } else {
-            request.getRequestDispatcher("/bill/add.jsp").forward(request, response);
+            // GET: hiển thị form
+            loadBillFormData(request);
+            request.getRequestDispatcher("/Bill/add.jsp").forward(request, response);
+        }
+    }
+
+    private void loadBillFormData(HttpServletRequest request) {
+        Users user = (Users) request.getSession().getAttribute("user");
+        System.out.println("loadBillFormData - User: " + (user != null ? "exists, roleId=" + user.getRoleId() : "null"));
+
+        if (user != null) {
+            // Load for both Manager (roleId=2) and Admin (roleId=1) for testing
+            dal.DAORentalArea rentalAreaDao = new dal.DAORentalArea();
+            java.util.List<model.RentalArea> rentalAreas = null;
+
+            if (user.getRoleId() == 2) {
+                rentalAreas = rentalAreaDao.getRentalAreasByManager(user.getUserId());
+            } else if (user.getRoleId() == 1) {
+                // For admin, get all rental areas
+                rentalAreas = rentalAreaDao.getAllRentalAreas();
+            }
+
+            System.out.println("Found " + (rentalAreas != null ? rentalAreas.size() : 0) + " rental areas");
+
+            if (rentalAreas != null) {
+                request.setAttribute("rentalAreas", rentalAreas);
+                for (model.RentalArea area : rentalAreas) {
+                    System.out.println("RentalArea: " + area.getRentalAreaId() + " - " + area.getName());
+                }
+            }
+        }
+    }
+
+    private void getRoomsByArea(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            int areaId = Integer.parseInt(request.getParameter("areaId"));
+            Users user = (Users) request.getSession().getAttribute("user");
+
+            // Debug logging
+            System.out.println("getRoomsByArea called with areaId: " + areaId);
+            System.out.println("User: " + (user != null ? "exists, roleId=" + user.getRoleId() : "null"));
+
+            // Allow all authenticated users for now (remove role restriction for debugging)
+            if (user != null) {
+                dal.DAORooms roomDao = new dal.DAORooms();
+                java.util.List<model.Rooms> rooms = roomDao.getRoomsWithTenantsByArea(areaId);
+
+                System.out.println("Found " + rooms.size() + " rooms");
+
+                // Trả về JSONR
+                response.setContentType("application/json;charset=UTF-8");
+                response.setCharacterEncoding("UTF-8");
+
+                StringBuilder json = new StringBuilder();
+                json.append("[");
+                for (int i = 0; i < rooms.size(); i++) {
+                    model.Rooms room = rooms.get(i);
+                    if (i > 0) {
+                        json.append(",");
+                    }
+                    json.append("{");
+                    json.append("\"roomId\":").append(room.getRoomId()).append(",");
+                    json.append("\"roomNumber\":\"").append(room.getRoomNumber()).append("\",");
+                    json.append("\"tenantId\":").append(room.getTenantId() != null ? room.getTenantId() : "null").append(",");
+                    json.append("\"tenantName\":\"").append(room.getTenantName() != null ? room.getTenantName() : "").append("\",");
+                    json.append("\"tenantEmail\":\"").append(room.getTenantEmail() != null ? room.getTenantEmail() : "").append("\"");
+                    json.append("}");
+                }
+                json.append("]");
+
+                String jsonResult = json.toString();
+                System.out.println("JSON response: " + jsonResult);
+                response.getWriter().write(jsonResult);
+            } else {
+                System.out.println("User not authenticated");
+                response.getWriter().write("[]");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error in getRoomsByArea: " + e.getMessage());
+            response.getWriter().write("[]");
         }
     }
 
@@ -154,15 +315,19 @@ public class BillServlet extends HttpServlet {
             Bill bill = daoBill.getBillById(id);
             if (bill != null) {
                 request.setAttribute("bill", bill);
-                request.getRequestDispatcher("/bill/edit.jsp").forward(request, response);
+
+                // Load rental areas for reference
+                loadBillFormData(request);
+
+                request.getRequestDispatcher("/Bill/edit.jsp").forward(request, response);
             } else {
                 request.setAttribute("error", "Không tìm thấy hóa đơn!");
-                response.sendRedirect("BillServlet?action=list");
+                response.sendRedirect("listbills");
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi lấy thông tin hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -172,23 +337,35 @@ public class BillServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             String tenantName = request.getParameter("tenantName");
             String roomNumber = request.getParameter("roomNumber");
-            double electricityCost = Double.parseDouble(request.getParameter("electricityCost"));
-            double waterCost = Double.parseDouble(request.getParameter("waterCost"));
-            double serviceCost = Double.parseDouble(request.getParameter("serviceCost"));
+
+            String roomCostStr = request.getParameter("roomCost");
+            String electricityStr = request.getParameter("electricityCost");
+            String waterStr = request.getParameter("waterCost");
+            String serviceStr = request.getParameter("serviceCost");
+            String otherServiceStr = request.getParameter("otherServiceCost");
+
+            double roomCost = roomCostStr != null && !roomCostStr.isEmpty() ? Double.parseDouble(roomCostStr) : 0.0;
+            double electricityCost = electricityStr != null && !electricityStr.isEmpty() ? Double.parseDouble(electricityStr) : 0.0;
+            double waterCost = waterStr != null && !waterStr.isEmpty() ? Double.parseDouble(waterStr) : 0.0;
+            double serviceCost = serviceStr != null && !serviceStr.isEmpty() ? Double.parseDouble(serviceStr) : 0.0;
+            double otherServiceCost = otherServiceStr != null && !otherServiceStr.isEmpty() ? Double.parseDouble(otherServiceStr) : 0.0;
+
             String dueDate = request.getParameter("dueDate");
             String status = request.getParameter("status");
 
             // Tính tổng
-            double total = electricityCost + waterCost + serviceCost;
+            double total = roomCost + electricityCost + waterCost + serviceCost + otherServiceCost;
 
             // Tạo đối tượng Bill
             Bill bill = new Bill();
             bill.setId(id);
             bill.setTenantName(tenantName);
             bill.setRoomNumber(roomNumber);
+            bill.setRoomCost(roomCost);
             bill.setElectricityCost(electricityCost);
             bill.setWaterCost(waterCost);
             bill.setServiceCost(serviceCost);
+            bill.setOtherServiceCost(otherServiceCost);
             bill.setTotal(total);
             bill.setDueDate(dueDate);
             bill.setStatus(status);
@@ -197,11 +374,11 @@ public class BillServlet extends HttpServlet {
             daoBill.updateBill(bill);
 
             request.setAttribute("success", "Cập nhật hóa đơn thành công!");
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi cập nhật hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -211,11 +388,11 @@ public class BillServlet extends HttpServlet {
             int id = Integer.parseInt(request.getParameter("id"));
             daoBill.deleteBill(id);
             request.setAttribute("success", "Xóa hóa đơn thành công!");
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi xóa hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -225,7 +402,7 @@ public class BillServlet extends HttpServlet {
             String searchType = request.getParameter("searchType");
             String searchValue = request.getParameter("searchValue");
             ArrayList<Bill> bills = new ArrayList<>();
-
+            Users user = (Users) request.getSession().getAttribute("user");
             if (searchType != null && searchValue != null && !searchValue.trim().isEmpty()) {
                 switch (searchType) {
                     case "tenantName":
@@ -235,24 +412,24 @@ public class BillServlet extends HttpServlet {
                         bills = daoBill.searchBillsByRoomNumber(searchValue);
                         break;
                     case "status":
-                        bills = daoBill.getBillsByStatus(searchValue);
+                        bills = daoBill.getBillsByStatus(user, searchValue);
                         break;
                     default:
-                        bills = daoBill.getAllBills();
+                        bills = daoBill.getAllBills(user);
                         break;
                 }
             } else {
-                bills = daoBill.getAllBills();
+                bills = daoBill.getAllBills(user);
             }
 
             request.setAttribute("bills", bills);
             request.setAttribute("searchType", searchType);
             request.setAttribute("searchValue", searchValue);
-            request.getRequestDispatcher("/bill/list.jsp").forward(request, response);
+            request.getRequestDispatcher("/Bill/list.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi tìm kiếm hóa đơn: " + e.getMessage());
-            request.getRequestDispatcher("/bill/list.jsp").forward(request, response);
+            request.getRequestDispatcher("/Bill/list.jsp").forward(request, response);
         }
     }
 
@@ -263,15 +440,15 @@ public class BillServlet extends HttpServlet {
             Bill bill = daoBill.getBillById(id);
             if (bill != null) {
                 request.setAttribute("bill", bill);
-                request.getRequestDispatcher("/bill/view.jsp").forward(request, response);
+                request.getRequestDispatcher("/Bill/view.jsp").forward(request, response);
             } else {
                 request.setAttribute("error", "Không tìm thấy hóa đơn!");
-                response.sendRedirect("BillServlet?action=list");
+                response.sendRedirect("listbills");
             }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi xem thông tin hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 
@@ -282,11 +459,11 @@ public class BillServlet extends HttpServlet {
             String status = request.getParameter("status");
             daoBill.updateBillStatus(id, status);
             request.setAttribute("success", "Cập nhật trạng thái hóa đơn thành công!");
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi cập nhật trạng thái hóa đơn: " + e.getMessage());
-            response.sendRedirect("BillServlet?action=list");
+            response.sendRedirect("listbills");
         }
     }
 

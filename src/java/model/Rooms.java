@@ -16,6 +16,12 @@ public class Rooms {
     private String rentalAreaName;
     private String currentTenant;
     private RentalArea retalArea;
+    private String imageUrl;
+    
+    // For bill management - tenant information
+    private Integer tenantId;
+    private String tenantName;
+    private String tenantEmail;
     
     public Rooms() {
     }
@@ -35,6 +41,22 @@ public class Rooms {
 
     public int getRoomId() {
         return roomId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public RentalArea getRetalArea() {
+        return retalArea;
+    }
+
+    public void setRetalArea(RentalArea retalArea) {
+        this.retalArea = retalArea;
     }
 
     public void setRoomId(int roomId) {
@@ -112,13 +134,30 @@ public class Rooms {
     public void setCurrentTenant(String currentTenant) {
         this.currentTenant = currentTenant;
     }
-    
-    public RentalArea getRetalArea() {
-        return retalArea;
+
+    // For bill management - tenant information
+    public Integer getTenantId() {
+        return tenantId;
     }
 
-    public void setRetalArea(RentalArea retalArea) {
-        this.retalArea = retalArea;
+    public void setTenantId(Integer tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public String getTenantEmail() {
+        return tenantEmail;
+    }
+
+    public void setTenantEmail(String tenantEmail) {
+        this.tenantEmail = tenantEmail;
     }
 
     // Helper method to get status as string

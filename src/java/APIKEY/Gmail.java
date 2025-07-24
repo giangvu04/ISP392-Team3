@@ -10,7 +10,7 @@ public class Gmail {
 
     public static final int TSL_PORT = 587;
 
-    public static final String APP_EMAIL = "peguing6@gmail.com";
+    public static final String APP_EMAIL = "gianghuongvu2004@gmail.com";
 
-    public static final String APP_PASSWORD = "orxr enda bhsq cijf";
+    public static final String APP_PASSWORD = "evmz ubwo xteb phor";
 }
