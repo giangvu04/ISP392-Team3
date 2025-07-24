@@ -47,6 +47,10 @@ public class Register extends HttpServlet {
         if (!password.equals(confirmPassword)) {
             message = "Mật khẩu nhập lại không khớp.";
             request.getSession().setAttribute("error", message);
+            request.getSession().setAttribute("fullName", fullName);
+            request.getSession().setAttribute("phone", phone);
+            request.getSession().setAttribute("password", password);
+            request.getSession().setAttribute("confirmPassword", confirmPassword);
             response.sendRedirect("registerr");
             return;
         }
@@ -55,16 +59,23 @@ public class Register extends HttpServlet {
         if (dao.checkEmailExists(email)) {
             message = "Địa chỉ email đã được sử dụng.";
             request.getSession().setAttribute("error", message);
+            request.getSession().setAttribute("fullName", fullName);
+            request.getSession().setAttribute("phone", phone);
+            request.getSession().setAttribute("password", password);
+            request.getSession().setAttribute("confirmPassword", confirmPassword);
             response.sendRedirect("registerr");
             return;
         }
         if (dao.checkPhoneExists(phone)) {
             message = "Số điện thoại đã được sử dụng.";
             request.getSession().setAttribute("error", message);
+            request.getSession().setAttribute("fullName", fullName);
+            request.getSession().setAttribute("phone", phone);
+            request.getSession().setAttribute("password", password);
+            request.getSession().setAttribute("confirmPassword", confirmPassword);
             response.sendRedirect("registerr");
             return;
         }
-        
 
         Users user = new Users();
         user.setFullName(fullName);
@@ -82,6 +93,10 @@ public class Register extends HttpServlet {
         } catch (Exception e) {
             message = "Đăng ký thất bại. Vui lòng thử lại.";
             request.getSession().setAttribute("error", message);
+            request.getSession().setAttribute("fullName", fullName);
+            request.getSession().setAttribute("phone", phone);
+            request.getSession().setAttribute("password", password);
+            request.getSession().setAttribute("confirmPassword", confirmPassword);
             response.sendRedirect("registerr");
         }
     }

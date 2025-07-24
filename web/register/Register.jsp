@@ -112,7 +112,14 @@
 </head>
 <body>
     <div class="register-box">
-        <% String message = (String) session.getAttribute("ms"); %>
+        <% 
+            String message = (String) session.getAttribute("ms");
+            String error = (String) session.getAttribute("error");
+            String fullName = (String) session.getAttribute("fullName");
+            String phone = (String) session.getAttribute("phone");
+            String password = (String) session.getAttribute("password");
+            String confirmPassword = (String) session.getAttribute("confirmPassword");
+        %>
         <% if (message != null && !message.isEmpty()) { %>
         <div id="custom-toast-message" class="custom-toast-message"><%= message %></div>
         <script>
@@ -129,6 +136,21 @@
         </script>
         <% session.removeAttribute("ms"); %>
         <% } %>
+        <% if (error != null && !error.isEmpty()) { %>
+        <div id="custom-toast-message" class="custom-toast-message"><%= error %></div>
+        <script>
+            window.onload = function () {
+                var toast = document.getElementById("custom-toast-message");
+                if (toast) {
+                    toast.style.display = "block";
+                    setTimeout(function () {
+                        toast.style.opacity = "0";
+                        setTimeout(() => toast.style.display = "none", 500);
+                    }, 3000);
+                }
+            };
+        </script>
+        <% } %>
         <h2 class="register-title">Đăng ký tài khoản mới</h2>
         <p class="register-subtitle">Tạo tài khoản để sử dụng DreamHouse</p>
         <form action="registerr" method="post">
@@ -136,31 +158,36 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="fullName" class="form-label">Họ và tên</label>
-                        <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Nhập họ và tên" required>
+                        <input type="text" id="fullName" name="fullName" class="form-control" 
+                               placeholder="Nhập họ và tên" value="<%= fullName != null ? fullName : "" %>" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" placeholder="Nhập email" required>
+                        <input type="email" id="email" name="email" class="form-control" 
+                               placeholder="Nhập email" value="" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="phone" class="form-label">Số điện thoại</label>
-                        <input type="text" id="phone" name="phone" class="form-control" placeholder="Nhập số điện thoại" required>
+                        <input type="text" id="phone" name="phone" class="form-control" 
+                               placeholder="Nhập số điện thoại" value="<%= phone != null ? phone : "" %>" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="password" class="form-label">Mật khẩu</label>
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required>
+                        <input type="password" id="password" name="password" class="form-control" 
+                               placeholder="Nhập mật khẩu" value="<%= password != null ? password : "" %>" required>
                     </div>
                 </div>
                 <div class="col-12">
                     <div class="mb-3">
                         <label for="confirmPassword" class="form-label">Nhập lại mật khẩu</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" required>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" 
+                               placeholder="Nhập lại mật khẩu" value="<%= confirmPassword != null ? confirmPassword : "" %>" required>
                     </div>
                 </div>
                 <div class="col-12">
@@ -171,7 +198,15 @@
         <div class="login-link">
             Đã có tài khoản? <a href="login">Đăng nhập</a>
         </div>
+        <% 
+            // Clear session attributes after displaying to prevent persistent data
+            session.removeAttribute("error");
+            session.removeAttribute("fullName");
+            session.removeAttribute("phone");
+            session.removeAttribute("password");
+            session.removeAttribute("confirmPassword");
+        %>
     </div>
-        <jsp:include page="../Message.jsp"/>
+    <jsp:include page="../Message.jsp"/>
 </body>
 </html>
