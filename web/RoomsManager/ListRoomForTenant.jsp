@@ -60,14 +60,7 @@
         <div class="body">
             <div class="body-container">
                 <!-- Menu Sidebar -->
-                <div class="mainmenu">
-                    <ul class="mainmenu-list row no-gutters">
-                        <li class="mainmenu__list-item"><a href="listrooms"><i class="fa-solid fa-door-closed list-item-icon"></i>Phòng</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-bell-concierge list-item-icon"></i>Dịch vụ</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-file-signature list-item-icon"></i>Liên hệ</a></li>
-                        <li class="mainmenu__list-item"><a href=""><i class="fa-solid fa-user list-item-icon"></i>Tài khoản</a></li>
-                    </ul>
-                </div>
+                <jsp:include page="../Sidebar/SideBarTelnant.jsp"/>
 
                 <!-- Main Content -->
                 <div class="homepage-body">
