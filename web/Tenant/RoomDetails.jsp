@@ -791,8 +791,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-    <!-- Google Maps API (replace YOUR_API_KEY with your actual key) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
     <script>
         // Gallery functionality
         function changeMainImage(imageSrc) {
@@ -905,79 +903,15 @@
 
             // Initialize first thumbnail as active
             $('.thumbnail').first().addClass('active');
-        });
 
-        // Google Maps fallback if API fails
-        window.initMap = function() {
-            try {
-                // Nếu Google Maps không load được thì fallback
-                if (typeof google === 'undefined' || !google.maps) {
-                    createFallbackMap();
-                } else {
-                    // Gọi hàm initMap gốc
-                    // ...existing code for initMap...
-                    const address = '${rentail.address}';
-                    const roomLocation = { lat: 21.0285, lng: 105.8542 };
-                    const map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 15,
-                        center: roomLocation,
-                        styles: [
-                            {"featureType": "all", "elementType": "geometry.fill", "stylers": [{"weight": "2.00"}]},
-                            {"featureType": "all", "elementType": "geometry.stroke", "stylers": [{"color": "#9c9c9c"}]},
-                            {"featureType": "all", "elementType": "labels.text", "stylers": [{"visibility": "on"}]}
-                        ]
-                    });
-                    const marker = new google.maps.Marker({
-                        position: roomLocation,
-                        map: map,
-                        title: 'Phòng ${room.roomNumber}',
-                        icon: {
-                            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                            `),
-                            scaledSize: new google.maps.Size(40, 40),
-                            fillColor: '#667eea',
-                            fillOpacity: 1,
-                            strokeColor: '#ffffff',
-                            strokeWeight: 2
-                        }
-                    });
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `
-                            <div style="padding: 10px;">
-                                <h5 style="margin: 0 0 10px 0; color: #2c3e50;">Phòng ${room.roomNumber}</h5>
-                                <p style="margin: 0 0 5px 0; color: #6c757d;">
-                                    <i class="fas fa-map-marker-alt" style="color: #667eea;"></i>
-                                    ${address}
-                                </p>
-                                <p style="margin: 0; color: #e74c3c; font-weight: bold;">
-                                    💰 ${room.price} VNĐ/tháng
-                                </p>
-                            </div>
-                        `
-                    });
-                    marker.addListener('click', () => {
-                        infoWindow.open(map, marker);
-                    });
-                    // Geocode address
-                    if (address && typeof google !== 'undefined' && google.maps && google.maps.Geocoder) {
-                        const geocoder = new google.maps.Geocoder();
-                        geocoder.geocode({ address: address }, (results, status) => {
-                            if (status === 'OK' && results[0]) {
-                                const location = results[0].geometry.location;
-                                map.setCenter(location);
-                                marker.setPosition(location);
-                            }
-                        });
-                    }
-                }
-            } catch (e) {
+            // Load Google Maps
+            if (typeof google === 'undefined') {
+                // Create a fallback map using OpenStreetMap/Leaflet
                 createFallbackMap();
+            } else {
+                initMap();
             }
-        }
+        });
 
         // Fallback map function using OpenStreetMap
         function createFallbackMap() {
@@ -1089,3 +1023,7 @@
     </div>
   </div>
 </div>
+<!-- Nút mở modal (có thể đặt ở bất kỳ đâu phù hợp trong trang) -->
+<button type="button" class="btn btn-primary-custom mt-3" data-bs-toggle="modal" data-bs-target="#rentModal">
+  Đăng ký thuê phòng
+</button>

@@ -81,6 +81,8 @@ public class ListRoomsServlet extends HttpServlet {
                         }
                     }
                 }
+                response.sendRedirect("searchRooms");
+                return;       
             }
 
             // Get rooms based on search or location filters
@@ -156,9 +158,7 @@ public class ListRoomsServlet extends HttpServlet {
                 case 1: // Admin
                     destination = "AdminHomepage";
                     break;
-                case 2: // Manager
-                    destination = "Manager/RoomList.jsp";
-                    break;
+                
                 case 3: // Tenant
                     destination = "Tenant/RoomList.jsp";
                     break;

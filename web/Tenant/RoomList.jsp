@@ -439,7 +439,7 @@
                                         
                                         <div class="d-grid mt-auto">
                                             <c:if test="${room.status == 0}">
-                                                <a href="roomDetails?id=${room.roomId}" class="btn btn-primary">
+                                                <a href="detailRoom?id=${room.roomId}" class="btn btn-primary">
                                                     <i class="fas fa-eye me-2"></i>
                                                     Xem chi tiết
                                                 </a>
