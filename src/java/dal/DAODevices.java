@@ -1,12 +1,12 @@
 package dal;
 
-import model.Devices;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.Devices;
 
 public class DAODevices {
 
@@ -20,8 +20,11 @@ public class DAODevices {
     // Get all devices
     public List<Devices> getAllDevices() {
         List<Devices> devices = new ArrayList<>();
-        // Sửa tên bảng để nhất quán
-        String sql = "SELECT [device_id], [device_name] FROM [HouseSharing].[dbo].[devices]";
+        String sql = """
+            SELECT [device_id], [device_name], [deviceCode], [latestWarrantyDate], 
+                   [purchaseDate], [warrantyExpiryDate] 
+            FROM [HouseSharing].[dbo].[devices]
+            """;
 
         try (PreparedStatement statement = connect.prepareStatement(sql);
              ResultSet rs = statement.executeQuery()) {
@@ -29,6 +32,10 @@ public class DAODevices {
                 Devices device = new Devices();
                 device.setDeviceId(rs.getInt("device_id"));
                 device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
                 devices.add(device);
             }
         } catch (SQLException e) {
@@ -45,9 +52,10 @@ public class DAODevices {
 
         List<Devices> devices = new ArrayList<>();
         String sql = """
-            SELECT [device_id], [device_name] 
+            SELECT [device_id], [device_name], [deviceCode], [latestWarrantyDate], 
+                   [purchaseDate], [warrantyExpiryDate] 
             FROM [HouseSharing].[dbo].[devices]
-            ORDER BY [device_name]
+            ORDER BY [device_id]
             OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
             """;
 
@@ -60,6 +68,10 @@ public class DAODevices {
                 Devices device = new Devices();
                 device.setDeviceId(rs.getInt("device_id"));
                 device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
                 devices.add(device);
             }
         } catch (SQLException e) {
@@ -67,7 +79,6 @@ public class DAODevices {
         }
         return devices;
     }
-
     // Soft delete a device
     public void deleteDevice(int deviceId, int userId) {
         if (deviceId <= 0) {
@@ -95,7 +106,7 @@ public class DAODevices {
     }
 
     // Update device information
-    public void updateDevice(Devices device) {
+   public void updateDevice(Devices device) {
         if (device == null || device.getDeviceId() <= 0 || 
             device.getDeviceName() == null || device.getDeviceName().trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid device data");
@@ -103,13 +114,18 @@ public class DAODevices {
 
         String sql = """
             UPDATE [HouseSharing].[dbo].[devices] 
-            SET [device_name] = ? 
+            SET [device_name] = ?, [deviceCode] = ?, [latestWarrantyDate] = ?, 
+                [purchaseDate] = ?, [warrantyExpiryDate] = ? 
             WHERE [device_id] = ?
             """;
         
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, device.getDeviceName().trim());
-            ps.setInt(2, device.getDeviceId());
+            ps.setString(2, device.getDeviceCode() != null ? device.getDeviceCode().trim() : "");
+            ps.setString(3, device.getLatestWarrantyDate() != null ? device.getLatestWarrantyDate().trim() : "");
+            ps.setString(4, device.getPurchaseDate() != null ? device.getPurchaseDate().trim() : "");
+            ps.setString(5, device.getWarrantyExpiryDate() != null ? device.getWarrantyExpiryDate().trim() : "");
+            ps.setInt(6, device.getDeviceId());
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected == 0) {
                 throw new SQLException("No device found with ID: " + device.getDeviceId());
@@ -119,33 +135,6 @@ public class DAODevices {
         }
     }
 
-    // Add a new device and return the generated deviceId
-    public int addDevice(Devices device, int userId) {
-        if (device == null || device.getDeviceName() == null || 
-            device.getDeviceName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Invalid device data");
-        }
-
-        String sql = """
-            INSERT INTO [HouseSharing].[dbo].[devices] ([device_name]) 
-            VALUES (?)
-            """;
-        
-        try (PreparedStatement ps = connect.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, device.getDeviceName().trim());
-            ps.executeUpdate();
-
-            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error adding device: " + e.getMessage(), e);
-        }
-        return -1;
-    }
-
     // Get device by ID
     public Devices getDeviceById(int deviceId) {
         if (deviceId <= 0) {
@@ -153,7 +142,8 @@ public class DAODevices {
         }
 
         String sql = """
-            SELECT [device_id], [device_name] 
+            SELECT [device_id], [device_name], [deviceCode], [latestWarrantyDate], 
+                   [purchaseDate], [warrantyExpiryDate] 
             FROM [HouseSharing].[dbo].[devices] 
             WHERE [device_id] = ?
             """;
@@ -166,6 +156,10 @@ public class DAODevices {
                 Devices device = new Devices();
                 device.setDeviceId(rs.getInt("device_id"));
                 device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
                 return device;
             }
         } catch (SQLException e) {
@@ -173,7 +167,6 @@ public class DAODevices {
         }
         return null;
     }
-
     // Search devices by name
     public List<Devices> searchDevicesByName(String name) {
         if (name == null || name.trim().isEmpty()) {
@@ -182,20 +175,25 @@ public class DAODevices {
 
         List<Devices> devices = new ArrayList<>();
         String sql = """
-            SELECT [device_id], [device_name] 
+            SELECT [device_id], [device_name], [deviceCode], [latestWarrantyDate], 
+                   [purchaseDate], [warrantyExpiryDate] 
             FROM [HouseSharing].[dbo].[devices] 
             WHERE LOWER([device_name]) LIKE ?
             ORDER BY [device_name]
             """;
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setString(1, "%" + name.toLowerCase() + "%");
+            ps.setString(1, "%" + name + "%");
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Devices device = new Devices();
                 device.setDeviceId(rs.getInt("device_id"));
                 device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
                 devices.add(device);
             }
         } catch (SQLException e) {
@@ -242,4 +240,148 @@ public class DAODevices {
         }
         return false;
     }
+    public boolean addDevice(Devices device) throws SQLException {
+        String sql = "INSERT INTO Devices (device_name, deviceCode, latestWarrantyDate, purchaseDate, warrantyExpiryDate) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connect.prepareStatement(sql)) {
+            stmt.setString(1, device.getDeviceName());
+            stmt.setString(2, device.getDeviceCode());
+            stmt.setString(3, device.getLatestWarrantyDate());
+            stmt.setString(4, device.getPurchaseDate());
+            stmt.setString(5, device.getWarrantyExpiryDate());
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                return true;
+            }
+            
+            return false;
+        }
+    }
+
+    public boolean isDeviceCodeExists(String deviceCode) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Devices WHERE deviceCode = ?";
+        try (PreparedStatement stmt = connect.prepareStatement(sql)) {
+            stmt.setString(1, deviceCode);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+            return false;
+        }
+    }
+    // Get devices by managerId (devices in rooms of rental areas managed by manager)
+    public List<Devices> getDevicesByManager(int managerId) {
+        List<Devices> devices = new ArrayList<>();
+        String sql = "SELECT DISTINCT d.device_id, d.device_name, d.deviceCode, d.latestWarrantyDate, d.purchaseDate, d.warrantyExpiryDate " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Devices device = new Devices();
+                device.setDeviceId(rs.getInt("device_id"));
+                device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
+                devices.add(device);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching devices by manager: " + e.getMessage(), e);
+        }
+        return devices;
+    }
+
+    // Paginated devices by manager
+    public List<Devices> getDevicesByPageAndManager(int page, int devicesPerPage, int managerId) {
+        if (page < 1 || devicesPerPage <= 0) {
+            throw new IllegalArgumentException("Invalid page or devices per page");
+        }
+        List<Devices> devices = new ArrayList<>();
+        String sql = "SELECT DISTINCT d.device_id, d.device_name, d.deviceCode, d.latestWarrantyDate, d.purchaseDate, d.warrantyExpiryDate " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ? " +
+                "ORDER BY d.device_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ps.setInt(2, (page - 1) * devicesPerPage);
+            ps.setInt(3, devicesPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Devices device = new Devices();
+                device.setDeviceId(rs.getInt("device_id"));
+                device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
+                devices.add(device);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching paginated devices by manager: " + e.getMessage(), e);
+        }
+        return devices;
+    }
+
+    // Search devices by name and manager
+    public List<Devices> searchDevicesByNameAndManager(String name, int managerId) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search name cannot be empty");
+        }
+        List<Devices> devices = new ArrayList<>();
+        String sql = "SELECT DISTINCT d.device_id, d.device_name, d.deviceCode, d.latestWarrantyDate, d.purchaseDate, d.warrantyExpiryDate " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ? AND LOWER(d.device_name) LIKE ? " +
+                "ORDER BY d.device_name";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ps.setString(2, "%" + name.toLowerCase().trim() + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Devices device = new Devices();
+                device.setDeviceId(rs.getInt("device_id"));
+                device.setDeviceName(rs.getString("device_name"));
+                device.setDeviceCode(rs.getString("deviceCode"));
+                device.setLatestWarrantyDate(rs.getString("latestWarrantyDate"));
+                device.setPurchaseDate(rs.getString("purchaseDate"));
+                device.setWarrantyExpiryDate(rs.getString("warrantyExpiryDate"));
+                devices.add(device);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching devices by manager: " + e.getMessage(), e);
+        }
+        return devices;
+    }
+
+    // Get total count of devices by manager
+    public int getTotalDevicesByManager(int managerId) {
+        String sql = "SELECT COUNT(DISTINCT d.device_id) " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting devices by manager: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
 }

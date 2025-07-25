@@ -86,7 +86,7 @@
             <div class="container-fluid">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1><i class="fas fa-edit me-2"></i>Chỉnh sửa tin đăng</h1>
-                    <a href="${pageContext.request.contextPath}/rental/listPost" class="btn btn-outline-secondary">
+                    <a href="listPost" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
                     </a>
                 </div>

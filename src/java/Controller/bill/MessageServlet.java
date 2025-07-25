@@ -27,24 +27,36 @@ public class MessageServlet extends HttpServlet {
         String billId = request.getParameter("billId");
         String tenantEmail = request.getParameter("tenantEmail");
         String content = request.getParameter("content");
+        System.out.println("billId: " + billId);
+        System.out.println("tenantEmail: " + tenantEmail);
+        System.out.println("content: " + content);
         String subject = "Thông báo hóa đơn từ quản lý";
         String htmlContent = "<html><body>" +
                 "<h3>Thông báo hóa đơn</h3>" +
                 "<p>" + content + "</p>" +
                 "<p style='color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>" +
                 "</body></html>";
+        // Lưu message vào DB
         try {
-            boolean sent = Ultils.SendMail.sendHtmlMail(tenantEmail, subject, htmlContent);
-            if (sent) {
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write("Gửi tin nhắn thành công!");
-            } else {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("Lỗi khi gửi email!");
+            // Gửi mail
+            Ultils.SendMail.sendHtmlMailAsync(tenantEmail, subject, htmlContent);
+            // Lưu vào bảng messages
+            dal.DBContext dbContext = new dal.DBContext();
+            java.sql.Connection conn = dbContext.getConnection();
+            String insertSql = "INSERT INTO messages (user_id, bill_id, type, content, created_at) VALUES (?, ?, ?, ?, GETDATE())";
+            try (java.sql.PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, user.getUserId());
+                ps.setInt(2, Integer.parseInt(billId));
+                ps.setString(3, "bill");
+                ps.setString(4, content);
+                ps.executeUpdate();
             }
+            request.getSession().setAttribute("ms", "Đã gửi lời nhắc thành công!");
+            response.sendRedirect("listbills");
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Lỗi khi gửi email!");
+            request.getSession().setAttribute("error", "Gửi lời nhắc không thành công!");
+            response.sendRedirect("listbills");
+            e.printStackTrace();
         }
     }
 }

@@ -24,14 +24,19 @@ public class FeedbackServlet extends HttpServlet {
         String roomIdStr = request.getParameter("roomId");
         String content = request.getParameter("content");
         String ratingStr = request.getParameter("rating");
+        
         int roomId = 0;
-        int rating = 0;
+        Integer rating = null;
+        
         try {
             roomId = Integer.parseInt(roomIdStr);
-            rating = Integer.parseInt(ratingStr);
+            if (ratingStr != null && !ratingStr.trim().isEmpty()) {
+                rating = Integer.parseInt(ratingStr);
+            }
         } catch (Exception e) {
             request.getSession().setAttribute("error", "Dữ liệu không hợp lệ!");
-            response.sendRedirect("listbills");
+            e.printStackTrace();
+            response.sendRedirect("feedbacklist");
             return;
         }
         FeedBack fb = new FeedBack();
@@ -41,10 +46,17 @@ public class FeedbackServlet extends HttpServlet {
         fb.setRating(rating);
         try {
             DAOFeedBack.INSTANCE.addFeedBack(fb);
-            request.getSession().setAttribute("success", "Đánh giá thành công!");
+            request.getSession().setAttribute("success", "Gửi feedback thành công!");
         } catch (Exception e) {
-            request.getSession().setAttribute("error", "Lỗi khi lưu đánh giá!");
+            request.getSession().setAttribute("error", "Lỗi khi lưu feedback: " + e.getMessage());
         }
-        response.sendRedirect("listbills");
+        
+        // Redirect về tenant homepage hoặc feedback list
+        String referer = request.getHeader("Referer");
+        if (referer != null && referer.contains("tenant_homepage")) {
+            response.sendRedirect("Tenant/tenant_homepage.jsp");
+        } else {
+            response.sendRedirect("feedbacklist");
+        }
     }
 }

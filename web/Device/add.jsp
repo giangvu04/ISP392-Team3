@@ -378,9 +378,70 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="deviceCode">
+                        Mã Thiết Bị
+                    </label>
+                    <div class="input-group">
+                        <i class="fas fa-barcode"></i>
+                        <input type="text" 
+                               class="form-control" 
+                               id="deviceCode" 
+                               name="deviceCode" 
+                               placeholder="Nhập mã thiết bị (VD: ML001)"
+                               value="${deviceCode}"
+                               maxlength="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="latestWarrantyDate">
+                        Thời Gian Bảo Hành Gần Nhất
+                    </label>
+                    <div class="input-group">
+                        <i class="fas fa-calendar-alt"></i>
+                        <input type="date" 
+                               class="form-control" 
+                               id="latestWarrantyDate" 
+                               name="latestWarrantyDate" 
+                               placeholder="Nhập ngày (VD: 2025-07-01)"
+                               value="${latestWarrantyDate}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="purchaseDate">
+                        Ngày Mua Máy
+                    </label>
+                    <div class="input-group">
+                        <i class="fas fa-calendar-check"></i>
+                        <input type="date" 
+                               class="form-control" 
+                               id="purchaseDate" 
+                               name="purchaseDate" 
+                               placeholder="Nhập ngày (VD: 2025-07-01)"
+                               value="${purchaseDate}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="warrantyExpiryDate">
+                        Thời Gian Hết Hạn Bảo Hành
+                    </label>
+                    <div class="input-group">
+                        <i class="fas fa-calendar-times"></i>
+                        <input type="date" 
+                               class="form-control" 
+                               id="warrantyExpiryDate" 
+                               name="warrantyExpiryDate" 
+                               placeholder="Nhập ngày (VD: 2025-07-01)"
+                               value="${warrantyExpiryDate}">
+                    </div>
+                </div>
+
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <i class="fas fa-save loading" id="loadingIcon"></i>
+                        <i class="fas fa-spinner fa-spin loading" id="loadingIcon"></i>
                         <i class="fas fa-plus" id="saveIcon"></i>
                         Thêm Thiết Bị
                     </button>
@@ -399,98 +460,98 @@
     </div>
 
     <script>
-        // Form validation and enhancement
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('addDeviceForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const loadingIcon = document.getElementById('loadingIcon');
-            const saveIcon = document.getElementById('saveIcon');
-            const deviceNameInput = document.getElementById('deviceName');
+    // Form validation and enhancement
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('addDeviceForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingIcon = document.getElementById('loadingIcon');
+        const saveIcon = document.getElementById('saveIcon');
+        const deviceNameInput = document.getElementById('deviceName');
 
-            // Auto focus on device name input
-            deviceNameInput.focus();
+        // Auto focus on device name input
+        deviceNameInput.focus();
 
-            // Form submission handling
-            form.addEventListener('submit', function(e) {
-                const deviceName = deviceNameInput.value.trim();
-                
-                if (!deviceName) {
-                    e.preventDefault();
-                    showAlert('Vui lòng nhập tên thiết bị!', 'danger');
-                    deviceNameInput.focus();
-                    return;
-                }
+        // Form submission handling
+        form.addEventListener('submit', function(e) {
+            const deviceName = deviceNameInput.value.trim();
+            
+            if (!deviceName) {
+                e.preventDefault();
+                showAlert('Vui lòng nhập tên thiết bị!', 'danger');
+                deviceNameInput.focus();
+                return;
+            }
 
-                if (deviceName.length < 2) {
-                    e.preventDefault();
-                    showAlert('Tên thiết bị phải có ít nhất 2 ký tự!', 'danger');
-                    deviceNameInput.focus();
-                    return;
-                }
+            if (deviceName.length < 2) {
+                e.preventDefault();
+                showAlert('Tên thiết bị phải có ít nhất 2 ký tự!', 'danger');
+                deviceNameInput.focus();
+                return;
+            }
 
-                // Show loading state
-                submitBtn.disabled = true;
-                loadingIcon.classList.add('show');
-                saveIcon.style.display = 'none';
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-            });
+            // Show loading state
+            submitBtn.disabled = true;
+            loadingIcon.classList.add('show');
+            saveIcon.style.display = 'none';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+        });
 
-            // Real-time validation
-            deviceNameInput.addEventListener('input', function() {
-                const value = this.value.trim();
-                
-                if (value.length > 0 && value.length < 2) {
-                    this.style.borderColor = '#e74c3c';
-                } else if (value.length >= 2) {
-                    this.style.borderColor = '#4CAF50';
-                } else {
-                    this.style.borderColor = '#e1e5e9';
-                }
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // Ctrl + S or Cmd + S to submit
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                    e.preventDefault();
-                    form.submit();
-                }
-                
-                // Escape to go back
-                if (e.key === 'Escape') {
-                    window.location.href = 'listdevices?action=list';
-                }
-            });
-
-            // Auto-hide alerts after 5 seconds
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.transition = 'opacity 0.5s ease-out';
-                    alert.style.opacity = '0';
-                    setTimeout(() => {
-                        alert.remove();
-                    }, 500);
-                }, 5000);
-            });
-
-            function showAlert(message, type) {
-                const existingAlert = document.querySelector('.alert');
-                if (existingAlert) {
-                    existingAlert.remove();
-                }
-
-                const alert = document.createElement('div');
-                alert.className = `alert alert-${type}`;
-                alert.innerHTML = `
-                   
-                    ${message}
-                `;
-                
-                const breadcrumb = document.querySelector('.breadcrumb');
-                breadcrumb.insertAdjacentElement('afterend', alert);
+        // Real-time validation
+        deviceNameInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length > 0 && value.length < 2) {
+                this.style.borderColor = '#e74c3c';
+            } else if (value.length >= 2) {
+                this.style.borderColor = '#4CAF50';
+            } else {
+                this.style.borderColor = '#e1e5e9';
             }
         });
-    </script>
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S or Cmd + S to submit
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                form.submit();
+            }
+            
+            // Escape to go back
+            if (e.key === 'Escape') {
+                window.location.href = 'listdevices?action=list';
+            }
+        });
+
+        // Auto-hide alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+
+        function showAlert(message, type) {
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-danger"></i>
+                ${message}
+            `;
+            
+            const breadcrumb = document.querySelector('.breadcrumb');
+            breadcrumb.insertAdjacentElement('afterend', alert);
+        }
+    });
+</script>
 </body>
 </html>

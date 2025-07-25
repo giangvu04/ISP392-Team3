@@ -133,25 +133,25 @@ public class DAOBill {
         int managerId = user.getUserId();
         String sql;
         if (roleID == 2) {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE ra.manager_id = ? " +
-                  "ORDER BY b.CreatedDate DESC";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE ra.manager_id = ? "
+                    + "ORDER BY b.CreatedDate DESC";
         } else if (roleID == 3) {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.TenantID = ? " +
-                  "ORDER BY b.CreatedDate DESC";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.TenantID = ? "
+                    + "ORDER BY b.CreatedDate DESC";
         } else {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "ORDER BY b.CreatedDate DESC";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "ORDER BY b.CreatedDate DESC";
         }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -184,13 +184,13 @@ public class DAOBill {
         return bills;
     }
 
-        // Lấy hóa đơn theo ID
+    // Lấy hóa đơn theo ID
     public Bill getBillById(int id) {
-        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.ID = ?";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.ID = ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -258,11 +258,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo tên người thuê (không phân trang)
     public ArrayList<Bill> searchBillsByTenantName(String tenantName) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.TenantName LIKE ? ORDER BY b.CreatedDate DESC";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.TenantName LIKE ? ORDER BY b.CreatedDate DESC";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + tenantName + "%");
             ResultSet rs = ps.executeQuery();
@@ -292,11 +292,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo tên người thuê (có phân trang)
     public ArrayList<Bill> searchBillsByTenantName(String tenantName, int page, int billsPerPage) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.TenantName LIKE ? ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.TenantName LIKE ? ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + tenantName + "%");
             ps.setInt(2, (page - 1) * billsPerPage);
@@ -327,11 +327,11 @@ public class DAOBill {
 
     // Đếm số hóa đơn theo tên người thuê
     public int countBillsByTenantName(String tenantName) {
-        String sql = "SELECT COUNT(*) FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.TenantName LIKE ?";
+        String sql = "SELECT COUNT(*) FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.TenantName LIKE ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + tenantName + "%");
             ResultSet rs = ps.executeQuery();
@@ -348,11 +348,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo số phòng (không phân trang)
     public ArrayList<Bill> searchBillsByRoomNumber(String roomNumber) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.RoomNumber LIKE ? ORDER BY b.CreatedDate DESC";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.RoomNumber LIKE ? ORDER BY b.CreatedDate DESC";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + roomNumber + "%");
             ResultSet rs = ps.executeQuery();
@@ -382,11 +382,11 @@ public class DAOBill {
     // Tìm kiếm hóa đơn theo số phòng (có phân trang)
     public ArrayList<Bill> searchBillsByRoomNumber(String roomNumber, int page, int billsPerPage) {
         ArrayList<Bill> bills = new ArrayList<>();
-        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.RoomNumber LIKE ? ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.RoomNumber LIKE ? ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + roomNumber + "%");
             ps.setInt(2, (page - 1) * billsPerPage);
@@ -417,11 +417,11 @@ public class DAOBill {
 
     // Đếm số hóa đơn theo số phòng
     public int countBillsByRoomNumber(String roomNumber) {
-        String sql = "SELECT COUNT(*) FROM tbBills b " +
-                     "JOIN rooms r ON b.RoomID = r.room_id " +
-                     "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                     "JOIN users u ON ra.manager_id = u.user_id " +
-                     "WHERE b.RoomNumber LIKE ?";
+        String sql = "SELECT COUNT(*) FROM tbBills b "
+                + "JOIN rooms r ON b.RoomID = r.room_id "
+                + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                + "JOIN users u ON ra.manager_id = u.user_id "
+                + "WHERE b.RoomNumber LIKE ?";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + roomNumber + "%");
             ResultSet rs = ps.executeQuery();
@@ -448,26 +448,26 @@ public class DAOBill {
         int managerId = user.getUserId();
         String sql;
         if (roleID == 2) {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE ra.manager_id = ? AND b.Status = ? " +
-                  "ORDER BY b.CreatedDate DESC";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE ra.manager_id = ? AND b.Status = ? "
+                    + "ORDER BY b.CreatedDate DESC";
         } else if (roleID == 3) {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.TenantID = ? AND b.Status = ? " +
-                  "ORDER BY b.CreatedDate DESC";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.TenantID = ? AND b.Status = ? "
+                    + "ORDER BY b.CreatedDate DESC";
         } else {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.Status = ? " +
-                  "ORDER BY b.CreatedDate DESC";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.Status = ? "
+                    + "ORDER BY b.CreatedDate DESC";
         }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -517,26 +517,26 @@ public class DAOBill {
         int managerId = user.getUserId();
         String sql;
         if (roleID == 2) {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE ra.manager_id = ? AND b.Status = ? " +
-                  "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE ra.manager_id = ? AND b.Status = ? "
+                    + "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         } else if (roleID == 3) {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.TenantID = ? AND b.Status = ? " +
-                  "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.TenantID = ? AND b.Status = ? "
+                    + "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         } else {
-            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.Status = ? " +
-                  "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            sql = "SELECT b.*, u.full_name AS managerName FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.Status = ? "
+                    + "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -591,23 +591,23 @@ public class DAOBill {
         int managerId = user.getUserId();
         String sql;
         if (roleID == 2) {
-            sql = "SELECT COUNT(*) FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE ra.manager_id = ? AND b.Status = ?";
+            sql = "SELECT COUNT(*) FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE ra.manager_id = ? AND b.Status = ?";
         } else if (roleID == 3) {
-            sql = "SELECT COUNT(*) FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.TenantID = ? AND b.Status = ?";
+            sql = "SELECT COUNT(*) FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.TenantID = ? AND b.Status = ?";
         } else {
-            sql = "SELECT COUNT(*) FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.Status = ?";
+            sql = "SELECT COUNT(*) FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.Status = ?";
         }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -656,22 +656,22 @@ public class DAOBill {
         int managerId = user.getUserId();
         String sql;
         if (roleID == 2) {
-            sql = "SELECT COUNT(*) FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE ra.manager_id = ?";
+            sql = "SELECT COUNT(*) FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE ra.manager_id = ?";
         } else if (roleID == 3) {
-            sql = "SELECT COUNT(*) FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id " +
-                  "WHERE b.TenantID = ?";
+            sql = "SELECT COUNT(*) FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.TenantID = ?";
         } else {
-            sql = "SELECT COUNT(*) FROM tbBills b " +
-                  "JOIN rooms r ON b.RoomID = r.room_id " +
-                  "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-                  "JOIN users u ON ra.manager_id = u.user_id";
+            sql = "SELECT COUNT(*) FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id";
         }
 
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -693,77 +693,78 @@ public class DAOBill {
 
     // Phân trang hóa đơn
     public ArrayList<Bill> getBillsByPage(Users user, int page, int billsPerPage) {
-    ArrayList<Bill> bills = new ArrayList<>();
-    if (user == null) {
-        System.err.println("❌ Không tìm thấy thông tin người dùng!");
+        ArrayList<Bill> bills = new ArrayList<>();
+        if (user == null) {
+            System.err.println("❌ Không tìm thấy thông tin người dùng!");
+            return bills;
+        }
+
+        int roleID = user.getRoleId();
+        int tenantId = user.getUserId();
+        int managerId = user.getUserId();
+        String sql;
+        if (roleID == 2) {
+            sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE ra.manager_id = ? "
+                    + "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else if (roleID == 3) {
+            sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "WHERE b.TenantID = ? "
+                    + "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        } else {
+            sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b "
+                    + "JOIN rooms r ON b.RoomID = r.room_id "
+                    + "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id "
+                    + "JOIN users u ON ra.manager_id = u.user_id "
+                    + "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        }
+
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (roleID == 2) {
+                ps.setInt(1, managerId);
+                ps.setInt(2, (page - 1) * billsPerPage);
+                ps.setInt(3, billsPerPage);
+            } else if (roleID == 3) {
+                ps.setInt(1, tenantId);
+                ps.setInt(2, (page - 1) * billsPerPage);
+                ps.setInt(3, billsPerPage);
+            } else {
+                ps.setInt(1, (page - 1) * billsPerPage);
+                ps.setInt(2, billsPerPage);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Bill bill = new Bill();
+                bill.setId(rs.getInt("ID"));
+                bill.setTenantName(rs.getString("TenantName"));
+                bill.setRoomNumber(rs.getString("RoomNumber"));
+                bill.setRoomCost(rs.getDouble("RoomCost") != 0 ? rs.getDouble("RoomCost") : 0);
+                bill.setElectricityCost(rs.getDouble("ElectricityCost"));
+                bill.setWaterCost(rs.getDouble("WaterCost"));
+                bill.setServiceCost(rs.getDouble("ServiceCost"));
+                bill.setOtherServiceCost(rs.getDouble("OtherServiceCost") != 0 ? rs.getDouble("OtherServiceCost") : 0);
+                bill.setTotal(rs.getDouble("Total"));
+                bill.setDueDate(rs.getString("DueDate"));
+                bill.setStatus(rs.getString("Status"));
+                bill.setCreatedDate(rs.getString("CreatedDate"));
+                bill.setEmailTelnant(rs.getString("EmailTelnant"));
+                bill.setEmailManager(rs.getString("email"));
+                bill.setManagerName(rs.getString("managerName")); // Thêm dòng này, cần có setManagerName trong Bill
+                bills.add(bill);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi phân trang hóa đơn: " + e.getMessage());
+            e.printStackTrace();
+        }
         return bills;
     }
 
-    int roleID = user.getRoleId();
-    int tenantId = user.getUserId();
-    int managerId = user.getUserId();
-    String sql;
-    if (roleID == 2) {
-        sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b " +
-              "JOIN rooms r ON b.RoomID = r.room_id " +
-              "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-              "JOIN users u ON ra.manager_id = u.user_id " +
-              "WHERE ra.manager_id = ? " +
-              "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    } else if (roleID == 3) {
-        sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b " +
-              "JOIN rooms r ON b.RoomID = r.room_id " +
-              "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-              "JOIN users u ON ra.manager_id = u.user_id " +
-              "WHERE b.TenantID = ? " +
-              "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    } else {
-        sql = "SELECT b.*, u.full_name AS managerName,u.email FROM tbBills b " +
-              "JOIN rooms r ON b.RoomID = r.room_id " +
-              "JOIN rental_areas ra ON r.rental_area_id = ra.rental_area_id " +
-              "JOIN users u ON ra.manager_id = u.user_id " +
-              "ORDER BY b.ID DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    }
-
-    try (PreparedStatement ps = connect.prepareStatement(sql)) {
-        if (roleID == 2) {
-            ps.setInt(1, managerId);
-            ps.setInt(2, (page - 1) * billsPerPage);
-            ps.setInt(3, billsPerPage);
-        } else if (roleID == 3) {
-            ps.setInt(1, tenantId);
-            ps.setInt(2, (page - 1) * billsPerPage);
-            ps.setInt(3, billsPerPage);
-        } else {
-            ps.setInt(1, (page - 1) * billsPerPage);
-            ps.setInt(2, billsPerPage);
-        }
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Bill bill = new Bill();
-            bill.setId(rs.getInt("ID"));
-            bill.setTenantName(rs.getString("TenantName"));
-            bill.setRoomNumber(rs.getString("RoomNumber"));
-            bill.setRoomCost(rs.getDouble("RoomCost") != 0 ? rs.getDouble("RoomCost") : 0);
-            bill.setElectricityCost(rs.getDouble("ElectricityCost"));
-            bill.setWaterCost(rs.getDouble("WaterCost"));
-            bill.setServiceCost(rs.getDouble("ServiceCost"));
-            bill.setOtherServiceCost(rs.getDouble("OtherServiceCost") != 0 ? rs.getDouble("OtherServiceCost") : 0);
-            bill.setTotal(rs.getDouble("Total"));
-            bill.setDueDate(rs.getString("DueDate"));
-            bill.setStatus(rs.getString("Status"));
-            bill.setCreatedDate(rs.getString("CreatedDate"));
-            bill.setEmailTelnant(rs.getString("EmailTelnant"));
-            bill.setEmailManager(rs.getString("email"));
-            bill.setManagerName(rs.getString("managerName")); // Thêm dòng này, cần có setManagerName trong Bill
-            bills.add(bill);
-        }
-    } catch (SQLException e) {
-        System.err.println("❌ Lỗi phân trang hóa đơn: " + e.getMessage());
-        e.printStackTrace();
-    }
-    return bills;
-}
     // Tính tổng số trang
     public int getTotalPages(Users user, int billsPerPage) {
         if (billsPerPage < 1) {
@@ -776,8 +777,12 @@ public class DAOBill {
     // Tính tổng doanh thu (chỉ dành cho quản lý)
     public double getTotalRevenue(Users user) {
 
-        String sql = "SELECT SUM(Total) FROM tbBills WHERE Status = 'Paid'";
+        String sql = "select SUM(b.Total) from tbBills b \n"
+                + "join rooms r on b.RoomID = r.room_id\n"
+                + "join rental_areas ra on ra.rental_area_id = r.rental_area_id\n"
+                + "where ra.manager_id = ? and b.status = 'Paid'";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, user.getUserId());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getDouble(1);

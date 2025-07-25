@@ -1,11 +1,11 @@
 package dal;
 
-import model.DeviceInRoom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import model.DeviceInRoom;
 
 public class DAODeviceInRoom {
 
@@ -78,20 +78,19 @@ public class DAODeviceInRoom {
 
     // Add device to room
     public void addDeviceToRoom(DeviceInRoom deviceInRoom) {
-        if (deviceInRoom.getRoomId() <= 0 || deviceInRoom.getDeviceId() <= 0 || deviceInRoom.getQuantity() <= 0 ||
+        if (deviceInRoom.getRoomId() <= 0 || deviceInRoom.getDeviceId() <= 0||
             deviceInRoom.getStatus() == null || deviceInRoom.getStatus().trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid device in room data");
         }
 
         String sql = """
-            INSERT INTO [HouseSharing].[dbo].[devices_in_room] ([room_id], [device_id], [quantity], [status]) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO [HouseSharing].[dbo].[devices_in_room] ([room_id], [device_id], [status]) 
+            VALUES (?, ?, ?)
             """;
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setInt(1, deviceInRoom.getRoomId());
             ps.setInt(2, deviceInRoom.getDeviceId());
-            ps.setInt(3, deviceInRoom.getQuantity());
-            ps.setString(4, deviceInRoom.getStatus());
+            ps.setString(3, deviceInRoom.getStatus());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error adding device to room: " + e.getMessage(), e);
@@ -134,6 +133,28 @@ public class DAODeviceInRoom {
         String sql = """
             UPDATE [HouseSharing].[dbo].[devices_in_room] 
             SET [status] = 'Ngưng hoạt động' 
+            WHERE [device_id] = ? AND [room_id] = ?
+            """;
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, deviceId);
+            ps.setInt(2, roomId);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No device in room found with room ID: " + roomId +
+                                      " and device ID: " + deviceId);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error removing device from room: " + e.getMessage(), e);
+        }
+    }
+    
+    public void deleteDeviceFromRoom(int deviceId, int roomId) {
+        if (deviceId <= 0 || roomId <= 0) {
+            throw new IllegalArgumentException("Invalid device or room ID");
+        }
+
+        String sql = """
+            DELETE FROM [HouseSharing].[dbo].[devices_in_room] 
             WHERE [device_id] = ? AND [room_id] = ?
             """;
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
@@ -253,6 +274,121 @@ public class DAODeviceInRoom {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error counting devices in rooms: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    // Get devices in rooms by managerId
+    public ArrayList<DeviceInRoom> getDevicesInRoomsByManager(int managerId) {
+        ArrayList<DeviceInRoom> devicesInRooms = new ArrayList<>();
+        String sql = "SELECT d.device_id, d.device_name, dir.room_id, dir.quantity, dir.status " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ? " +
+                "ORDER BY dir.room_id, d.device_name";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                DeviceInRoom deviceInRoom = new DeviceInRoom();
+                deviceInRoom.setDeviceId(rs.getInt("device_id"));
+                deviceInRoom.setDeviceName(rs.getString("device_name"));
+                deviceInRoom.setRoomId(rs.getInt("room_id"));
+                deviceInRoom.setQuantity(rs.getInt("quantity"));
+                deviceInRoom.setStatus(rs.getString("status"));
+                devicesInRooms.add(deviceInRoom);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching devices in rooms by manager: " + e.getMessage(), e);
+        }
+        return devicesInRooms;
+    }
+
+    // Paginated devices in rooms by manager
+    public ArrayList<DeviceInRoom> getDevicesInRoomsByPageAndManager(int page, int devicesPerPage, int managerId) {
+        if (page < 1 || devicesPerPage <= 0) {
+            throw new IllegalArgumentException("Invalid page or devices per page");
+        }
+        ArrayList<DeviceInRoom> devicesInRooms = new ArrayList<>();
+        String sql = "SELECT d.device_id, d.device_name, dir.room_id, dir.quantity, dir.status " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ? " +
+                "ORDER BY dir.room_id, d.device_name OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ps.setInt(2, (page - 1) * devicesPerPage);
+            ps.setInt(3, devicesPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                DeviceInRoom deviceInRoom = new DeviceInRoom();
+                deviceInRoom.setDeviceId(rs.getInt("device_id"));
+                deviceInRoom.setDeviceName(rs.getString("device_name"));
+                deviceInRoom.setRoomId(rs.getInt("room_id"));
+                deviceInRoom.setQuantity(rs.getInt("quantity"));
+                deviceInRoom.setStatus(rs.getString("status"));
+                devicesInRooms.add(deviceInRoom);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching paginated devices in rooms by manager: " + e.getMessage(), e);
+        }
+        return devicesInRooms;
+    }
+
+    // Search devices in rooms by manager
+    public ArrayList<DeviceInRoom> searchDevicesInRoomsByManager(String keyword, int managerId) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search keyword cannot be empty");
+        }
+        ArrayList<DeviceInRoom> devicesInRooms = new ArrayList<>();
+        String sql = "SELECT d.device_id, d.device_name, dir.room_id, dir.quantity, dir.status " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ? AND (LOWER(d.device_name) LIKE ? OR LOWER(dir.status) LIKE ?) " +
+                "ORDER BY dir.room_id, d.device_name";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            String searchPattern = "%" + keyword.toLowerCase().trim() + "%";
+            ps.setInt(1, managerId);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                DeviceInRoom deviceInRoom = new DeviceInRoom();
+                deviceInRoom.setDeviceId(rs.getInt("device_id"));
+                deviceInRoom.setDeviceName(rs.getString("device_name"));
+                deviceInRoom.setRoomId(rs.getInt("room_id"));
+                deviceInRoom.setQuantity(rs.getInt("quantity"));
+                deviceInRoom.setStatus(rs.getString("status"));
+                devicesInRooms.add(deviceInRoom);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching devices in rooms by manager: " + e.getMessage(), e);
+        }
+        return devicesInRooms;
+    }
+
+    // Get total count of devices in rooms by manager
+    public int getTotalDevicesInRoomsByManager(int managerId) {
+        String sql = "SELECT COUNT(*) " +
+                "FROM [HouseSharing].[dbo].[devices] d " +
+                "INNER JOIN [HouseSharing].[dbo].[devices_in_room] dir ON d.device_id = dir.device_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rooms] r ON dir.room_id = r.room_id " +
+                "INNER JOIN [HouseSharing].[dbo].[rental_areas] ra ON r.rental_area_id = ra.rental_area_id " +
+                "WHERE ra.manager_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting devices in rooms by manager: " + e.getMessage(), e);
         }
         return 0;
     }

@@ -102,6 +102,7 @@ public class Services {
                 ", unitName='" + unitName + '\'' +
                 ", calculationMethod=" + calculationMethod +
                 ", rentalAreaName='" + rentalAreaName + '\'' +
-                ", description='" + description + '\'' +'}';
+                ", description='" + description + '\'' +
+                '}';
     }
 }

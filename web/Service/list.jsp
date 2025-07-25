@@ -115,7 +115,7 @@
 
                 <!-- Statistics Cards -->
                 <div class="row mb-4">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                         <div class="card stat-card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
@@ -130,7 +130,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                         <div class="card stat-card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
@@ -149,28 +149,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                   
+<!--                    <div class="col-md-4 mb-3">
                         <div class="card stat-card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h6 class="card-title">Doanh thu dịch vụ</h6>
-                                        <h3 class="mb-0">45.2M VNĐ</h3>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fas fa-money-bill-wave fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card stat-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h6 class="card-title">Dịch vụ mới</h6>
-                                        <h3 class="mb-0">3</h3>
+                                        <h6 class="card-title">Số lượng dịch vụ</h6>
+                                        <h3 class="mb-0">${totalServices}</h3>
                                     </div>
                                     <div class="align-self-center">
                                         <i class="fas fa-plus-circle fa-2x"></i>
@@ -178,7 +164,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
 
                 <!-- Search and Table -->

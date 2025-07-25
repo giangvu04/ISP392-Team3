@@ -80,7 +80,7 @@ public class ProcessViewingRequestServlet extends HttpServlet {
                     ViewingRequest viewingRequest = DAOViewingRequest.INSTANCE.getViewingRequestById(requestId);
                     if (viewingRequest != null) {
                         // Delete the viewing request first
-                        success = DAOViewingRequest.INSTANCE.deleteViewingRequest(requestId);
+                        success = true;
                         if (success) {
                             // TODO: Create contract with request data
                             // For now just redirect to contract creation page
