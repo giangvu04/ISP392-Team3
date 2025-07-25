@@ -29,6 +29,10 @@
                         <i class="fas fa-tachometer-alt me-2"></i>
                         Dashboard
                     </a>
+                    <a class="nav-link" href="listrentail">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        Quản lý Khu trọ
+                    </a>
                     <a class="nav-link" href="listrooms">
                         <i class="fas fa-bed me-2"></i>
                         Quản lý Phòng

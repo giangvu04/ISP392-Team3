@@ -226,20 +226,51 @@ public class DAOServices {
         }
     }
 
-    // Search services by name
-    public List<Services> searchServicesByName(String name) {
+    // Get all services by managerId
+    public List<Services> getAllServicesByManager(Integer managerId) {
         List<Services> services = new ArrayList<>();
-        String sql = """
-            SELECT * 
-            FROM [HouseSharing].[dbo].[services] 
-            WHERE LOWER([service_name]) LIKE ? 
-            ORDER BY [service_name]
-            """;
+        String sql = "SELECT * FROM [HouseSharing].[dbo].[services]";
+        if (managerId != null) {
+            sql += " WHERE rental_area_id IN (SELECT rental_area_id FROM rental_areas WHERE manager_id = ?)";
 
+        }
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (managerId != null) {
+                ps.setInt(1, managerId);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Services s = new Services(
+                        rs.getInt("service_id"),
+                        rs.getInt("rental_area_id"),
+                        rs.getString("service_name"),
+                        rs.getDouble("unit_price"),
+                        rs.getString("unit_name"),
+                        rs.getInt("calculation_method")
+                );
+                services.add(s);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching services: " + e.getMessage(), e);
+        }
+        return services;
+    }
+
+    // Search services by name and managerId
+    public List<Services> searchServicesByName(String name, Integer managerId) {
+        List<Services> services = new ArrayList<>();
+        String sql = "SELECT * FROM [HouseSharing].[dbo].[services] WHERE LOWER([service_name]) LIKE ?";
+        if (managerId != null) {
+            sql += " AND rental_area_id IN (SELECT rental_area_id FROM rental_areas WHERE manager_id = ?)";
+
+        }
+        sql += " ORDER BY [service_name]";
         try (PreparedStatement ps = connect.prepareStatement(sql)) {
             ps.setString(1, "%" + name.toLowerCase().trim() + "%");
+            if (managerId != null) {
+                ps.setInt(2, managerId);
+            }
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 Services s = new Services(
                         rs.getInt("service_id"),
@@ -267,6 +298,70 @@ public class DAOServices {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error counting services: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    // Get total count of services by managerId
+    public int getTotalServicesByManager(Integer managerId) {
+        String sql = "SELECT COUNT(*) FROM [HouseSharing].[dbo].[services]";
+        if (managerId != null) {
+            sql += " WHERE rental_area_id IN (SELECT rental_area_id FROM rental_areas WHERE manager_id = ?)";
+        }
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            if (managerId != null) {
+                ps.setInt(1, managerId);
+            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting services: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    // Thống kê tổng số dịch vụ, tổng số dịch vụ theo khu trọ của manager
+    public int getServiceCountByRentalArea(int rentalAreaId) {
+        String sql = "SELECT COUNT(*) FROM [HouseSharing].[dbo].[services] WHERE rental_area_id = ?";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, rentalAreaId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting services by rentalArea: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    public int getServiceCountByManager(int managerId) {
+        String sql = "SELECT COUNT(*) FROM [HouseSharing].[dbo].[services] WHERE rental_area_id IN (SELECT rental_area_id FROM rental_areas WHERE manager_id = ?)";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting services by manager: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+    // Đếm tổng số dịch vụ theo tất cả khu trọ mà 1 manager sở hữu
+    public int countServicesOfManager(int managerId) {
+        String sql = "SELECT COUNT(*) FROM services WHERE rental_area_id IN (SELECT rental_area_id FROM rental_areas WHERE manager_id = ?)";
+        try (PreparedStatement ps = connect.prepareStatement(sql)) {
+            ps.setInt(1, managerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting services of manager: " + e.getMessage(), e);
         }
         return 0;
     }

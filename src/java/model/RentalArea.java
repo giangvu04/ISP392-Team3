@@ -1,67 +1,64 @@
 package model;
 
 import java.sql.Timestamp;
-import java.util.Objects;
 
 public class RentalArea {
-    
     private int rentalAreaId;
     private int managerId;
     private String name;
     private String address;
+    private String province;
+    private String district;
+    private String ward;
+    private String street;
+    private String detail;
+    private String qrForBill;
     private Timestamp createdAt;
+    private int totalRooms;
+    private int status;
 
-    public RentalArea() {
-    }
+    public RentalArea() {}
 
-    public RentalArea(int rentalAreaId, int managerId, String name, String address, Timestamp createdAt) {
-        this.rentalAreaId = rentalAreaId;
-        this.managerId = managerId;
-        this.name = name;
-        this.address = address;
-        this.createdAt = createdAt;
-    }
+    // Getters and setters
+    public int getRentalAreaId() { return rentalAreaId; }
+    public void setRentalAreaId(int rentalAreaId) { this.rentalAreaId = rentalAreaId; }
 
-    public int getRentalAreaId() {
-        return rentalAreaId;
-    }
+    public int getManagerId() { return managerId; }
+    public void setManagerId(int managerId) { this.managerId = managerId; }
 
-    public void setRentalAreaId(int rentalAreaId) {
-        this.rentalAreaId = rentalAreaId;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public int getManagerId() {
-        return managerId;
-    }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 
-    public void setManagerId(int managerId) {
-        this.managerId = managerId;
-    }
+    public String getProvince() { return province; }
+    public void setProvince(String province) { this.province = province; }
 
-    public String getName() {
-        return name;
-    }
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getWard() { return ward; }
+    public void setWard(String ward) { this.ward = ward; }
 
-    public String getAddress() {
-        return address;
-    }
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+    public String getDetail() { return detail; }
+    public void setDetail(String detail) { this.detail = detail; }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
+    public String getQrForBill() { return qrForBill; }
+    public void setQrForBill(String qrForBill) { this.qrForBill = qrForBill; }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-    
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public int getTotalRooms() { return totalRooms; }
+    public void setTotalRooms(int totalRooms) { this.totalRooms = totalRooms; }
+
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
+
     @Override
     public String toString() {
         return "RentalArea{" +
@@ -69,19 +66,15 @@ public class RentalArea {
                 ", managerId=" + managerId +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
+                ", province='" + province + '\'' +
+                ", district='" + district + '\'' +
+                ", ward='" + ward + '\'' +
+                ", street='" + street + '\'' +
+                ", detail='" + detail + '\'' +
+                ", qrForBill='" + qrForBill + '\'' +
                 ", createdAt=" + createdAt +
+                ", totalRooms=" + totalRooms +
+                ", status=" + status +
                 '}';
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RentalArea that = (RentalArea) o;
-        return rentalAreaId == that.rentalAreaId &&
-                managerId == that.managerId &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(address, that.address) &&
-                Objects.equals(createdAt, that.createdAt);
-    }
-} 
+}

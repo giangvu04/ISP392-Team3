@@ -89,7 +89,6 @@ public class ServiceServlet extends HttpServlet {
 
     private void listServices(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         int page = 1;
         String pageStr = request.getParameter("page");
         if (pageStr != null) {
@@ -98,44 +97,59 @@ public class ServiceServlet extends HttpServlet {
                 if (page < 1) page = 1;
             } catch (NumberFormatException ignored) {}
         }
-        List<RentalArea> rentalAreaId = renDAO.getAllRent();
-
-        request.setAttribute("retalArea", rentalAreaId);
-        List<Services> services = serviceDAO.getAllServices(); // hoặc phân trang nếu bạn muốn
-        int totalServices = services.size();
+        // Lấy user từ session để xác định role
+        model.Users user = (model.Users) request.getSession().getAttribute("user");
+        Integer managerId = null;
+        if (user != null && user.getRoleId() == 2) {
+            managerId = user.getUserId();
+            List<RentalArea> rentalAreaId = renDAO.getAllRent(managerId);
+            request.setAttribute("retalArea", rentalAreaId);
+        }
+        
+        
+        List<Services> services = serviceDAO.getAllServicesByManager(managerId);
+        int totalServices = serviceDAO.getTotalServicesByManager(managerId);
         int totalPages = (int) Math.ceil((double) totalServices / SERVICES_PER_PAGE);
-
+        // Thống kê dịch vụ theo manager
+       
+        int managerServiceCount = managerId != null ? serviceDAO.getServiceCountByManager(managerId) : totalServices;
         request.setAttribute("services", services);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("servicesPerPage", SERVICES_PER_PAGE);
         request.setAttribute("totalServices", totalServices);
-
+        request.setAttribute("managerServiceCount", managerServiceCount);
         request.getRequestDispatcher("/Service/list.jsp").forward(request, response);
     }
 
     private void searchServices(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String keyword = request.getParameter("keyword");
-        System.out.println("KeyWord " + keyword);
         if (keyword == null || keyword.trim().isEmpty()) {
             response.sendRedirect("listservices?action=list");
             return;
         }
-
-        List<Services> services = serviceDAO.searchServicesByName(keyword.trim());
-
+        // Lấy user từ session để xác định role
+        model.Users user = (model.Users) request.getSession().getAttribute("user");
+        Integer managerId = null;
+        if (user != null && user.getRoleId() == 2) {
+            managerId = user.getUserId();
+        }
+        List<Services> services = serviceDAO.searchServicesByName(keyword.trim(), managerId);
         request.setAttribute("services", services);
         request.setAttribute("keyword", keyword.trim());
         request.setAttribute("searchMode", true);
-
         request.getRequestDispatcher("/Service/list.jsp").forward(request, response);
     }
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<RentalArea> rentalAreaId = renDAO.getAllRent();
-        request.setAttribute("retalArea", rentalAreaId);
+        model.Users user = (model.Users) request.getSession().getAttribute("user");
+        if (user != null && user.getRoleId() == 2) {
+            int managerId = user.getUserId();
+            List<RentalArea> rentalAreaId = renDAO.getAllRent(managerId);
+            request.setAttribute("retalArea", rentalAreaId);
+        }
         request.getRequestDispatcher("/Service/add.jsp").forward(request, response);
     }
 

@@ -67,22 +67,22 @@ public class ListRoomsServlet extends HttpServlet {
                     }
                 }
             } else if (user.getRoleId() == 3) { // Tenant
-                List<String> provinces = ReadFile.loadAllProvinces(request);
-                request.setAttribute("provinces", provinces);
-                RentalArea rentalArea = daoRentalArea.getRentalAreaByTenantId(user.getUserId());
-                if (rentalArea != null) {
-                    rentalAreaIds.add(rentalArea.getRentalAreaId());
-                } else {
-                    // Tenant chưa gán khu, lấy tất cả phòng trống của mọi khu
-                    List<RentalArea> allAreas = daoRentalArea.getAllRent();
-                    if (allAreas != null) {
-                        for (RentalArea ra : allAreas) {
-                            rentalAreaIds.add(ra.getRentalAreaId());
-                        }
-                    }
-                }
                 response.sendRedirect("searchRooms");
-                return;       
+                return;
+//                List<String> provinces = ReadFile.loadAllProvinces(request);
+//                request.setAttribute("provinces", provinces);
+//                RentalArea rentalArea = daoRentalArea.getRentalAreaByTenantId(user.getUserId());
+//                if (rentalArea != null) {
+//                    rentalAreaIds.add(rentalArea.getRentalAreaId());
+//                } else {
+//                    // Tenant chưa gán khu, lấy tất cả phòng trống của mọi khu
+////                    List<RentalArea> allAreas = daoRentalArea.getAllRent();
+////                    if (allAreas != null) {
+////                        for (RentalArea ra : allAreas) {
+////                            rentalAreaIds.add(ra.getRentalAreaId());
+////                        }
+////                    }
+//                }
             }
 
             // Get rooms based on search or location filters
@@ -96,20 +96,20 @@ public class ListRoomsServlet extends HttpServlet {
                 if (user.getRoleId() == 3) { // Tenant sees only available rooms
                     rooms = dao.getRoomsByStatus(0, rentalAreaIds, currentPage, roomsPerPage);
                 } else {
-                    rooms = dao.getRoomsByPage(currentPage, roomsPerPage, rentalAreaIds);
+                    rooms = dao.getRoomsByPage(currentPage, roomsPerPage, user.getUserId(), user.getRoleId());
                 }
             }
 
             // Get total rooms and total pages
             int totalRooms = 0;
             if (searchTerm != null && !searchTerm.isEmpty()) {
-                totalRooms = dao.getTotalRooms(rentalAreaIds); // Approx count for search
+                totalRooms = dao.getTotalRooms(user.getUserId(), user.getRoleId()); // Approx count for search
             } else if (provinceId != null || districtId != null || wardId != null) {
                 totalRooms = dao.getTotalRoomsByLocation(provinceId, districtId, wardId);
             } else if (user.getRoleId() == 3) {
-                totalRooms = dao.getTotalRooms(rentalAreaIds); // Approx for status filter
+                totalRooms = dao.getTotalRooms(user.getUserId(), user.getRoleId()); // Approx for status filter
             } else {
-                totalRooms = dao.getTotalRooms(rentalAreaIds);
+                totalRooms = dao.getTotalRooms(user.getUserId(), user.getRoleId());
             }
             int totalPages = (int) Math.ceil((double) totalRooms / roomsPerPage);
 
