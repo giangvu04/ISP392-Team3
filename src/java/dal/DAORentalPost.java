@@ -371,11 +371,19 @@ public class DAORentalPost {
     
     // Xóa tin đăng
     public boolean deleteRentalPost(int postId) {
-        String sql = "DELETE FROM rental_posts WHERE post_id = ?";
-        
-        try (PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setInt(1, postId);
-            return ps.executeUpdate() > 0;
+        String sqlDeleteRelation = "DELETE FROM post_rooms WHERE post_id = ?";
+        String sqlDeletePost = "DELETE FROM rental_posts WHERE post_id = ?";
+        try {
+            // Xóa bản ghi liên quan trong post_rooms
+            try (PreparedStatement psRelation = connect.prepareStatement(sqlDeleteRelation)) {
+                psRelation.setInt(1, postId);
+                psRelation.executeUpdate();
+            }
+            // Xóa bài đăng
+            try (PreparedStatement psPost = connect.prepareStatement(sqlDeletePost)) {
+                psPost.setInt(1, postId);
+                return psPost.executeUpdate() > 0;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

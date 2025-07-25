@@ -18,7 +18,7 @@
             <a class="nav-link" href="listrooms">
                 <i class="fas fa-building me-2"></i> Quản lý phòng
             </a>
-            <a class="nav-link" href="Manager/RentalPostManagement.jsp">
+            <a class="nav-link" href="listPost">
                 <i class="fas fa-home me-2"></i> Quản lý bài đăng
             </a>
             <a class="nav-link" href="logout">
