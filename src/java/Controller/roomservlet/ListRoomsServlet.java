@@ -158,7 +158,9 @@ public class ListRoomsServlet extends HttpServlet {
                 case 1: // Admin
                     destination = "AdminHomepage";
                     break;
-                
+                case 2: // Manager
+                    destination = "Manager/RoomList.jsp";
+                    break;
                 case 3: // Tenant
                     destination = "Tenant/RoomList.jsp";
                     break;

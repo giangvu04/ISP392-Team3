@@ -133,7 +133,7 @@
                                                 </a>
                                             </div>
                                             <div class="col-6 mb-3">
-                                                <a href="listusers?role=3" class="btn btn-outline-success w-100">
+                                                <a href="listUser" class="btn btn-outline-success w-100">
                                                     <i class="fas fa-users me-2"></i>
                                                     Quản lý người thuê
                                                 </a>
