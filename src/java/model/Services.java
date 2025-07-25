@@ -11,6 +11,8 @@ public class Services {
     private double unitPrice;
     private String unitName;
     private int calculationMethod; // 0: Theo đồng hồ, 1: Cố định hàng tháng
+    private String rentalAreaName; // Tên khu trọ
+    private String description; // Mô tả dịch vụ
 
     // Constructors
     public Services() {
@@ -23,6 +25,22 @@ public class Services {
         this.unitPrice = unitPrice;
         this.unitName = unitName;
         this.calculationMethod = calculationMethod;
+        this.rentalAreaName = null;
+        this.description = null;
+    }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public String getRentalAreaName() {
+        return rentalAreaName;
+    }
+
+    public void setRentalAreaName(String rentalAreaName) {
+        this.rentalAreaName = rentalAreaName;
     }
 
     // Getters and Setters
@@ -83,6 +101,7 @@ public class Services {
                 ", unitPrice=" + unitPrice +
                 ", unitName='" + unitName + '\'' +
                 ", calculationMethod=" + calculationMethod +
-                '}';
+                ", rentalAreaName='" + rentalAreaName + '\'' +
+                ", description='" + description + '\'' +'}';
     }
 }
