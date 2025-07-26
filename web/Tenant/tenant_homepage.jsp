@@ -149,13 +149,13 @@
                                                 </a>
                                             </div>
                                             <div class="col-6 mb-3">
-                                                <a href="mybills" class="btn btn-outline-success w-100">
+                                                <a href="listbills" class="btn btn-outline-success w-100">
                                                     <i class="fas fa-receipt me-2"></i>
                                                     Thanh toán
                                                 </a>
                                             </div>
                                             <div class="col-6 mb-3">
-                                                <a href="maintenance" class="btn btn-outline-info w-100">
+                                                <a href="maintenanceList" class="btn btn-outline-info w-100">
                                                     <i class="fas fa-tools me-2"></i>
                                                     Báo sửa chữa
                                                 </a>
