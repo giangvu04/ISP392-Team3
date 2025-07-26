@@ -435,7 +435,7 @@
                         </div>
                         <div class="modal-body">
                             <input type="hidden" id="messageBillId" name="billId" />
-                            <input type="hidden" id="messageTenantEmail" name="tenantEmail"/>
+                            <input type="text" style="width:460px;padding:10px; border-radius: 6px" id="messageTenantEmail" name="tenantEmail"/>
                             <div class="mb-3">
                                 <label for="messageContent" class="form-label">Nội dung tin nhắn</label>
                                 <textarea class="form-control" id="messageContent" name="content" rows="3" required></textarea>

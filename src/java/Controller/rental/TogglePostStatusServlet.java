@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import dal.DAORentalPost;
 import model.Users;
 
-@WebServlet(name="TogglePostStatusServlet", urlPatterns={"/rental/toggleStatus"})
+@WebServlet(name="TogglePostStatusServlet", urlPatterns={"/toggleStatus"})
 public class TogglePostStatusServlet extends HttpServlet {
     
     @Override
@@ -34,7 +34,7 @@ public class TogglePostStatusServlet extends HttpServlet {
         String postIdStr = request.getParameter("postId");
         if (postIdStr == null) {
             session.setAttribute("errorMessage", "Thiếu thông tin bài đăng");
-            response.sendRedirect(request.getContextPath() + "/rental/listPost");
+            response.sendRedirect(request.getContextPath() + "/listPost");
             return;
         }
         
@@ -61,6 +61,6 @@ public class TogglePostStatusServlet extends HttpServlet {
             session.setAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
         }
         
-        response.sendRedirect(request.getContextPath() + "/rental/listPost");
+        response.sendRedirect(request.getContextPath() + "/listPost");
     }
 }
